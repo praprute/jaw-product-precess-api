@@ -81,6 +81,7 @@ export const updateDetailPuddleSchema = object({
  *        - salt
  *        - laber
  *        - description
+ *        - volume
  *      properties:
  *        order_name:
  *          type: string
@@ -94,6 +95,8 @@ export const updateDetailPuddleSchema = object({
  *          type: number
  *        description:
  *          type: string
+ *        volume:
+ *          type: number
  *    ResponseSchema:
  *      type: object
  *      properties:
@@ -121,6 +124,9 @@ export const createOrderSchema = object({
       required_error: "laber is require",
     }),
     description: string(),
+    volume: number({
+      required_error: "volume is require",
+    }),
   }),
 });
 

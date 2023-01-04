@@ -3,13 +3,19 @@ import { number } from "zod";
 import {
   createOrder,
   createSubOrder,
+  getAllOrderFromPuddle,
   getAllPuddle,
   getOrderDetails,
+  getTargetPending,
   insertPuddle,
+  insertTargetPuddle,
+  transferSidhsauce,
   updateAmountPriceOrder,
   updateDetailPuddle,
   updatePriceSubOrder,
   updatePuddleOrderLasted,
+  updateStatusApprovedSubOrder,
+  updateStatusTargetPuddle,
 } from "../service/product.service";
 import { Connect } from "../utils/connect";
 import getUserUUID, { IUserPareToken } from "../utils/getUUID";
@@ -59,7 +65,7 @@ export const getAllPuddleTask = async (req: Request, res: Response) => {
 
 export const createOrderTask = async (req: Request, res: Response) => {
   try {
-    const { order_name, uuid_puddle, fish, salt, laber, description } =
+    const { order_name, uuid_puddle, fish, salt, laber, volume, description } =
       req.body;
     const connection = await Connect();
 
@@ -85,6 +91,7 @@ export const createOrderTask = async (req: Request, res: Response) => {
       salt,
       laber,
       description,
+      volume,
     });
 
     return res.status(200).send(queryCreateSubOrder);
@@ -143,3 +150,143 @@ export const updatePriceSubOrderTask = async (req: Request, res: Response) => {
     return res.status(409).send(e.message);
   }
 };
+
+export const getAllOrdersFromPuddleTask = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { id_puddle } = req.params;
+    const connection = await Connect();
+    const result = await getAllOrderFromPuddle(connection, {
+      id_puddle: parseInt(id_puddle),
+    });
+    return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+/**
+ * -type_process : 1 นำออก , 2 นำเข้า , 3 ถ่ายกาก
+ */
+export const exportFishSauceToNewPuddleTask = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const {
+      order_id,
+      type_process,
+      amount_items,
+      amount_unit_per_price,
+      amount_price,
+      remaining_items,
+      remaining_unit_per_price,
+      remaining_price,
+      approved = 0,
+      volume,
+      id_puddle,
+    } = req.body;
+    const connection = await Connect();
+
+    const getDataUser: IUserPareToken = await getUserUUID(
+      req.headers.authorization as string
+    );
+
+    const result = await transferSidhsauce(connection, {
+      order_id,
+      type_process,
+      amount_items,
+      amount_unit_per_price,
+      amount_price,
+      remaining_items,
+      remaining_unit_per_price,
+      remaining_price,
+      approved,
+      volume,
+      user_create_sub: getDataUser.idusers,
+    });
+
+    await insertTargetPuddle(connection, {
+      id_puddle,
+      id_sub_order: result.message.insertId,
+      status: 0,
+    });
+
+    return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const getTargetPendingTask = async (req: Request, res: Response) => {
+  try {
+    const { id_puddle } = req.params;
+    const connection = await Connect();
+    const result = await getTargetPending(connection, {
+      id_puddle: parseInt(id_puddle),
+      status: 0,
+    });
+    return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const submitImportFishTask = async (req: Request, res: Response) => {
+  try {
+    const {
+      volume,
+      order_id,
+      type_process,
+      amount_items,
+      // lasted_unit_per_price,
+      amount_price,
+      remaining_items,
+      // remaining_unit_per_price,
+      remaining_price,
+      idtarget_puddle,
+      lasted_subId,
+    } = req.body;
+
+    const connection = await Connect();
+
+    const getDataUser: IUserPareToken = await getUserUUID(
+      req.headers.authorization as string
+    );
+
+    await transferSidhsauce(connection, {
+      order_id,
+      type_process,
+      amount_items,
+      amount_unit_per_price: amount_price / amount_items,
+      amount_price,
+      remaining_items,
+      remaining_unit_per_price: remaining_price / remaining_items,
+      remaining_price,
+      approved: 1,
+      volume,
+      user_create_sub: getDataUser.idusers,
+    });
+
+    await updateStatusTargetPuddle(connection, {
+      idtarget_puddle,
+      status: 1,
+    });
+
+    const result = await updateStatusApprovedSubOrder(connection, {
+      idsub_orders: lasted_subId,
+      approved: 1,
+    });
+
+    return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+

@@ -22,8 +22,12 @@ import {
 import {
   createOrderTask,
   createPuddleTask,
+  exportFishSauceToNewPuddleTask,
+  getAllOrdersFromPuddleTask,
   getAllPuddleTask,
   getOrderDetailsTask,
+  getTargetPendingTask,
+  submitImportFishTask,
   updateDetailPuddleTask,
   updatePriceSubOrderTask,
 } from "./controller/product.controller";
@@ -388,6 +392,34 @@ function routes(app: Express) {
 
   /**
    * @openapi
+   * '/api/getAllOrdersFromPuddleId/{id_puddle}':
+   *  get:
+   *     tags:
+   *     - Puddle
+   *     summary: Get Order Details
+   *     parameters:
+   *      - name: id_puddle
+   *        in: path
+   *        description: The id of the product
+   *        required: true
+   *     responses:
+   *       200:
+   *        description: Success
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: any
+   *       404:
+   *         description: Product not found
+   */
+  app.get(
+    "/api/getAllOrdersFromPuddleId/:id_puddle",
+    verifyToken,
+    getAllOrdersFromPuddleTask
+  );
+
+  /**
+   * @openapi
    * '/api/updatePriceSubOrder':
    *  put:
    *     security:
@@ -419,6 +451,38 @@ function routes(app: Express) {
     validatResource(updatePriceSubOrderSchema),
     updatePriceSubOrderTask
   );
+
+  /**
+   * @openapi
+   * '/api/getTargetPending/{id_puddle}':
+   *  get:
+   *     tags:
+   *     - Puddle
+   *     summary: Get Order Details
+   *     parameters:
+   *      - name: id_puddle
+   *        in: path
+   *        description: The id of the product
+   *        required: true
+   *     responses:
+   *       200:
+   *        description: Success
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: any
+   *       404:
+   *         description: Product not found
+   */
+  app.get(
+    "/api/getTargetPending/:id_puddle",
+    verifyToken,
+    getTargetPendingTask
+  );
+
+
+  app.post("/api/exportFishSauce", verifyToken, exportFishSauceToNewPuddleTask);
+  app.post("/api/submitImportFish", verifyToken, submitImportFishTask);
 }
 
 export default routes;
