@@ -515,7 +515,33 @@ function routes(app: Express) {
     exportFishSauceToNewPuddleTask
   );
 
-  
+  /**
+   * @openapi
+   * '/api/submitImportFish':
+   *  post:
+   *     security:
+   *     - bearerAuth: []
+   *     tags:
+   *     - Puddle
+   *     summary: submitImportFish
+   *     requestBody:
+   *      required: true
+   *      content:
+   *        application/json:
+   *           schema:
+   *              $ref: '#/components/schemas/submitImportFishSchema'
+   *     responses:
+   *      200:
+   *        description: Success
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/submitImportFishSchema'
+   *      409:
+   *        description: Conflict
+   *      400:
+   *        description: Bad request
+   */
   app.post("/api/submitImportFish", verifyToken, submitImportFishTask);
 }
 

@@ -187,8 +187,6 @@ export const updatePriceSubOrderSchema = object({
   }),
 });
 
-
-
 /**
  * @openapi
  * components:
@@ -276,27 +274,22 @@ export const exportFishSauceToNewPuddleSchema = object({
   }),
 });
 
-
-
-
 /**
  * @openapi
  * components:
  *  schemas:
- *    exportFishSauceToNewPuddleSchema:
+ *    submitImportFishSchema:
  *      type: object
  *      required:
  *        - order_id
  *        - type_process
  *        - amount_items
- *        - amount_unit_per_price
  *        - amount_price
  *        - remaining_items
- *        - remaining_unit_per_price
  *        - remaining_price
- *        - approved
+ *        - idtarget_puddle
+ *        - lasted_subId
  *        - volume
- *        - id_puddle
  *      properties:
  *        order_id:
  *          type: number
@@ -304,21 +297,17 @@ export const exportFishSauceToNewPuddleSchema = object({
  *          type: number
  *        amount_items:
  *          type: number
- *        amount_unit_per_price:
- *          type: number
  *        amount_price:
  *          type: number
  *        remaining_items:
  *          type: number
- *        remaining_unit_per_price:
- *          type: number
  *        remaining_price:
  *          type: number
- *        approved:
+ *        idtarget_puddle:
+ *          type: number
+ *        lasted_subId:
  *          type: number
  *        volume:
- *          type: number
- *        id_puddle:
  *          type: number
  *    ResponseSchema:
  *      type: object
@@ -328,7 +317,6 @@ export const exportFishSauceToNewPuddleSchema = object({
  *        message:
  *          type: string
  */
-
 
 export const submitImportFishSchema = object({
   body: object({
@@ -341,29 +329,23 @@ export const submitImportFishSchema = object({
     amount_items: number({
       required_error: "amount_items is require",
     }),
-    amount_unit_per_price: number({
-      required_error: "amount_unit_per_price is require",
-    }),
     amount_price: number({
       required_error: "amount_price is require",
     }),
-    remaining_items: string({
+    remaining_items: number({
       required_error: "remaining_items is require",
     }),
-    remaining_unit_per_price: string({
-      required_error: "remaining_unit_per_price is require",
-    }),
-    remaining_price: string({
+    remaining_price: number({
       required_error: "remaining_price is require",
     }),
-    approved: string({
-      required_error: "approved is require",
+    idtarget_puddle: number({
+      required_error: "idtarget_puddle is require",
     }),
-    volume: string({
+    lasted_subId: number({
+      required_error: "lasted_subId is require",
+    }),
+    volume: number({
       required_error: "volume is require",
-    }),
-    id_puddle: string({
-      required_error: "id_puddle is require",
     }),
   }),
 });
