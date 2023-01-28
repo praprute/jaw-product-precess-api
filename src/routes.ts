@@ -12,6 +12,7 @@ import {
   createBuildingTask,
   deleteBuildingTask,
   getBuildingTask,
+  getCountingPuddleFromBuildingTask,
   updateBuildingTask,
 } from "./controller/building.controller";
 import {
@@ -25,6 +26,7 @@ import {
   exportFishSauceToNewPuddleTask,
   getAllOrdersFromPuddleTask,
   getAllPuddleTask,
+  getDetailPuddleByIdTask,
   getOrderDetailsTask,
   getTargetPendingTask,
   submitImportFishTask,
@@ -239,6 +241,35 @@ function routes(app: Express) {
     updateBuildingTask
   );
 
+  /**
+   * @openapi
+   * '/api/getCountingPuddleFromBuilding/{building_id}':
+   *  get:
+   *     tags:
+   *     - Building
+   *     summary: getCountingPuddleFromBuilding
+   *     parameters:
+   *      - name: building_id
+   *        in: path
+   *        description: The id of the product
+   *        required: true
+   *     responses:
+   *       200:
+   *        description: Success
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: any
+   *       404:
+   *         description: Product not found
+   */
+
+  app.get(
+    "/api/getCountingPuddleFromBuilding/:building_id",
+    verifyToken,
+    getCountingPuddleFromBuildingTask
+  );
+
   // **** Puddle ****
 
   /**
@@ -332,6 +363,33 @@ function routes(app: Express) {
    *         description: Product not found
    */
   app.get("/api/getAllPuddle/:building_id", verifyToken, getAllPuddleTask);
+  /**
+   * @openapi
+   * '/api/getDetailPuddleById/{puddle_id}':
+   *  get:
+   *     tags:
+   *     - Puddle
+   *     summary: Get a single product by the productId
+   *     parameters:
+   *      - name: puddle_id
+   *        in: path
+   *        description: The id of the product
+   *        required: true
+   *     responses:
+   *       200:
+   *        description: Success
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: any
+   *       404:
+   *         description: Product not found
+   */
+  app.get(
+    "/api/getDetailPuddleById/:puddle_id",
+    verifyToken,
+    getDetailPuddleByIdTask
+  );
 
   /**
    * @openapi

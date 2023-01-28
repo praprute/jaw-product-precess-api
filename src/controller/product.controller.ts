@@ -5,6 +5,7 @@ import {
   createSubOrder,
   getAllOrderFromPuddle,
   getAllPuddle,
+  getDetailPuddleById,
   getOrderDetails,
   getTargetPending,
   insertPuddle,
@@ -17,15 +18,17 @@ import {
   updateStatusApprovedSubOrder,
   updateStatusTargetPuddle,
 } from "../service/product.service";
-import { Connect } from "../utils/connect";
+import { Connect, DisConnect } from "../utils/connect";
 import getUserUUID, { IUserPareToken } from "../utils/getUUID";
 import logger from "../utils/logger";
+import { TypeOrderPuddle } from "../utils/type_utils";
 
 export const createPuddleTask = async (req: Request, res: Response) => {
   try {
     const { building_id } = req.body;
     const connection = await Connect();
     const result = await insertPuddle(connection, { building_id });
+    await DisConnect(connection);
     return res.status(200).send(result);
   } catch (e: any) {
     logger.error(e);
@@ -42,6 +45,7 @@ export const updateDetailPuddleTask = async (req: Request, res: Response) => {
       status,
       uuid_puddle,
     });
+    await DisConnect(connection);
     return res.status(200).send(result);
   } catch (e: any) {
     logger.error(e);
@@ -56,6 +60,22 @@ export const getAllPuddleTask = async (req: Request, res: Response) => {
     const result = await getAllPuddle(connection, {
       building_id: parseInt(building_id),
     });
+    await DisConnect(connection);
+    return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const getDetailPuddleByIdTask = async (req: Request, res: Response) => {
+  try {
+    const { puddle_id } = req.params;
+    const connection = await Connect();
+    const result = await getDetailPuddleById(connection, {
+      puddle_id: parseInt(puddle_id),
+    });
+    await DisConnect(connection);
     return res.status(200).send(result);
   } catch (e: any) {
     logger.error(e);
@@ -65,8 +85,21 @@ export const getAllPuddleTask = async (req: Request, res: Response) => {
 
 export const createOrderTask = async (req: Request, res: Response) => {
   try {
-    const { order_name, uuid_puddle, fish, salt, laber, volume, description } =
-      req.body;
+    const {
+      order_name,
+      uuid_puddle,
+      puddle_id,
+      fish,
+      salt,
+      laber,
+      volume,
+      description,
+      status_puddle_order,
+      fish_price,
+      salt_price,
+      laber_price,
+      amount_items,
+    } = req.body;
     const connection = await Connect();
 
     const getDataUser: IUserPareToken = await getUserUUID(
@@ -75,13 +108,15 @@ export const createOrderTask = async (req: Request, res: Response) => {
 
     const queryInsertOrder = await createOrder(connection, {
       order_name,
+      puddle_id,
       userId: getDataUser.idusers,
     });
 
     await updatePuddleOrderLasted(connection, {
       orderId: queryInsertOrder,
       uuid_puddle,
-      status: 1,
+      status: status_puddle_order,
+      description,
     });
 
     const queryCreateSubOrder = await createSubOrder(connection, {
@@ -92,8 +127,18 @@ export const createOrderTask = async (req: Request, res: Response) => {
       laber,
       description,
       volume,
+      fish_price,
+      salt_price,
+      laber_price,
+      amount_unit_per_price:
+        status_puddle_order === TypeOrderPuddle.FERMENT
+          ? (fish_price + salt_price + laber_price) / amount_items
+          : 0,
+      amount_price: fish_price + salt_price + laber_price,
+      amount_items:
+        status_puddle_order === TypeOrderPuddle.FERMENT ? 100 : amount_items,
     });
-
+    await DisConnect(connection);
     return res.status(200).send(queryCreateSubOrder);
   } catch (e: any) {
     logger.error(e);
@@ -108,6 +153,7 @@ export const getOrderDetailsTask = async (req: Request, res: Response) => {
     const result = await getOrderDetails(connection, {
       order_id: parseInt(order_id),
     });
+    await DisConnect(connection);
     return res.status(200).send(result);
   } catch (e: any) {
     logger.error(e);
@@ -143,7 +189,7 @@ export const updatePriceSubOrderTask = async (req: Request, res: Response) => {
       price: fish_price + salt_price + laber_price,
       uuid_order: uuid_order,
     });
-
+    await DisConnect(connection);
     return res.status(200).send(result);
   } catch (e: any) {
     logger.error(e);
@@ -161,6 +207,7 @@ export const getAllOrdersFromPuddleTask = async (
     const result = await getAllOrderFromPuddle(connection, {
       id_puddle: parseInt(id_puddle),
     });
+    await DisConnect(connection);
     return res.status(200).send(result);
   } catch (e: any) {
     logger.error(e);
@@ -214,7 +261,7 @@ export const exportFishSauceToNewPuddleTask = async (
       id_sub_order: result.message.insertId,
       status: 0,
     });
-
+    await DisConnect(connection);
     return res.status(200).send(result);
   } catch (e: any) {
     logger.error(e);
@@ -230,6 +277,7 @@ export const getTargetPendingTask = async (req: Request, res: Response) => {
       id_puddle: parseInt(id_puddle),
       status: 0,
     });
+    await DisConnect(connection);
     return res.status(200).send(result);
   } catch (e: any) {
     logger.error(e);
@@ -282,11 +330,10 @@ export const submitImportFishTask = async (req: Request, res: Response) => {
       idsub_orders: lasted_subId,
       approved: 1,
     });
-
+    await DisConnect(connection);
     return res.status(200).send(result);
   } catch (e: any) {
     logger.error(e);
     return res.status(409).send(e.message);
   }
 };
-

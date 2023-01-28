@@ -38,6 +38,20 @@ export const getAllBuilding = async (connection: Connection) => {
   }
 };
 
+export const getCountingPuddleFromBuilding = async (
+  connection: Connection,
+  input: { building_id: number }
+) => {
+  try {
+    const { building_id } = input;
+    const sql = `SELECT count(*) as puddle FROM ${DB}.puddle where building_id=${building_id};`;
+    const result: any = await Query(connection, sql);
+    return resp(true, result[0]);
+  } catch (e: any) {
+    throw new Error(e);
+  }
+};
+
 export const deleteBuilding = async (
   connection: Connection,
   input: { idbuilding: number }
@@ -60,7 +74,7 @@ export const updateLimitBuilding = async (
     const { name, idbuilding, limit_pool } = input;
     const sql = `UPDATE ${DB}.building SET name = '${name}', limit_pool=${limit_pool} WHERE idbuilding=${idbuilding} ; `;
     const result: any = await Query(connection, sql);
-    return resp(true, 'UPDATE_SUCCESS');
+    return resp(true, "UPDATE_SUCCESS");
   } catch (e: any) {
     throw new Error(e);
   }

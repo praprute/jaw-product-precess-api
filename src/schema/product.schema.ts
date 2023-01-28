@@ -77,16 +77,26 @@ export const updateDetailPuddleSchema = object({
  *      required:
  *        - order_name
  *        - uuid_puddle
+ *        - puddle_id
+ *        - status_puddle_order
  *        - fish
  *        - salt
  *        - laber
  *        - description
  *        - volume
+ *        - fish_price
+ *        - salt_price
+ *        - laber_price
+ *        - amount_items
  *      properties:
  *        order_name:
  *          type: string
  *        uuid_puddle:
  *          type: string
+ *        puddle_id:
+ *          type: number
+ *        status_puddle_order:
+ *          type: number
  *        fish:
  *          type: number
  *        salt:
@@ -96,6 +106,14 @@ export const updateDetailPuddleSchema = object({
  *        description:
  *          type: string
  *        volume:
+ *          type: number
+ *        fish_price:
+ *          type: number
+ *        salt_price:
+ *          type: number
+ *        laber_price:
+ *          type: number
+ *        amount_items:
  *          type: number
  *    ResponseSchema:
  *      type: object
@@ -114,6 +132,12 @@ export const createOrderSchema = object({
     uuid_puddle: string({
       required_error: "uuid_puddle is require",
     }),
+    puddle_id: number({
+      required_error: "puddle_id is require",
+    }),
+    status_puddle_order: number({
+      required_error: "status_puddle_order is require",
+    }),
     fish: number({
       required_error: "fish is require",
     }),
@@ -126,6 +150,18 @@ export const createOrderSchema = object({
     description: string(),
     volume: number({
       required_error: "volume is require",
+    }),
+    fish_price: number({
+      required_error: "fish_price is require",
+    }),
+    salt_price: number({
+      required_error: "salt_price is require",
+    }),
+    laber_price: number({
+      required_error: "laber_price is require",
+    }),
+    amount_items: number({
+      required_error: "amount_items is require",
     }),
   }),
 });
@@ -253,22 +289,22 @@ export const exportFishSauceToNewPuddleSchema = object({
     amount_price: number({
       required_error: "amount_price is require",
     }),
-    remaining_items: string({
+    remaining_items: number({
       required_error: "remaining_items is require",
     }),
-    remaining_unit_per_price: string({
+    remaining_unit_per_price: number({
       required_error: "remaining_unit_per_price is require",
     }),
-    remaining_price: string({
+    remaining_price: number({
       required_error: "remaining_price is require",
     }),
-    approved: string({
+    approved: number({
       required_error: "approved is require",
     }),
-    volume: string({
+    volume: number({
       required_error: "volume is require",
     }),
-    id_puddle: string({
+    id_puddle: number({
       required_error: "id_puddle is require",
     }),
   }),

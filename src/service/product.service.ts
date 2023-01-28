@@ -57,13 +57,27 @@ export const getAllPuddle = async (
   }
 };
 
-export const createOrder = async (
+export const getDetailPuddleById = async (
   connection: Connection,
-  input: { order_name: string; userId: number }
+  input: { puddle_id: number }
 ) => {
   try {
-    const { order_name, userId } = input;
-    const sql = `INSERT INTO ${DB}.orders (uuid_order, order_name, user_create) values (UUID(), '${order_name}', ${userId}); `;
+    const { puddle_id } = input;
+    const sql = `SELECT * FROM ${DB}.puddle where idpuddle=${puddle_id}`;
+    const result = await Query(connection, sql);
+    return resp(true, result);
+  } catch (e: any) {
+    return resp(false, "APP_CRASH");
+  }
+};
+
+export const createOrder = async (
+  connection: Connection,
+  input: { order_name: string; puddle_id: number; userId: number }
+) => {
+  try {
+    const { order_name, puddle_id, userId } = input;
+    const sql = `INSERT INTO ${DB}.orders (uuid_order, order_name, user_create, puddle_owner) values (UUID(), '${order_name}', ${userId} ,${puddle_id}); `;
     const queryInsertOrder: any = await Query(connection, sql);
     return queryInsertOrder.insertId;
   } catch (e: any) {
@@ -73,11 +87,16 @@ export const createOrder = async (
 
 export const updatePuddleOrderLasted = async (
   connection: Connection,
-  input: { uuid_puddle: string; orderId: number; status: number }
+  input: {
+    uuid_puddle: string;
+    orderId: number;
+    status: number;
+    description: string;
+  }
 ) => {
   try {
-    const { uuid_puddle, orderId, status } = input;
-    const sql = `UPDATE ${DB}.puddle SET lasted_order=${orderId}, status=${status} WHERE uuid_puddle='${uuid_puddle}' ; `;
+    const { uuid_puddle, orderId, status, description } = input;
+    const sql = `UPDATE ${DB}.puddle SET lasted_order=${orderId}, status=${status}, description='${description}' WHERE uuid_puddle='${uuid_puddle}' ; `;
     const queryUpdatePuddleOrderLasted = await Query(connection, sql);
     return resp(true, queryUpdatePuddleOrderLasted);
   } catch (e: any) {
@@ -95,12 +114,33 @@ export const createSubOrder = async (
     description: string;
     userId: number;
     volume: number;
+    fish_price: number;
+    salt_price: number;
+    laber_price: number;
+    amount_unit_per_price: number;
+    amount_price: number;
+    amount_items: number;
   }
 ) => {
   try {
-    const { orderId, fish, salt, laber, description, userId, volume } = input;
-    const sql = `INSERT INTO ${DB}.sub_orders (idOrders, fish, salt, laber, description, user_create_sub, amount_items, volume) values
-       (${orderId}, ${fish},${salt},${laber},'${description}',${userId}, 100, ${volume});`;
+    const {
+      orderId,
+      fish,
+      salt,
+      laber,
+      description,
+      userId,
+      volume,
+      fish_price,
+      salt_price,
+      laber_price,
+      amount_unit_per_price,
+      amount_price,
+      amount_items,
+    } = input;
+
+    const sql = `INSERT INTO ${DB}.sub_orders (idOrders, fish, salt, laber, description, user_create_sub, amount_items, volume,
+      fish_price,salt_price, laber_price,amount_unit_per_price,amount_price) values (${orderId}, ${fish},${salt},${laber},'${description}',${userId}, ${amount_items}, ${volume}, ${fish_price}, ${salt_price},${laber_price},${amount_unit_per_price},${amount_price});`;
     const queryCreateSubOrder = await Query(connection, sql);
     return resp(true, queryCreateSubOrder);
   } catch (e: any) {
@@ -120,7 +160,7 @@ export const getOrderDetails = async (
     const result = await Query(connection, sql);
     return resp(true, result);
   } catch (e: any) {
-    return resp(false, "APP_CRASH");
+    return resp(false, []);
   }
 };
 
@@ -249,10 +289,7 @@ export const getAllOrderFromPuddle = async (
 ) => {
   try {
     const { id_puddle } = input;
-    const sql = `SELECT * FROM ${DB}.puddle
-    inner join (SELECT * FROM ${DB}.orders) orders ON puddle.lasted_order = orders.idorders
-    where idpuddle = ${id_puddle}
-    ;`;
+    const sql = ` SELECT * FROM ${DB}.orders where puddle_owner=${id_puddle} order by idorders desc ;`;
     const result = await Query(connection, sql);
 
     return resp(true, result);

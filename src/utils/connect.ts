@@ -41,4 +41,12 @@ const Query = async (connection: mysql.Connection, query: string) =>
     });
   });
 
-export { Connect, Query };
+const DisConnect = async (connection: mysql.Connection) => {
+  connection.end(function (error) {
+    if (error) {
+      log.error(error);
+    }
+  });
+};
+
+export { Connect, Query, DisConnect };
