@@ -1,5 +1,6 @@
 export interface ICreatePuddle {
   building_id: number;
+  serial: string;
 }
 
 export interface IUpdateDetailPuddle {

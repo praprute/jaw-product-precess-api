@@ -8,9 +8,12 @@ import { number, object, string } from "zod";
  *      type: object
  *      required:
  *        - building_id
+ *        - serial
  *      properties:
  *        building_id:
  *          type: number
+ *        serial:
+ *          type: string
  *    ResponseSchema:
  *      type: object
  *      properties:
@@ -241,6 +244,9 @@ export const updatePriceSubOrderSchema = object({
  *        - approved
  *        - volume
  *        - id_puddle
+ *        - remaining_volume
+ *        - action_puddle
+ *        - target_puddle
  *      properties:
  *        order_id:
  *          type: number
@@ -263,6 +269,12 @@ export const updatePriceSubOrderSchema = object({
  *        volume:
  *          type: number
  *        id_puddle:
+ *          type: number
+ *        remaining_volume:
+ *          type: number
+ *        action_puddle:
+ *          type: number
+ *        target_puddle:
  *          type: number
  *    ResponseSchema:
  *      type: object
@@ -307,6 +319,15 @@ export const exportFishSauceToNewPuddleSchema = object({
     id_puddle: number({
       required_error: "id_puddle is require",
     }),
+    remaining_volume: number({
+      required_error: "remaining_volume is require",
+    }),
+    action_puddle: number({
+      required_error: "action_puddle is require",
+    }),
+    target_puddle: number({
+      required_error: "target_puddle is require",
+    }),
   }),
 });
 
@@ -326,6 +347,9 @@ export const exportFishSauceToNewPuddleSchema = object({
  *        - idtarget_puddle
  *        - lasted_subId
  *        - volume
+ *        - remaining_volume
+ *        - action_puddle
+ *        - action_serial_puddle
  *      properties:
  *        order_id:
  *          type: number
@@ -344,6 +368,12 @@ export const exportFishSauceToNewPuddleSchema = object({
  *        lasted_subId:
  *          type: number
  *        volume:
+ *          type: number
+ *        remaining_volume:
+ *          type: number
+ *        action_puddle:
+ *          type: number
+ *        action_serial_puddle:
  *          type: number
  *    ResponseSchema:
  *      type: object
@@ -382,6 +412,12 @@ export const submitImportFishSchema = object({
     }),
     volume: number({
       required_error: "volume is require",
+    }),
+    action_puddle: number({
+      required_error: "action_puddle is require",
+    }),
+    action_serial_puddle: number({
+      required_error: "action_puddle is require",
     }),
   }),
 });

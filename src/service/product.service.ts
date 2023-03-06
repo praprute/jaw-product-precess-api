@@ -5,6 +5,7 @@ import { Connection } from "mysql";
 import dotenv from "dotenv";
 import resp from "../utils/response";
 import { ICreatePuddle, IUpdateDetailPuddle } from "../types/product";
+import { LargeNumberLike } from "crypto";
 
 dotenv.config();
 
@@ -15,8 +16,8 @@ export const insertPuddle = async (
   input: ICreatePuddle
 ) => {
   try {
-    const { building_id } = input;
-    const sql = `INSERT INTO ${DB}.puddle (uuid_puddle, building_id) values (UUID(), ${building_id}) ; `;
+    const { building_id, serial } = input;
+    const sql = `INSERT INTO ${DB}.puddle (uuid_puddle, building_id, serial) values (UUID(), ${building_id}, '${serial}') ; `;
     const result: any = await Query(connection, sql);
     if (result.insertId) {
       return resp(true, "CREATE_SUCCESS");
@@ -120,6 +121,7 @@ export const createSubOrder = async (
     amount_unit_per_price: number;
     amount_price: number;
     amount_items: number;
+    remaining_volume: number;
   }
 ) => {
   try {
@@ -137,10 +139,11 @@ export const createSubOrder = async (
       amount_unit_per_price,
       amount_price,
       amount_items,
+      remaining_volume,
     } = input;
 
     const sql = `INSERT INTO ${DB}.sub_orders (idOrders, fish, salt, laber, description, user_create_sub, amount_items, volume,
-      fish_price,salt_price, laber_price,amount_unit_per_price,amount_price) values (${orderId}, ${fish},${salt},${laber},'${description}',${userId}, ${amount_items}, ${volume}, ${fish_price}, ${salt_price},${laber_price},${amount_unit_per_price},${amount_price});`;
+      fish_price,salt_price, laber_price,amount_unit_per_price,amount_price,remaining_items,remaining_volume) values (${orderId}, ${fish},${salt},${laber},'${description}',${userId}, ${amount_items}, ${volume}, ${fish_price}, ${salt_price},${laber_price},${amount_unit_per_price},${amount_price}, ${amount_items}, ${remaining_volume});`;
     const queryCreateSubOrder = await Query(connection, sql);
     return resp(true, queryCreateSubOrder);
   } catch (e: any) {
@@ -234,6 +237,9 @@ export const transferSidhsauce = async (
     approved: number;
     volume: number;
     user_create_sub: number;
+    remaining_volume: number;
+    action_puddle: number;
+    action_serial_puddle: number;
   }
 ) => {
   try {
@@ -249,9 +255,16 @@ export const transferSidhsauce = async (
       approved,
       volume,
       user_create_sub,
+      remaining_volume,
+      action_puddle,
+      action_serial_puddle,
     } = input;
-    const sql = `INSERT INTO ${DB}.sub_orders (idOrders, type, amount_items, amount_unit_per_price, amount_price, remaining_items, remaining_unit_per_price, remaining_price, approved, volume, user_create_sub ) 
-    values (${order_id}, ${type_process}, ${amount_items}, ${amount_unit_per_price}, ${amount_price}, ${remaining_items}, ${remaining_unit_per_price}, ${remaining_price}, ${approved}, ${volume}, ${user_create_sub});`;
+    const sql = `INSERT INTO ${DB}.sub_orders (idOrders, type, amount_items, amount_unit_per_price, 
+      amount_price, remaining_items, remaining_unit_per_price, remaining_price, 
+      approved, volume, user_create_sub, remaining_volume, action_puddle, action_serial_puddle ) 
+    values (${order_id}, ${type_process}, ${amount_items}, ${amount_unit_per_price}, 
+      ${amount_price}, ${remaining_items}, ${remaining_unit_per_price}, ${remaining_price}, 
+      ${approved}, ${volume}, ${user_create_sub}, ${remaining_volume}, ${action_puddle}, ${action_serial_puddle});`;
     const result = await Query(connection, sql);
 
     return resp(true, result);
@@ -267,11 +280,21 @@ export const insertTargetPuddle = async (
     id_puddle: number;
     id_sub_order: number;
     status: number;
+    source_puddle: number;
+    source_serial_puddle: number;
+    serial_puddle?: number;
   }
 ) => {
   try {
-    const { id_puddle, id_sub_order, status = 0 } = input;
-    const sql = `INSERT INTO ${DB}.target_puddle (id_puddle, id_sub_order, status) values (${id_puddle}, ${id_sub_order}, ${status});`;
+    const {
+      id_puddle,
+      id_sub_order,
+      status = 0,
+      source_puddle,
+      source_serial_puddle,
+      serial_puddle,
+    } = input;
+    const sql = `INSERT INTO ${DB}.target_puddle (id_puddle, id_sub_order, status, source_puddle, source_serial_puddle, serial_puddle) values (${id_puddle}, ${id_sub_order}, ${status}, ${source_puddle},${source_serial_puddle}, ${serial_puddle});`;
     await Query(connection, sql);
 
     return resp(true, "INSERT_SUCCESS");
@@ -378,5 +401,69 @@ export const updateStatusApprovedSubOrder = async (
   } catch (e: any) {
     console.log(e);
     return resp(false, "APP_CRASH");
+  }
+};
+
+export const deleteTargetPuddleById = async (
+  connection: Connection,
+  input: {
+    idtarget_puddle: number;
+  }
+) => {
+  try {
+    const { idtarget_puddle } = input;
+    const sql = `DELETE FROM  ${DB}.target_puddle where idtarget_puddle=${idtarget_puddle};`;
+    const result = await Query(connection, sql);
+
+    return resp(true, result);
+  } catch (e: any) {
+    console.log(e);
+    return resp(false, "APP_CRASH");
+  }
+};
+
+export const deleteSubOrderById = async (
+  connection: Connection,
+  input: {
+    id_sub_order: number;
+  }
+) => {
+  try {
+    const { id_sub_order } = input;
+    const sql = `DELETE FROM  ${DB}.sub_orders where idsub_orders=${id_sub_order};`;
+    const result = await Query(connection, sql);
+
+    return resp(true, result);
+  } catch (e: any) {
+    console.log(e);
+    return resp(false, "APP_CRASH");
+  }
+};
+
+export const getSerialPuddle = async (
+  connection: Connection,
+  input: {
+    idpuddle: number;
+  }
+) => {
+  try {
+    const { idpuddle } = input;
+    const sql = `SELECT serial FROM ${DB}.puddle where idpuddle=${idpuddle};`;
+    const result = await Query(connection, sql);
+
+    return resp(true, result);
+  } catch (e: any) {
+    console.log(e);
+    return resp(false, "APP_CRASH");
+  }
+};
+
+export const getAllTypeProcess = async (connection: Connection) => {
+  try {
+    const sql = `SELECT * FROM  ${DB}.type_process;`;
+    const result = await Query(connection, sql);
+    return resp(true, result);
+  } catch (e) {
+    throw new Error("bad request");
   }
 };

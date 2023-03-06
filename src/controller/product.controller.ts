@@ -3,10 +3,14 @@ import { number } from "zod";
 import {
   createOrder,
   createSubOrder,
+  deleteSubOrderById,
+  deleteTargetPuddleById,
   getAllOrderFromPuddle,
   getAllPuddle,
+  getAllTypeProcess,
   getDetailPuddleById,
   getOrderDetails,
+  getSerialPuddle,
   getTargetPending,
   insertPuddle,
   insertTargetPuddle,
@@ -25,9 +29,9 @@ import { TypeOrderPuddle } from "../utils/type_utils";
 
 export const createPuddleTask = async (req: Request, res: Response) => {
   try {
-    const { building_id } = req.body;
+    const { building_id, serial } = req.body;
     const connection = await Connect();
-    const result = await insertPuddle(connection, { building_id });
+    const result = await insertPuddle(connection, { building_id, serial });
     await DisConnect(connection);
     return res.status(200).send(result);
   } catch (e: any) {
@@ -132,11 +136,12 @@ export const createOrderTask = async (req: Request, res: Response) => {
       laber_price,
       amount_unit_per_price:
         status_puddle_order === TypeOrderPuddle.FERMENT
-          ? (fish_price + salt_price + laber_price) / amount_items
+          ? (fish_price + salt_price + laber_price) / fish
           : 0,
       amount_price: fish_price + salt_price + laber_price,
       amount_items:
         status_puddle_order === TypeOrderPuddle.FERMENT ? 100 : amount_items,
+      remaining_volume: status_puddle_order === 1 ? volume : 0,
     });
     await DisConnect(connection);
     return res.status(200).send(queryCreateSubOrder);
@@ -235,6 +240,10 @@ export const exportFishSauceToNewPuddleTask = async (
       approved = 0,
       volume,
       id_puddle,
+      remaining_volume,
+      action_puddle,
+      target_puddle,
+      serial_puddle,
     } = req.body;
     const connection = await Connect();
 
@@ -254,12 +263,18 @@ export const exportFishSauceToNewPuddleTask = async (
       approved,
       volume,
       user_create_sub: getDataUser.idusers,
+      remaining_volume,
+      action_puddle: target_puddle,
+      action_serial_puddle: serial_puddle,
     });
 
     await insertTargetPuddle(connection, {
-      id_puddle,
+      id_puddle: target_puddle,
       id_sub_order: result.message.insertId,
       status: 0,
+      source_puddle: id_puddle,
+      source_serial_puddle: action_puddle,
+      serial_puddle,
     });
     await DisConnect(connection);
     return res.status(200).send(result);
@@ -292,13 +307,14 @@ export const submitImportFishTask = async (req: Request, res: Response) => {
       order_id,
       type_process,
       amount_items,
-      // lasted_unit_per_price,
       amount_price,
       remaining_items,
-      // remaining_unit_per_price,
       remaining_price,
       idtarget_puddle,
       lasted_subId,
+      remaining_volume,
+      action_puddle,
+      action_serial_puddle,
     } = req.body;
 
     const connection = await Connect();
@@ -311,14 +327,17 @@ export const submitImportFishTask = async (req: Request, res: Response) => {
       order_id,
       type_process,
       amount_items,
-      amount_unit_per_price: amount_price / amount_items,
+      amount_unit_per_price: amount_price / volume,
       amount_price,
       remaining_items,
-      remaining_unit_per_price: remaining_price / remaining_items,
+      remaining_unit_per_price: remaining_price / remaining_volume,
       remaining_price,
       approved: 1,
       volume,
       user_create_sub: getDataUser.idusers,
+      remaining_volume,
+      action_puddle,
+      action_serial_puddle: action_serial_puddle,
     });
 
     await updateStatusTargetPuddle(connection, {
@@ -332,6 +351,70 @@ export const submitImportFishTask = async (req: Request, res: Response) => {
     });
     await DisConnect(connection);
     return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const cancelGetInTask = async (req: Request, res: Response) => {
+  try {
+    const { id_sub_order, idtarget_puddle } = req.body;
+    const connection = await Connect();
+
+    await deleteTargetPuddleById(connection, {
+      idtarget_puddle,
+    });
+
+    const result = await deleteSubOrderById(connection, { id_sub_order });
+    await DisConnect(connection);
+
+    if (result.success === "success") {
+      return res.status(200).send({ success: result.success });
+    } else {
+      return res
+        .status(500)
+        .send({ success: "error", message: result.message });
+    }
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const getSerialPuddleTask = async (req: Request, res: Response) => {
+  try {
+    const { idpuddle } = req.params;
+    const connection = await Connect();
+
+    const result = await getSerialPuddle(connection, {
+      idpuddle: parseInt(idpuddle),
+    });
+
+    await DisConnect(connection);
+
+    if (result.success === "success") {
+      return res
+        .status(200)
+        .send({ success: result.success, message: result.message });
+    } else {
+      return res
+        .status(500)
+        .send({ success: "error", message: result.message });
+    }
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+export const getAllTypeProcessTask = async (req: Request, res: Response) => {
+  try {
+    const connection = await Connect();
+    const result = await getAllTypeProcess(connection);
+    await DisConnect(connection);
+    return res
+      .status(200)
+      .send({ success: result.success, message: result.message });
   } catch (e: any) {
     logger.error(e);
     return res.status(409).send(e.message);

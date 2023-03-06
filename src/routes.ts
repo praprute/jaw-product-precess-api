@@ -21,13 +21,16 @@ import {
   updateBuildingSchema,
 } from "./schema/building.schema";
 import {
+  cancelGetInTask,
   createOrderTask,
   createPuddleTask,
   exportFishSauceToNewPuddleTask,
   getAllOrdersFromPuddleTask,
   getAllPuddleTask,
+  getAllTypeProcessTask,
   getDetailPuddleByIdTask,
   getOrderDetailsTask,
+  getSerialPuddleTask,
   getTargetPendingTask,
   submitImportFishTask,
   updateDetailPuddleTask,
@@ -601,6 +604,12 @@ function routes(app: Express) {
    *        description: Bad request
    */
   app.post("/api/submitImportFish", verifyToken, submitImportFishTask);
+
+  app.delete("/api/cancelGetIn", verifyToken, cancelGetInTask);
+
+  app.get("/api/getSerialPuddle/:idpuddle", verifyToken, getSerialPuddleTask);
+
+  app.get("/api/getAllTypeProcess/", verifyToken, getAllTypeProcessTask);
 }
 
 export default routes;
