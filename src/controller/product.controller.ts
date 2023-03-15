@@ -3,6 +3,7 @@ import { number } from "zod";
 import {
   createOrder,
   createSubOrder,
+  createTypeProcess,
   deleteSubOrderById,
   deleteTargetPuddleById,
   getAllOrderFromPuddle,
@@ -13,6 +14,7 @@ import {
   getSerialPuddle,
   getTargetPending,
   insertPuddle,
+  insertSubOrderTypeClearAll,
   insertTargetPuddle,
   transferSidhsauce,
   updateAmountPriceOrder,
@@ -21,6 +23,7 @@ import {
   updatePuddleOrderLasted,
   updateStatusApprovedSubOrder,
   updateStatusTargetPuddle,
+  updateTypeProcessSubOrder,
 } from "../service/product.service";
 import { Connect, DisConnect } from "../utils/connect";
 import getUserUUID, { IUserPareToken } from "../utils/getUUID";
@@ -244,6 +247,7 @@ export const exportFishSauceToNewPuddleTask = async (
       action_puddle,
       target_puddle,
       serial_puddle,
+      process,
     } = req.body;
     const connection = await Connect();
 
@@ -266,6 +270,7 @@ export const exportFishSauceToNewPuddleTask = async (
       remaining_volume,
       action_puddle: target_puddle,
       action_serial_puddle: serial_puddle,
+      process,
     });
 
     await insertTargetPuddle(connection, {
@@ -315,6 +320,7 @@ export const submitImportFishTask = async (req: Request, res: Response) => {
       remaining_volume,
       action_puddle,
       action_serial_puddle,
+      process,
     } = req.body;
 
     const connection = await Connect();
@@ -338,6 +344,7 @@ export const submitImportFishTask = async (req: Request, res: Response) => {
       remaining_volume,
       action_puddle,
       action_serial_puddle: action_serial_puddle,
+      process,
     });
 
     await updateStatusTargetPuddle(connection, {
@@ -407,6 +414,7 @@ export const getSerialPuddleTask = async (req: Request, res: Response) => {
     return res.status(409).send(e.message);
   }
 };
+
 export const getAllTypeProcessTask = async (req: Request, res: Response) => {
   try {
     const connection = await Connect();
@@ -415,6 +423,97 @@ export const getAllTypeProcessTask = async (req: Request, res: Response) => {
     return res
       .status(200)
       .send({ success: result.success, message: result.message });
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const createTypeProcessTask = async (req: Request, res: Response) => {
+  try {
+    const { process_name } = req.body;
+    const connection = await Connect();
+    const result = await createTypeProcess(connection, {
+      process_name,
+    });
+    await DisConnect(connection);
+    return res.status(200).send({ success: result.success });
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const throwItemsInPuddleTask = async (req: Request, res: Response) => {
+  try {
+    const { process_name } = req.body;
+    const connection = await Connect();
+    const result = await createTypeProcess(connection, {
+      process_name,
+    });
+    await DisConnect(connection);
+    return res.status(200).send({ success: result.success });
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const updateProcessDescritionSubOrderTask = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { process, subOrderId } = req.body;
+    const connection = await Connect();
+    const result = await updateTypeProcessSubOrder(connection, {
+      process,
+      subOrderId,
+    });
+    await DisConnect(connection);
+    return res.status(200).send({ success: result.success });
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const closeProcessTask = async (req: Request, res: Response) => {
+  try {
+    const {
+      order_id,
+      type_process,
+      amount_items,
+      amount_unit_per_price,
+      amount_price,
+      remaining_items,
+      remaining_unit_per_price,
+      remaining_price,
+      approved,
+      volume,
+      remaining_volume,
+    } = req.body;
+    const connection = await Connect();
+    const getDataUser: IUserPareToken = await getUserUUID(
+      req.headers.authorization as string
+    );
+
+    const result = await insertSubOrderTypeClearAll(connection, {
+      order_id,
+      type_process,
+      amount_items,
+      amount_unit_per_price,
+      amount_price,
+      remaining_items,
+      remaining_unit_per_price,
+      remaining_price,
+      approved,
+      volume,
+      remaining_volume,
+      user_create_sub: getDataUser.idusers,
+    });
+    await DisConnect(connection);
+    return res.status(200).send(result);
   } catch (e: any) {
     logger.error(e);
     return res.status(409).send(e.message);

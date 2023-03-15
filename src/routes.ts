@@ -22,8 +22,10 @@ import {
 } from "./schema/building.schema";
 import {
   cancelGetInTask,
+  closeProcessTask,
   createOrderTask,
   createPuddleTask,
+  createTypeProcessTask,
   exportFishSauceToNewPuddleTask,
   getAllOrdersFromPuddleTask,
   getAllPuddleTask,
@@ -35,6 +37,7 @@ import {
   submitImportFishTask,
   updateDetailPuddleTask,
   updatePriceSubOrderTask,
+  updateProcessDescritionSubOrderTask,
 } from "./controller/product.controller";
 import {
   createOrderSchema,
@@ -609,7 +612,17 @@ function routes(app: Express) {
 
   app.get("/api/getSerialPuddle/:idpuddle", verifyToken, getSerialPuddleTask);
 
-  app.get("/api/getAllTypeProcess/", verifyToken, getAllTypeProcessTask);
+  app.get("/api/getAllTypeProcess", verifyToken, getAllTypeProcessTask);
+
+  app.post("/api/createTypeProcess", verifyToken, createTypeProcessTask);
+  
+  app.put(
+    "/api/updateProcessDescritionSubOrder",
+    verifyToken,
+    updateProcessDescritionSubOrderTask
+  );
+
+  app.post("/api/closeProcess", verifyToken, closeProcessTask);
 }
 
 export default routes;

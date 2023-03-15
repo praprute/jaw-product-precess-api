@@ -276,6 +276,8 @@ export const updatePriceSubOrderSchema = object({
  *          type: number
  *        target_puddle:
  *          type: number
+ *        process:
+ *          type: number | unknow
  *    ResponseSchema:
  *      type: object
  *      properties:
@@ -328,6 +330,7 @@ export const exportFishSauceToNewPuddleSchema = object({
     target_puddle: number({
       required_error: "target_puddle is require",
     }),
+    // process: number(),
   }),
 });
 
@@ -375,6 +378,8 @@ export const exportFishSauceToNewPuddleSchema = object({
  *          type: number
  *        action_serial_puddle:
  *          type: number
+ *        process:
+ *          type: number | unknow
  *    ResponseSchema:
  *      type: object
  *      properties:
@@ -419,5 +424,6 @@ export const submitImportFishSchema = object({
     action_serial_puddle: number({
       required_error: "action_puddle is require",
     }),
+    process: number({}),
   }),
 });

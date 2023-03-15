@@ -158,7 +158,9 @@ export const getOrderDetails = async (
   try {
     const { order_id } = input;
     const sql = `SELECT * FROM ${DB}.orders
-      inner join (SELECT * FROM ${DB}.sub_orders) sub_order on  orders.idorders = sub_order.idOrders where orders.idorders = ${order_id};
+      inner join (SELECT * FROM ${DB}.sub_orders) sub_order on  orders.idorders = sub_order.idOrders
+      left join (SELECT idtype_process,process_name FROM ${DB}.type_process) process_type on sub_order.type_process = process_type.idtype_process
+      where orders.idorders = ${order_id};
       `;
     const result = await Query(connection, sql);
     return resp(true, result);
@@ -223,6 +225,55 @@ export const updateAmountPriceOrder = async (
   }
 };
 
+export const insertSubOrderTypeClearAll = async (
+  connection: Connection,
+  input: {
+    order_id: number;
+    type_process: number;
+    amount_items: number;
+    amount_unit_per_price: number;
+    amount_price: number;
+    remaining_items: number;
+    remaining_unit_per_price: number;
+    remaining_price: number;
+    approved: number;
+    volume: number;
+    remaining_volume: number;
+    user_create_sub: number;
+  }
+) => {
+  try {
+    const {
+      order_id,
+      type_process,
+      amount_items,
+      amount_unit_per_price,
+      amount_price,
+      remaining_items,
+      remaining_unit_per_price,
+      remaining_price,
+      approved,
+      volume,
+      remaining_volume,
+      user_create_sub,
+    } = input;
+    const listField = `idOrders, type, amount_items, amount_unit_per_price, 
+      amount_price, remaining_items, remaining_unit_per_price, remaining_price, 
+      approved, volume, user_create_sub, remaining_volume`;
+
+    const fieldValue = `${order_id}, ${type_process}, ${amount_items}, ${amount_unit_per_price}, 
+      ${amount_price}, ${remaining_items}, ${remaining_unit_per_price}, ${remaining_price}, 
+      ${approved}, ${volume}, ${user_create_sub}, ${remaining_volume}`;
+
+    const sql = `INSERT INTO ${DB}.sub_orders (${listField}) values (${fieldValue});`;
+    const result = await Query(connection, sql);
+
+    return resp(true, result);
+  } catch (e) {
+    throw new Error("bad insert");
+  }
+};
+
 export const transferSidhsauce = async (
   connection: Connection,
   input: {
@@ -240,6 +291,7 @@ export const transferSidhsauce = async (
     remaining_volume: number;
     action_puddle: number;
     action_serial_puddle: number;
+    process?: number;
   }
 ) => {
   try {
@@ -258,13 +310,25 @@ export const transferSidhsauce = async (
       remaining_volume,
       action_puddle,
       action_serial_puddle,
+      process,
     } = input;
-    const sql = `INSERT INTO ${DB}.sub_orders (idOrders, type, amount_items, amount_unit_per_price, 
+    const listField = process
+      ? `idOrders, type, amount_items, amount_unit_per_price, 
       amount_price, remaining_items, remaining_unit_per_price, remaining_price, 
-      approved, volume, user_create_sub, remaining_volume, action_puddle, action_serial_puddle ) 
-    values (${order_id}, ${type_process}, ${amount_items}, ${amount_unit_per_price}, 
+      approved, volume, user_create_sub, remaining_volume, action_puddle, action_serial_puddle, type_process`
+      : `idOrders, type, amount_items, amount_unit_per_price, 
+      amount_price, remaining_items, remaining_unit_per_price, remaining_price, 
+      approved, volume, user_create_sub, remaining_volume, action_puddle, action_serial_puddle`;
+
+    const fieldValue = process
+      ? `${order_id}, ${type_process}, ${amount_items}, ${amount_unit_per_price}, 
       ${amount_price}, ${remaining_items}, ${remaining_unit_per_price}, ${remaining_price}, 
-      ${approved}, ${volume}, ${user_create_sub}, ${remaining_volume}, ${action_puddle}, ${action_serial_puddle});`;
+      ${approved}, ${volume}, ${user_create_sub}, ${remaining_volume}, ${action_puddle}, ${action_serial_puddle}, ${process}`
+      : `${order_id}, ${type_process}, ${amount_items}, ${amount_unit_per_price}, 
+      ${amount_price}, ${remaining_items}, ${remaining_unit_per_price}, ${remaining_price}, 
+      ${approved}, ${volume}, ${user_create_sub}, ${remaining_volume}, ${action_puddle}, ${action_serial_puddle}`;
+
+    const sql = `INSERT INTO ${DB}.sub_orders (${listField}) values (${fieldValue});`;
     const result = await Query(connection, sql);
 
     return resp(true, result);
@@ -461,6 +525,39 @@ export const getSerialPuddle = async (
 export const getAllTypeProcess = async (connection: Connection) => {
   try {
     const sql = `SELECT * FROM  ${DB}.type_process;`;
+    const result = await Query(connection, sql);
+    return resp(true, result);
+  } catch (e) {
+    throw new Error("bad request");
+  }
+};
+
+export const createTypeProcess = async (
+  connection: Connection,
+  input: {
+    process_name: string;
+  }
+) => {
+  try {
+    const { process_name } = input;
+    const sql = `INSERT INTO ${DB}.type_process (process_name) values ('${process_name}');`;
+    const result = await Query(connection, sql);
+    return resp(true, result);
+  } catch (error: any) {
+    throw new Error(error);
+  }
+};
+
+export const updateTypeProcessSubOrder = async (
+  connection: Connection,
+  input: {
+    process: number;
+    subOrderId: number;
+  }
+) => {
+  try {
+    const { process, subOrderId } = input;
+    const sql = `UPDATE  ${DB}.sub_orders SET type_process = ${process} where idsub_orders = ${subOrderId} ;`;
     const result = await Query(connection, sql);
     return resp(true, result);
   } catch (e) {
