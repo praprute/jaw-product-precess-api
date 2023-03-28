@@ -427,3 +427,4 @@ export const submitImportFishSchema = object({
     process: number({}),
   }),
 });
+

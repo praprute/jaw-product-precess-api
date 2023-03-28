@@ -46,6 +46,13 @@ import {
   updateDetailPuddleSchema,
   updatePriceSubOrderSchema,
 } from "./schema/product.schema";
+import {
+  createFishWeightBillTask,
+  fillterReceiveWeightFishTask,
+  getListReceiveWeightFishTask,
+  getReceiveWeightFishByIdTask,
+} from "./controller/receive.controller";
+import { billWeightFish } from "./schema/receive.schema";
 
 function routes(app: Express) {
   /**
@@ -615,7 +622,7 @@ function routes(app: Express) {
   app.get("/api/getAllTypeProcess", verifyToken, getAllTypeProcessTask);
 
   app.post("/api/createTypeProcess", verifyToken, createTypeProcessTask);
-  
+
   app.put(
     "/api/updateProcessDescritionSubOrder",
     verifyToken,
@@ -623,6 +630,84 @@ function routes(app: Express) {
   );
 
   app.post("/api/closeProcess", verifyToken, closeProcessTask);
+
+  // **** Receive ****
+
+  /**
+   * @openapi
+   * '/api/submitCreateReceiveWeightFish':
+   *  post:
+   *     security:
+   *     - bearerAuth: []
+   *     tags:
+   *     - Receive
+   *     summary: Create receive weight fish
+   *     requestBody:
+   *      required: true
+   *      content:
+   *        application/json:
+   *           schema:
+   *              $ref: '#/components/schemas/submitCreateReceiveWeightFishSchema'
+   *     responses:
+   *      200:
+   *        description: Success
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/submitCreateReceiveWeightFishSchema'
+   *      409:
+   *        description: Conflict
+   *      400:
+   *        description: Bad request
+   */
+  app.post(
+    "/api/submitCreateReceiveWeightFish",
+    verifyToken,
+    validatResource(billWeightFish),
+    createFishWeightBillTask
+  );
+
+  /**
+   * @openapi
+   * '/api/getListReceiveWeightFish':
+   *  get:
+   *     security:
+   *     - bearerAuth: []
+   *     tags:
+   *     - Receive
+   *     summary: getListReceiveWeightFish
+   *     requestBody:
+   *      required: false
+   *
+   *     responses:
+   *      200:
+   *        description: Success
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/submitCreateReceiveWeightFishSchema'
+   *      409:
+   *        description: Conflict
+   *      400:
+   *        description: Bad request
+   */
+  app.get(
+    "/api/getListReceiveWeightFish",
+    verifyToken,
+    getListReceiveWeightFishTask
+  );
+
+  app.post(
+    "/api/fillterReceiveWeightFish",
+    verifyToken,
+    fillterReceiveWeightFishTask
+  );
+
+  app.get(
+    "/api/getReceiveWeightFishById/:idreceipt",
+    verifyToken,
+    getReceiveWeightFishByIdTask
+  );
 }
 
 export default routes;

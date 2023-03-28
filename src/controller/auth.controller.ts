@@ -11,13 +11,14 @@ import getUserUUID from "../utils/getUUID";
 
 export const createUserTask = async (req: Request, res: Response) => {
   try {
-    const { role, phone, name, password } = req.body;
+    const { role, phone, name, password, email } = req.body;
     const connection = await Connect();
     const result = await insertUser(connection, {
       role,
       phone,
       name,
       password,
+      email,
     } as IInsertUser);
     return res.status(200).send(result);
   } catch (e: any) {
@@ -28,10 +29,10 @@ export const createUserTask = async (req: Request, res: Response) => {
 
 export const signInTask = async (req: Request, res: Response) => {
   try {
-    const { phone, password } = req.body;
+    const { userName, password } = req.body;
     const connection = await Connect();
     const result = await signInService(connection, {
-      phone,
+      userName,
       password,
     });
     return res.status(200).send(result);

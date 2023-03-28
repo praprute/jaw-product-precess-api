@@ -8,12 +8,16 @@ import { object, string } from "zod";
  *      type: object
  *      required:
  *        - phone
+ *        - email
  *        - name
  *        - password
  *      properties:
-*        phone:
+ *        phone:
  *          type: string
  *          default: 0990576873
+ *        email:
+ *          type: string
+ *          default: test@gmail.com
  *        name:
  *          type: string
  *          default: Jane Doe
@@ -43,6 +47,9 @@ export const createUserSchema = object({
       .max(10, "Phone should 10 char")
       .min(10, "Phone should 10 char"),
   }),
+  email: string({
+    required_error: "email is require",
+  }),
 });
 
 /**
@@ -52,10 +59,10 @@ export const createUserSchema = object({
  *    SignInUser:
  *      type: object
  *      required:
- *        - phone
+ *        - userName
  *        - password
  *      properties:
-*        phone:
+ *        userName:
  *          type: string
  *          default: 0990576873
  *        password:
@@ -72,11 +79,11 @@ export const createUserSchema = object({
 
 export const signInUserSchema = object({
   body: object({
-    phone: string({
-      required_error: "Phone is require",
-    })
-      .max(10, "Phone should 10 char")
-      .min(10, "Phone should 10 char"),
+    userName: string({
+      required_error: "userName is require",
+    }),
+    // .max(10, "Phone should 10 char")
+    // .min(10, "Phone should 10 char"),
     password: string({
       required_error: "Password is require",
     }),

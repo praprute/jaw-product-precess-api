@@ -8,3 +8,4 @@ export interface IUpdateDetailPuddle {
   status: number;
   uuid_puddle: string;
 }
+

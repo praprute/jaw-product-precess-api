@@ -17,11 +17,13 @@ export const insertUser = async (
   input: IInsertUser
 ) => {
   try {
-    const { role, phone, name, password } = input;
-    let sqlCheckUser = `SELECT * FROM ${DB}.users where phone = '${phone}';`;
+    const { role, phone, name, password, email } = input;
+    const sqlCheckPhoneUser = `SELECT * FROM ${DB}.users where phone = '${phone}';`;
+    const sqlCheckEmailUser = `SELECT * FROM ${DB}.users where email = '${email}';`;
 
-    const checkDuplicate: any = await Query(connection, sqlCheckUser);
-    if (checkDuplicate.length > 0) {
+    const checkDuplicatePhone: any = await Query(connection, sqlCheckPhoneUser);
+    const checkDuplicateEmail: any = await Query(connection, sqlCheckEmailUser);
+    if (checkDuplicatePhone.length > 0 || checkDuplicateEmail.length > 0) {
       return "DULICATE_USER";
     } else {
       const passwordHash = bcrypt.hashSync(password, 10);
@@ -34,7 +36,7 @@ export const insertUser = async (
       const data = await Query(connection, queryInsert);
       if (data) {
         return resp(true, "CREATE_USER_SUCCESS");
-      }else{
+      } else {
         return resp(false, "CRASH");
       }
     }
@@ -45,11 +47,11 @@ export const insertUser = async (
 
 export const signInService = async (
   connection: Connection,
-  input: { phone: string; password: string }
+  input: { userName: string; password: string }
 ) => {
   try {
-    const { phone, password } = input;
-    let sql = `SELECT * FROM ${DB}.users where phone = '${phone}';`;
+    const { userName, password } = input;
+    const sql = `SELECT * FROM ${DB}.users where phone = '${userName}' OR email = '${userName}';`;
     const data: any = await Query(connection, sql);
     if (data.length > 0) {
       const isCorrect = bcrypt.compareSync(password, data[0].password);

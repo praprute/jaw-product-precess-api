@@ -9,7 +9,8 @@ export interface IUserDto {
 
 export interface IInsertUser {
   role?: number;
-  phone: string;
+  phone?: string;
+  email?: string;
   name: string;
   password: string;
 }
