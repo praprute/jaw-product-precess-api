@@ -274,6 +274,55 @@ export const insertSubOrderTypeClearAll = async (
   }
 };
 
+export const addOnVolumn = async (
+  connection: Connection,
+  input: {
+    order_id: number;
+    type_process: number;
+    amount_items: number;
+    amount_unit_per_price: number;
+    amount_price: number;
+    remaining_items: number;
+    remaining_unit_per_price: number;
+    remaining_price: number;
+    approved: number;
+    volume: number;
+    user_create_sub: number;
+    remaining_volume: number;
+    process?: number;
+  }
+) => {
+  try {
+    const {
+      order_id,
+      type_process,
+      amount_items,
+      amount_unit_per_price,
+      amount_price,
+      remaining_items,
+      remaining_unit_per_price,
+      remaining_price,
+      approved,
+      volume,
+      user_create_sub,
+      remaining_volume,
+      process,
+    } = input;
+    const listField = `idOrders, type, amount_items, amount_unit_per_price, 
+      amount_price, remaining_items, remaining_unit_per_price, remaining_price, 
+      approved, volume, user_create_sub, remaining_volume,  type_process`;
+
+    const fieldValue = `${order_id}, ${type_process}, ${amount_items}, ${amount_unit_per_price}, 
+      ${amount_price}, ${remaining_items}, ${remaining_unit_per_price}, ${remaining_price}, 
+      ${approved}, ${volume}, ${user_create_sub}, ${remaining_volume},${process}`;
+
+    const sql = `INSERT INTO ${DB}.sub_orders (${listField}) values (${fieldValue});`;
+    const result = await Query(connection, sql);
+    return resp(true, result);
+  } catch (e: any) {
+    throw new Error(`bad request: ${e}`);
+  }
+};
 export const transferSidhsauce = async (
   connection: Connection,
   input: {

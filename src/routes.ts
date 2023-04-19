@@ -21,6 +21,7 @@ import {
   updateBuildingSchema,
 } from "./schema/building.schema";
 import {
+  addOnSaltWaterTask,
   cancelGetInTask,
   closeProcessTask,
   createOrderTask,
@@ -48,9 +49,16 @@ import {
 } from "./schema/product.schema";
 import {
   createFishWeightBillTask,
+  createSaltBillTask,
+  fillterReceiveSaltTask,
   fillterReceiveWeightFishTask,
   getListReceiveWeightFishTask,
+  getLogReceiveSaltByOrdersIdTask,
+  getReceiveFishWeightPaginationTask,
+  getReceiveSaltBillPaginationTask,
   getReceiveWeightFishByIdTask,
+  getReceiveWeightFishByOrdersIdTask,
+  updateStockTask,
 } from "./controller/receive.controller";
 import { billWeightFish } from "./schema/receive.schema";
 
@@ -707,6 +715,35 @@ function routes(app: Express) {
     "/api/getReceiveWeightFishById/:idreceipt",
     verifyToken,
     getReceiveWeightFishByIdTask
+  );
+
+  app.get(
+    "/api/getReceiveFishWeightPaginationTask/:page/:offset",
+    verifyToken,
+    getReceiveFishWeightPaginationTask
+  );
+
+  app.post("/api/addOnSaltWaterTask", verifyToken, addOnSaltWaterTask);
+  app.post("/api/updateStockTask", verifyToken, updateStockTask);
+
+  app.get(
+    "/api/getReceiveWeightFishByOrdersIdTask/:order_id",
+    verifyToken,
+    getReceiveWeightFishByOrdersIdTask
+  );
+
+  app.post("/api/createSaltBillTask", verifyToken, createSaltBillTask);
+  app.get(
+    "/api/getReceiveSaltBillPaginationTask/:page/:offset",
+    verifyToken,
+    getReceiveSaltBillPaginationTask
+  );
+  app.post("/api/fillterReceiveSaltTask", verifyToken, fillterReceiveSaltTask);
+  
+  app.get(
+    "/api/getLogReceiveSaltByOrdersIdTask/:order_id",
+    verifyToken,
+    getLogReceiveSaltByOrdersIdTask
   );
 }
 

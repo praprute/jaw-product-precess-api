@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { number } from "zod";
 import {
+  addOnVolumn,
   createOrder,
   createSubOrder,
   createTypeProcess,
@@ -25,6 +26,10 @@ import {
   updateStatusTargetPuddle,
   updateTypeProcessSubOrder,
 } from "../service/product.service";
+import {
+  insertLogSaltStockReceive,
+  updateStockSaltService,
+} from "../service/receive.service";
 import { Connect, DisConnect } from "../utils/connect";
 import getUserUUID, { IUserPareToken } from "../utils/getUUID";
 import logger from "../utils/logger";
@@ -286,6 +291,68 @@ export const exportFishSauceToNewPuddleTask = async (
   } catch (e: any) {
     logger.error(e);
     return res.status(409).send(e.message);
+  }
+};
+
+export const addOnSaltWaterTask = async (req: Request, res: Response) => {
+  try {
+    const {
+      order_id,
+      type_process,
+      amount_items,
+      amount_unit_per_price,
+      amount_price,
+      remaining_items,
+      remaining_unit_per_price,
+      remaining_price,
+      approved,
+      volume,
+      remaining_volume,
+      process,
+      new_stock,
+      idreceipt,
+      id_puddle,
+    } = req.body;
+
+    const connection = await Connect();
+
+    const getDataUser: IUserPareToken = await getUserUUID(
+      req.headers.authorization as string
+    );
+
+    await addOnVolumn(connection, {
+      order_id,
+      type_process,
+      amount_items,
+      amount_unit_per_price,
+      amount_price,
+      remaining_items,
+      remaining_unit_per_price,
+      remaining_price,
+      approved: 1,
+      volume,
+      user_create_sub: getDataUser.idusers,
+      remaining_volume,
+      process,
+    });
+
+    await insertLogSaltStockReceive(connection, {
+      new_stock: new_stock,
+      idreceipt: idreceipt,
+      order_target: order_id,
+      id_puddle: id_puddle,
+    });
+
+    const result = await updateStockSaltService(connection, {
+      new_stock: new_stock,
+      idreceipt: idreceipt,
+    });
+
+    await DisConnect(connection);
+    return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e);
   }
 };
 
