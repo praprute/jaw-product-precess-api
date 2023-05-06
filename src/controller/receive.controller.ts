@@ -1,16 +1,21 @@
 import { Request, Response } from "express";
 import {
+  fillterReceiveFiashSauce,
   fillterReceiveSalt,
   fillterReceiveWeightFish,
   getAllReceiveFishWeight,
+  getAllRowFiashSauceListReceive,
   getAllRowListReceive,
   getAllRowSaltListReceive,
+  getFiashSauceListReceivePagination,
   getListReceivePagination,
+  getReceiveFiashSauceByOrderId,
   getReceiveSaltByOrderId,
   getReceiveWeightFishById,
   getReceiveWeightFishByOrderId,
   getSaltListReceivePagination,
   insertLogStockReceive,
+  insertRecieveFiashSauceBill,
   insertRecieveFishWeightBill,
   insertRecieveSaltBill,
   updateOrderConnect,
@@ -271,8 +276,105 @@ export const getLogReceiveSaltByOrdersIdTask = async (
 ) => {
   try {
     const { order_id } = req.params;
+    if (order_id.toString() === "null") {
+      return res.status(200).send([]);
+    } else {
+      const connection = await Connect();
+      const result = await getReceiveSaltByOrderId(connection, {
+        order_id: parseInt(order_id),
+      });
+      await DisConnect(connection);
+      return res.status(200).send(result);
+    }
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+// ------------------------ fish sauce receipt ------------------------
+
+export const createFiashSauceBillTask = async (req: Request, res: Response) => {
+  try {
+    const {
+      no,
+      product_name,
+      weigh_net,
+      price_per_weigh,
+      price_net,
+      customer,
+    } = req.body;
     const connection = await Connect();
-    const result = await getReceiveSaltByOrderId(connection, {
+    const result = await insertRecieveFiashSauceBill(connection, {
+      no,
+      product_name,
+      weigh_net,
+      price_per_weigh,
+      price_net,
+      customer,
+    });
+    await DisConnect(connection);
+    return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const getReceiveFiashSauceBillPaginationTask = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { page, offset } = req.params;
+    const connection = await Connect();
+    const list = await getFiashSauceListReceivePagination(connection, {
+      page: parseInt(page),
+      offset: parseInt(offset),
+    });
+    const countList = await getAllRowFiashSauceListReceive(connection);
+    const responseData = {
+      data: list,
+      total: countList[0].allRows,
+    };
+    await DisConnect(connection);
+    return res.status(200).send(responseData);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const fillterReceiveFiashSauceTask = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { no, weigh_net, customer_name, product_name, stock } = req.body;
+    const connection = await Connect();
+    const result = await fillterReceiveFiashSauce(connection, {
+      no,
+      weigh_net,
+      customer_name,
+      product_name,
+      stock,
+    });
+    await DisConnect(connection);
+    return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const getLogReceiveFiashSauceByOrdersIdTask = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { order_id } = req.params;
+    const connection = await Connect();
+    const result = await getReceiveFiashSauceByOrderId(connection, {
       order_id: parseInt(order_id),
     });
     await DisConnect(connection);

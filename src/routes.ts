@@ -21,6 +21,7 @@ import {
   updateBuildingSchema,
 } from "./schema/building.schema";
 import {
+  addOnFishSauceWaterTask,
   addOnSaltWaterTask,
   cancelGetInTask,
   closeProcessTask,
@@ -28,6 +29,7 @@ import {
   createPuddleTask,
   createTypeProcessTask,
   exportFishSauceToNewPuddleTask,
+  exportSaltWaterToNewPuddleTask,
   getAllOrdersFromPuddleTask,
   getAllPuddleTask,
   getAllTypeProcessTask,
@@ -48,12 +50,16 @@ import {
   updatePriceSubOrderSchema,
 } from "./schema/product.schema";
 import {
+  createFiashSauceBillTask,
   createFishWeightBillTask,
   createSaltBillTask,
+  fillterReceiveFiashSauceTask,
   fillterReceiveSaltTask,
   fillterReceiveWeightFishTask,
   getListReceiveWeightFishTask,
+  getLogReceiveFiashSauceByOrdersIdTask,
   getLogReceiveSaltByOrdersIdTask,
+  getReceiveFiashSauceBillPaginationTask,
   getReceiveFishWeightPaginationTask,
   getReceiveSaltBillPaginationTask,
   getReceiveWeightFishByIdTask,
@@ -61,6 +67,15 @@ import {
   updateStockTask,
 } from "./controller/receive.controller";
 import { billWeightFish } from "./schema/receive.schema";
+import {
+  createFeeLaborFerMent,
+  createFeeLaborPerBuilding,
+  getAllFeeLaborFerment,
+  getAllFeeLaborPerBuilding,
+  getFeeLaborPerBuildingByBuilding,
+  updateFeeLaborFerment,
+  updateFeeLaborPerBuilding,
+} from "./controller/fee.controller";
 
 function routes(app: Express) {
   /**
@@ -732,6 +747,8 @@ function routes(app: Express) {
     getReceiveWeightFishByOrdersIdTask
   );
 
+  // ---------- Salt Billing ------------------------
+
   app.post("/api/createSaltBillTask", verifyToken, createSaltBillTask);
   app.get(
     "/api/getReceiveSaltBillPaginationTask/:page/:offset",
@@ -739,12 +756,74 @@ function routes(app: Express) {
     getReceiveSaltBillPaginationTask
   );
   app.post("/api/fillterReceiveSaltTask", verifyToken, fillterReceiveSaltTask);
-  
+
   app.get(
     "/api/getLogReceiveSaltByOrdersIdTask/:order_id",
     verifyToken,
     getLogReceiveSaltByOrdersIdTask
   );
+
+  app.post(
+    "/api/exportSaltWaterToNewPuddleTask",
+    verifyToken,
+    exportSaltWaterToNewPuddleTask
+  );
+
+  // ---------- fish sauce Billing ------------------------
+
+  app.post(
+    "/api/createFiashSauceBillTask",
+    verifyToken,
+    createFiashSauceBillTask
+  );
+  app.get(
+    "/api/getReceiveFiashSauceBillPaginationTask/:page/:offset",
+    verifyToken,
+    getReceiveFiashSauceBillPaginationTask
+  );
+  app.post(
+    "/api/fillterReceiveFiashSauceTask",
+    verifyToken,
+    fillterReceiveFiashSauceTask
+  );
+
+  app.get(
+    "/api/getLogReceiveFiashSauceByOrdersIdTask/:order_id",
+    verifyToken,
+    getLogReceiveFiashSauceByOrdersIdTask
+  );
+
+  app.post(
+    "/api/addOnFishSauceWaterTask",
+    verifyToken,
+    addOnFishSauceWaterTask
+  );
+
+  // ---------- Labor cost  ------------------------
+
+  app.post(
+    "/api/createFeeLaborPerBuilding",
+    verifyToken,
+    createFeeLaborPerBuilding
+  );
+  app.post("/api/createFeeLaborFerMent", verifyToken, createFeeLaborFerMent);
+  app.put(
+    "/api/updateFeeLaborPerBuilding",
+    verifyToken,
+    updateFeeLaborPerBuilding
+  );
+  app.put("/api/updateFeeLaborFerment", verifyToken, updateFeeLaborFerment);
+  app.get(
+    "/api/getAllFeeLaborPerBuilding",
+    verifyToken,
+    getAllFeeLaborPerBuilding
+  );
+  app.get(
+    "/api/getFeeLaborPerBuildingByBuilding/:id_building",
+    verifyToken,
+    getFeeLaborPerBuildingByBuilding
+  );
+  app.get("/api/getAllFeeLaborFerment", verifyToken, getAllFeeLaborFerment);
 }
 
 export default routes;

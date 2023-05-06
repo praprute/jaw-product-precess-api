@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { number } from "zod";
 import {
   addOnVolumn,
   createOrder,
@@ -27,7 +26,9 @@ import {
   updateTypeProcessSubOrder,
 } from "../service/product.service";
 import {
+  insertLogFiashSauceStockReceive,
   insertLogSaltStockReceive,
+  updateStockFiashSauceService,
   updateStockSaltService,
 } from "../service/receive.service";
 import { Connect, DisConnect } from "../utils/connect";
@@ -294,6 +295,71 @@ export const exportFishSauceToNewPuddleTask = async (
   }
 };
 
+export const exportSaltWaterToNewPuddleTask = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const {
+      order_id,
+      type_process,
+      amount_items,
+      amount_unit_per_price,
+      amount_price,
+      remaining_items,
+      remaining_unit_per_price,
+      remaining_price,
+      approved = 0,
+      volume,
+      id_puddle,
+      remaining_volume,
+      action_puddle,
+      target_puddle,
+      serial_puddle,
+      process,
+      item_transfer,
+    } = req.body;
+    const connection = await Connect();
+
+    const getDataUser: IUserPareToken = await getUserUUID(
+      req.headers.authorization as string
+    );
+
+    const result = await transferSidhsauce(connection, {
+      order_id,
+      type_process,
+      amount_items,
+      amount_unit_per_price,
+      amount_price,
+      remaining_items,
+      remaining_unit_per_price,
+      remaining_price,
+      approved,
+      volume,
+      user_create_sub: getDataUser.idusers,
+      remaining_volume,
+      action_puddle: target_puddle,
+      action_serial_puddle: serial_puddle,
+      process,
+    });
+
+    await insertTargetPuddle(connection, {
+      id_puddle: target_puddle,
+      id_sub_order: result.message.insertId,
+      status: 0,
+      source_puddle: id_puddle,
+      source_serial_puddle: action_puddle,
+      serial_puddle,
+      item_transfer,
+    });
+    await DisConnect(connection);
+    return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
 export const addOnSaltWaterTask = async (req: Request, res: Response) => {
   try {
     const {
@@ -344,6 +410,66 @@ export const addOnSaltWaterTask = async (req: Request, res: Response) => {
     });
 
     const result = await updateStockSaltService(connection, {
+      new_stock: new_stock,
+      idreceipt: idreceipt,
+    });
+
+    await DisConnect(connection);
+    return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e);
+  }
+};
+
+export const addOnFishSauceWaterTask = async (req: Request, res: Response) => {
+  try {
+    const {
+      order_id,
+      type_process,
+      amount_items,
+      amount_unit_per_price,
+      amount_price,
+      remaining_items,
+      remaining_unit_per_price,
+      remaining_price,
+      approved,
+      volume,
+      remaining_volume,
+      new_stock,
+      idreceipt,
+      id_puddle,
+    } = req.body;
+
+    const connection = await Connect();
+
+    const getDataUser: IUserPareToken = await getUserUUID(
+      req.headers.authorization as string
+    );
+
+    await addOnVolumn(connection, {
+      order_id,
+      type_process,
+      amount_items,
+      amount_unit_per_price,
+      amount_price,
+      remaining_items,
+      remaining_unit_per_price,
+      remaining_price,
+      approved: 1,
+      volume,
+      user_create_sub: getDataUser.idusers,
+      remaining_volume,
+    });
+
+    await insertLogFiashSauceStockReceive(connection, {
+      new_stock: new_stock,
+      idreceipt: idreceipt,
+      order_target: order_id,
+      id_puddle: id_puddle,
+    });
+
+    const result = await updateStockFiashSauceService(connection, {
       new_stock: new_stock,
       idreceipt: idreceipt,
     });

@@ -314,7 +314,9 @@ export const addOnVolumn = async (
 
     const fieldValue = `${order_id}, ${type_process}, ${amount_items}, ${amount_unit_per_price}, 
       ${amount_price}, ${remaining_items}, ${remaining_unit_per_price}, ${remaining_price}, 
-      ${approved}, ${volume}, ${user_create_sub}, ${remaining_volume},${process}`;
+      ${approved}, ${volume}, ${user_create_sub}, ${remaining_volume},${
+      process ? process : null
+    }`;
 
     const sql = `INSERT INTO ${DB}.sub_orders (${listField}) values (${fieldValue});`;
     const result = await Query(connection, sql);
@@ -396,6 +398,7 @@ export const insertTargetPuddle = async (
     source_puddle: number;
     source_serial_puddle: number;
     serial_puddle?: number;
+    item_transfer?: number;
   }
 ) => {
   try {
@@ -406,8 +409,11 @@ export const insertTargetPuddle = async (
       source_puddle,
       source_serial_puddle,
       serial_puddle,
+      item_transfer,
     } = input;
-    const sql = `INSERT INTO ${DB}.target_puddle (id_puddle, id_sub_order, status, source_puddle, source_serial_puddle, serial_puddle) values (${id_puddle}, ${id_sub_order}, ${status}, ${source_puddle},${source_serial_puddle}, ${serial_puddle});`;
+    const sql = `INSERT INTO ${DB}.target_puddle (id_puddle, id_sub_order, status, source_puddle, source_serial_puddle, serial_puddle, item_transfer) values (${id_puddle}, ${id_sub_order}, ${status}, ${source_puddle},${source_serial_puddle}, ${serial_puddle} ,${
+      item_transfer ? item_transfer : 0
+    });`;
     await Query(connection, sql);
 
     return resp(true, "INSERT_SUCCESS");
