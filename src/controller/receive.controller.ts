@@ -2,11 +2,13 @@ import { Request, Response } from "express";
 import {
   fillterReceiveFiashSauce,
   fillterReceiveSalt,
+  fillterReceiveSolidSalt,
   fillterReceiveWeightFish,
   getAllReceiveFishWeight,
   getAllRowFiashSauceListReceive,
   getAllRowListReceive,
   getAllRowSaltListReceive,
+  getAllRowSolidSaltListReceive,
   getFiashSauceListReceivePagination,
   getListReceivePagination,
   getReceiveFiashSauceByOrderId,
@@ -14,12 +16,16 @@ import {
   getReceiveWeightFishById,
   getReceiveWeightFishByOrderId,
   getSaltListReceivePagination,
+  getSolidSaltListReceivePagination,
+  insertLogSolidSaltStockReceive,
   insertLogStockReceive,
   insertRecieveFiashSauceBill,
   insertRecieveFishWeightBill,
   insertRecieveSaltBill,
+  insertRecieveSolidSaltBill,
   updateOrderConnect,
   updateStockService,
+  updateStockSolidSaltService,
 } from "../service/receive.service";
 import { Connect, DisConnect } from "../utils/connect";
 import logger from "../utils/logger";
@@ -86,6 +92,7 @@ export const getReceiveWeightFishByIdTask = async (
     return res.status(409).send(e.message);
   }
 };
+
 export const getReceiveWeightFishByOrdersIdTask = async (
   req: Request,
   res: Response
@@ -199,7 +206,128 @@ export const updateStockTask = async (req: Request, res: Response) => {
   }
 };
 
-// salt receipt
+// ------------------------ solid salt receipt ------------------------
+
+export const createSolidSaltBillTask = async (req: Request, res: Response) => {
+  try {
+    const {
+      no,
+      product_name,
+      weigh_net,
+      price_per_weigh,
+      price_net,
+      customer,
+    } = req.body;
+    const connection = await Connect();
+    const result = await insertRecieveSolidSaltBill(connection, {
+      no,
+      product_name,
+      weigh_net,
+      price_per_weigh,
+      price_net,
+      customer,
+    });
+    await DisConnect(connection);
+    return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const getReceiveSolidSaltBillPaginationTask = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { page, offset } = req.params;
+    const connection = await Connect();
+    const list = await getSolidSaltListReceivePagination(connection, {
+      page: parseInt(page),
+      offset: parseInt(offset),
+    });
+    const countList = await getAllRowSolidSaltListReceive(connection);
+    const responseData = {
+      data: list,
+      total: countList[0].allRows,
+    };
+    await DisConnect(connection);
+    return res.status(200).send(responseData);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const fillterReceiveSolidSaltTask = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { no, weigh_net, customer_name, product_name, stock } = req.body;
+    const connection = await Connect();
+    const result = await fillterReceiveSolidSalt(connection, {
+      no,
+      weigh_net,
+      customer_name,
+      product_name,
+      stock,
+    });
+    await DisConnect(connection);
+    return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const getLogReceiveSolidSaltByOrdersIdTask = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { order_id } = req.params;
+    if (order_id.toString() === "null") {
+      return res.status(200).send([]);
+    } else {
+      const connection = await Connect();
+      const result = await getReceiveSaltByOrderId(connection, {
+        order_id: parseInt(order_id),
+      });
+      await DisConnect(connection);
+      return res.status(200).send(result);
+    }
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const updateStockSolidSaltTask = async (req: Request, res: Response) => {
+  try {
+    const { new_stock, idreceipt, order_target, id_puddle } = req.body;
+    const connection = await Connect();
+    await updateStockSolidSaltService(connection, {
+      new_stock,
+      idreceipt,
+    });
+    const response = await insertLogSolidSaltStockReceive(connection, {
+      new_stock,
+      idreceipt,
+      order_target,
+      id_puddle,
+    });
+
+    await DisConnect(connection);
+    return res.status(200).send(response);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+// ------------------------ salt receipt ------------------------
+
 export const createSaltBillTask = async (req: Request, res: Response) => {
   try {
     const {

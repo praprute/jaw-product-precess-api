@@ -53,8 +53,10 @@ import {
   createFiashSauceBillTask,
   createFishWeightBillTask,
   createSaltBillTask,
+  createSolidSaltBillTask,
   fillterReceiveFiashSauceTask,
   fillterReceiveSaltTask,
+  fillterReceiveSolidSaltTask,
   fillterReceiveWeightFishTask,
   getListReceiveWeightFishTask,
   getLogReceiveFiashSauceByOrdersIdTask,
@@ -62,8 +64,10 @@ import {
   getReceiveFiashSauceBillPaginationTask,
   getReceiveFishWeightPaginationTask,
   getReceiveSaltBillPaginationTask,
+  getReceiveSolidSaltBillPaginationTask,
   getReceiveWeightFishByIdTask,
   getReceiveWeightFishByOrdersIdTask,
+  updateStockSolidSaltTask,
   updateStockTask,
 } from "./controller/receive.controller";
 import { billWeightFish } from "./schema/receive.schema";
@@ -745,6 +749,32 @@ function routes(app: Express) {
     "/api/getReceiveWeightFishByOrdersIdTask/:order_id",
     verifyToken,
     getReceiveWeightFishByOrdersIdTask
+  );
+
+  // ---------- Solid Salt Billing ------------------------
+
+  app.post(
+    "/api/createSolidSaltBillTask",
+    verifyToken,
+    createSolidSaltBillTask
+  );
+
+  app.get(
+    "/api/getReceiveSolidSaltBillPaginationTask/:page/:offset",
+    verifyToken,
+    getReceiveSolidSaltBillPaginationTask
+  );
+
+  app.post(
+    "/api/fillterReceiveSolidSaltTask",
+    verifyToken,
+    fillterReceiveSolidSaltTask
+  );
+
+  app.post(
+    "/api/updateStockSolidSaltTask",
+    verifyToken,
+    updateStockSolidSaltTask
   );
 
   // ---------- Salt Billing ------------------------

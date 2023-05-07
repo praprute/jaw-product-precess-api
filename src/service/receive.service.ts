@@ -480,3 +480,145 @@ export const getReceiveFiashSauceByOrderId = async (
     throw new Error(`bad query : ${e}`);
   }
 };
+
+// ---------------------------------- solid salt receipt ---------------------------------- 
+
+export const insertRecieveSolidSaltBill = async (
+  connection: Connection,
+  input: {
+    no: string;
+    product_name: string;
+    weigh_net: number;
+    price_per_weigh: number;
+    price_net: number;
+    customer: string;
+  }
+) => {
+  try {
+    const {
+      no,
+      product_name,
+      weigh_net,
+      price_per_weigh,
+      price_net,
+      customer,
+    } = input;
+    const sql = `INSERT INTO ${DB}.solid_salt_receipt 
+    ( no, product_name, weigh_net, price_per_weigh, price_net, customer, stock ) 
+    values ('${no}',  '${product_name}', ${weigh_net},${price_per_weigh}, ${price_net}, 
+    '${customer}',  ${weigh_net} );`;
+    const result = await Query(connection, sql);
+    return resp(true, result);
+  } catch (e: any) {
+    throw new Error(`bad insert : ${e}`);
+  }
+};
+
+
+export const getSolidSaltListReceivePagination = async (
+  connection: Connection,
+  input: {
+    page: number;
+    offset: number;
+  }
+) => {
+  try {
+    const { page, offset } = input;
+    const sql = `SELECT * FROM ${DB}.solid_salt_receipt limit ${
+      page * offset
+    }, ${offset}`;
+    const result = await Query(connection, sql);
+    return result;
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+export const getAllRowSolidSaltListReceive = async (connection: Connection) => {
+  try {
+    const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.solid_salt_receipt;`;
+    const result = await Query(connection, sql);
+    return result as IAllRows[];
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+export const fillterReceiveSolidSalt = async (
+  connection: Connection,
+  input: {
+    no?: string;
+    weigh_net?: string;
+    customer_name?: string;
+    product_name?: string;
+    stock?: string;
+  }
+) => {
+  try {
+    const { no, weigh_net, customer_name, product_name, stock } = input;
+    const sql = `SELECT * FROM ${DB}.solid_salt_receipt where no LIKE '%${no}%' or weigh_net LIKE '%${weigh_net}%'
+    or customer LIKE '%${customer_name}%' 
+    or product_name LIKE '%${product_name}%' or stock LIKE '%${stock}%' ;`;
+    const result = await Query(connection, sql);
+    return resp(true, result);
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+
+export const insertLogSolidSaltStockReceive = async (
+  connection: Connection,
+  input: {
+    new_stock: number;
+    idreceipt: number;
+    order_target: number;
+    id_puddle: number;
+  }
+) => {
+  try {
+    const { new_stock, idreceipt, order_target, id_puddle } = input;
+    const sql = `INSERT INTO ${DB}.log_solid_salt_receipt (amount, receipt_target, order_target, puddle) values (${new_stock}, ${idreceipt}, ${order_target}, ${id_puddle});`;
+    const result = await Query(connection, sql);
+    return resp(true, result);
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+
+export const getReceiveSolidSaltByOrderId = async (
+  connection: Connection,
+  input: {
+    order_id: number;
+  }
+) => {
+  try {
+    const { order_id } = input;
+    const sql = `SELECT * FROM  ${DB}.log_solid_salt_receipt 
+    inner join (SELECT idsolid_salt_receipt, no, product_name,weigh_net, stock FROM  ${DB}.solid_salt_receipt) receipe_table on receipe_table.idsolid_salt_receipt = log_solid_salt_receipt.receipt_target 
+    where order_target = ${order_id};`;
+
+    const result = await Query(connection, sql);
+    return result;
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+export const updateStockSolidSaltService = async (
+  connection: Connection,
+  input: {
+    new_stock: number;
+    idreceipt: number;
+  }
+) => {
+  try {
+    const { new_stock, idreceipt } = input;
+    const sql = `UPDATE ${DB}.solid_salt_receipt SET stock = stock-${new_stock} WHERE idsolid_salt_receipt = ${idreceipt};`;
+    const result = await Query(connection, sql);
+    return resp(true, result);
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
