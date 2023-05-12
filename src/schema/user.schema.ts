@@ -46,9 +46,9 @@ export const createUserSchema = object({
     })
       .max(10, "Phone should 10 char")
       .min(10, "Phone should 10 char"),
-  }),
-  email: string({
-    required_error: "email is require",
+    email: string({
+      required_error: "email is require",
+    }),
   }),
 });
 

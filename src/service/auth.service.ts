@@ -28,10 +28,10 @@ export const insertUser = async (
     } else {
       const passwordHash = bcrypt.hashSync(password, 10);
 
-      let queryInsert = `INSERT INTO ${DB}.users (uuid, role, phone, name, password) 
+      let queryInsert = `INSERT INTO ${DB}.users (uuid, role, phone, name, password, email) 
         values (UUID(), '${
           role ? role : 0
-        }','${phone}','${name}','${passwordHash}') ;`;
+        }','${phone}','${name}','${passwordHash}', '${email}') ;`;
 
       const data = await Query(connection, queryInsert);
       if (data) {
