@@ -25,7 +25,8 @@
     "typescript": "^4.9.4"
   },
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/app.ts"
+    "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
+    "start": "node ./dist/src/app.ts"
   },
   "dependencies": {
     "atob": "^2.1.2",

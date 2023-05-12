@@ -5,7 +5,7 @@ module.exports = {
       script: "./src/app.ts",
       watch: true,
       autorestart: true,
-      args: "run dev",
+      args: "./src/app.ts",
       env: {
         PORT: 1337,
         NODE_ENV: "development",
