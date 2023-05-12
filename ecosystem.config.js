@@ -1,8 +1,10 @@
 module.exports = {
-    apps: [
-        {
-            name: 'My Application',
-            script: './src/app.ts',
-        },
-    ],
+  apps: [
+    {
+      name: "main api",
+      script: "src/app.ts",
+      watch: true,
+      autorestart: true,
+    },
+  ],
 };
