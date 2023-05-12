@@ -26,7 +26,8 @@
   },
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
-    "start": "tsc && node src/app.ts"
+    "start": "tsc && node src/app.ts",
+    "pm2": "tsc && pm2 start ecosystem.config.js"
   },
   "dependencies": {
     "atob": "^2.1.2",
