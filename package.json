@@ -27,7 +27,8 @@
   "scripts": {
     "build": "npx tsc",
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
-    "start": "node dist/src/app.js"
+    "start": "node dist/src/app.js",
+    "shivkumarscript": "ts-node -T -P tsconfig.json src/app.ts"
   },
   "dependencies": {
     "atob": "^2.1.2",
