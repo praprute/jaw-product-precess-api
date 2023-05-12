@@ -2,10 +2,12 @@ module.exports = {
   apps: [
     {
       name: "main api",
-      script: "dist/src/app.js",
+      // script: "dist/src/app.js",
+      script: "yarn",
       watch: true,
       autorestart: true,
       // args: "shivkumarscript",
+      args: "start",
       env: {
         PORT: 1337,
         NODE_ENV: "development",
