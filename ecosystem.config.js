@@ -7,7 +7,7 @@ module.exports = {
       watch: true,
       autorestart: true,
       // args: "shivkumarscript",
-      args: "start",
+      args: "shivkumarscript",
       env: {
         PORT: 1337,
         NODE_ENV: "development",
