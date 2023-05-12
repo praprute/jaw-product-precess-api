@@ -5,7 +5,7 @@ module.exports = {
       script: "yarn",
       watch: true,
       autorestart: true,
-      args: "start",
+      args: "run start",
       env: {
         PORT: 1337,
         NODE_ENV: "development",
