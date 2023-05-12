@@ -36,7 +36,7 @@ const Query = async (connection: mysql.Connection, query: string) =>
         return;
       }
 
-      log.info(query);
+      // log.info(query);
       resolve(result);
     });
   });
