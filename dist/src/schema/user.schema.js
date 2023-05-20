@@ -47,9 +47,9 @@ exports.createUserSchema = (0, zod_1.object)({
         })
             .max(10, "Phone should 10 char")
             .min(10, "Phone should 10 char"),
-    }),
-    email: (0, zod_1.string)({
-        required_error: "email is require",
+        email: (0, zod_1.string)({
+            required_error: "email is require",
+        }),
     }),
 });
 /**

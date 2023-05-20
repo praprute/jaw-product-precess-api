@@ -34,8 +34,8 @@ const insertUser = (connection, input) => __awaiter(void 0, void 0, void 0, func
         }
         else {
             const passwordHash = bcrypt_1.default.hashSync(password, 10);
-            let queryInsert = `INSERT INTO ${DB}.users (uuid, role, phone, name, password) 
-        values (UUID(), '${role ? role : 0}','${phone}','${name}','${passwordHash}') ;`;
+            let queryInsert = `INSERT INTO ${DB}.users (uuid, role, phone, name, password, email) 
+        values (UUID(), '${role ? role : 0}','${phone}','${name}','${passwordHash}', '${email}') ;`;
             const data = yield (0, connect_1.Query)(connection, queryInsert);
             if (data) {
                 return (0, response_1.default)(true, "CREATE_USER_SUCCESS");
