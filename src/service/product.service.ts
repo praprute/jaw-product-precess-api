@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import resp from "../utils/response";
 import { ICreatePuddle, IUpdateDetailPuddle } from "../types/product";
 import { LargeNumberLike } from "crypto";
+import log from "../utils/logger";
 
 dotenv.config();
 
@@ -626,6 +627,7 @@ export const getAllFishType = async (connection: Connection) => {
     const result = await Query(connection, sql);
     return resp(true, result);
   } catch (e) {
+    log.error(e);
     throw new Error("bad request");
   }
 };
@@ -640,6 +642,7 @@ export const insertFishType = async (
     const result = await Query(connection, sql);
     return resp(true, result);
   } catch (e) {
+    log.error(e);
     throw new Error("bad request");
   }
 };
@@ -655,6 +658,7 @@ export const deleteFishTypeService = async (
 
     return resp(true, result);
   } catch (e) {
+    log.error(e);
     throw new Error("bad request");
   }
 };
