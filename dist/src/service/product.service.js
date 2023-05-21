@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateTypeProcessSubOrder = exports.createTypeProcess = exports.getAllTypeProcess = exports.getSerialPuddle = exports.deleteSubOrderById = exports.deleteTargetPuddleById = exports.updateStatusApprovedSubOrder = exports.updateStatusTargetPuddle = exports.submitImportFish = exports.getTargetPending = exports.getAllOrderFromPuddle = exports.insertTargetPuddle = exports.transferSidhsauce = exports.addOnVolumn = exports.insertSubOrderTypeClearAll = exports.updateAmountPriceOrder = exports.updatePriceSubOrder = exports.getOrderDetails = exports.createSubOrder = exports.updatePuddleOrderLasted = exports.createOrder = exports.getDetailPuddleById = exports.getAllPuddle = exports.updateDetailPuddle = exports.insertPuddle = void 0;
+exports.deleteFishTypeService = exports.insertFishType = exports.getAllFishType = exports.updateTypeProcessSubOrder = exports.createTypeProcess = exports.getAllTypeProcess = exports.getSerialPuddle = exports.deleteSubOrderById = exports.deleteTargetPuddleById = exports.updateStatusApprovedSubOrder = exports.updateStatusTargetPuddle = exports.submitImportFish = exports.getTargetPending = exports.getAllOrderFromPuddle = exports.insertTargetPuddle = exports.transferSidhsauce = exports.addOnVolumn = exports.insertSubOrderTypeClearAll = exports.updateAmountPriceOrder = exports.updatePriceSubOrder = exports.getOrderDetails = exports.createSubOrder = exports.updatePuddleOrderLasted = exports.createOrder = exports.getDetailPuddleById = exports.getAllPuddle = exports.updateDetailPuddle = exports.insertPuddle = void 0;
 const config_1 = __importDefault(require("config"));
 const connect_1 = require("../utils/connect");
 const dotenv_1 = __importDefault(require("dotenv"));
@@ -378,3 +378,38 @@ const updateTypeProcessSubOrder = (connection, input) => __awaiter(void 0, void 
     }
 });
 exports.updateTypeProcessSubOrder = updateTypeProcessSubOrder;
+const getAllFishType = (connection) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const sql = `SELECT * FROM  ${DB}.fish_type;`;
+        const result = yield (0, connect_1.Query)(connection, sql);
+        return (0, response_1.default)(true, result);
+    }
+    catch (e) {
+        throw new Error("bad request");
+    }
+});
+exports.getAllFishType = getAllFishType;
+const insertFishType = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { name } = input;
+        const sql = `INSERT INTO  ${DB}.fish_type (name) VALUES ('${name}');`;
+        const result = yield (0, connect_1.Query)(connection, sql);
+        return (0, response_1.default)(true, result);
+    }
+    catch (e) {
+        throw new Error("bad request");
+    }
+});
+exports.insertFishType = insertFishType;
+const deleteFishTypeService = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { idfish_type } = input;
+        const sql = `DELETE FROM ${DB}.fish_type where idfish_type=${idfish_type};`;
+        const result = yield (0, connect_1.Query)(connection, sql);
+        return (0, response_1.default)(true, result);
+    }
+    catch (e) {
+        throw new Error("bad request");
+    }
+});
+exports.deleteFishTypeService = deleteFishTypeService;

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.closeProcessTask = exports.updateProcessDescritionSubOrderTask = exports.throwItemsInPuddleTask = exports.createTypeProcessTask = exports.getAllTypeProcessTask = exports.getSerialPuddleTask = exports.cancelGetInTask = exports.submitImportFishTask = exports.getTargetPendingTask = exports.addOnFishSauceWaterTask = exports.addOnSaltWaterTask = exports.exportSaltWaterToNewPuddleTask = exports.exportFishSauceToNewPuddleTask = exports.getAllOrdersFromPuddleTask = exports.updatePriceSubOrderTask = exports.getOrderDetailsTask = exports.createOrderTask = exports.getDetailPuddleByIdTask = exports.getAllPuddleTask = exports.updateDetailPuddleTask = exports.createPuddleTask = void 0;
+exports.deleteFishType = exports.createFishType = exports.getListFishType = exports.closeProcessTask = exports.updateProcessDescritionSubOrderTask = exports.throwItemsInPuddleTask = exports.createTypeProcessTask = exports.getAllTypeProcessTask = exports.getSerialPuddleTask = exports.cancelGetInTask = exports.submitImportFishTask = exports.getTargetPendingTask = exports.addOnFishSauceWaterTask = exports.addOnSaltWaterTask = exports.exportSaltWaterToNewPuddleTask = exports.exportFishSauceToNewPuddleTask = exports.getAllOrdersFromPuddleTask = exports.updatePriceSubOrderTask = exports.getOrderDetailsTask = exports.createOrderTask = exports.getDetailPuddleByIdTask = exports.getAllPuddleTask = exports.updateDetailPuddleTask = exports.createPuddleTask = void 0;
 const product_service_1 = require("../service/product.service");
 const receive_service_1 = require("../service/receive.service");
 const connect_1 = require("../utils/connect");
@@ -541,3 +541,46 @@ const closeProcessTask = (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.closeProcessTask = closeProcessTask;
+const getListFishType = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const connection = yield (0, connect_1.Connect)();
+        const result = yield (0, product_service_1.getAllFishType)(connection);
+        yield (0, connect_1.DisConnect)(connection);
+        return res.status(200).send(result);
+    }
+    catch (e) {
+        logger_1.default.error(e);
+        return res.status(409).send(e.message);
+    }
+});
+exports.getListFishType = getListFishType;
+const createFishType = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { name } = req.body;
+        const connection = yield (0, connect_1.Connect)();
+        const result = yield (0, product_service_1.insertFishType)(connection, { name });
+        yield (0, connect_1.DisConnect)(connection);
+        return res.status(200).send(result);
+    }
+    catch (e) {
+        logger_1.default.error(e);
+        return res.status(409).send(e.message);
+    }
+});
+exports.createFishType = createFishType;
+const deleteFishType = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const idfish_type = req.params.idfish_type;
+        const connection = yield (0, connect_1.Connect)();
+        const result = yield (0, product_service_1.deleteFishTypeService)(connection, {
+            idfish_type: Number(idfish_type),
+        });
+        yield (0, connect_1.DisConnect)(connection);
+        return res.status(200).send(result);
+    }
+    catch (e) {
+        logger_1.default.error(e);
+        return res.status(409).send(e.message);
+    }
+});
+exports.deleteFishType = deleteFishType;

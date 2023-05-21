@@ -587,5 +587,9 @@ function routes(app) {
     app.get("/api/getAllFeeLaborPerBuilding", verifyToken_1.default, fee_controller_1.getAllFeeLaborPerBuilding);
     app.get("/api/getFeeLaborPerBuildingByBuilding/:id_building", verifyToken_1.default, fee_controller_1.getFeeLaborPerBuildingByBuilding);
     app.get("/api/getAllFeeLaborFerment", verifyToken_1.default, fee_controller_1.getAllFeeLaborFerment);
+    // ---------- Fish type  ------------------------
+    app.get("/api/getListFishType", product_controller_1.getListFishType);
+    app.post("/api/createFishType", verifyToken_1.default, product_controller_1.createFishType);
+    app.delete("/api/deleteFishType/:idfish_type", verifyToken_1.default, product_controller_1.deleteFishType);
 }
 exports.default = routes;
