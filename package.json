@@ -27,7 +27,7 @@
   "scripts": {
     "build": "npx tsc",
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
-    "start": "node dist/src/app.js",
+    "start": "nodemon dist/src/app.js",
     "shivkumarscript": "ts-node -T -P tsconfig.json src/app.ts"
   },
   "dependencies": {
@@ -45,6 +45,7 @@
     "lodash": "^4.17.21",
     "mysql": "^2.18.1",
     "nanoid": "^3.1.30",
+    "nodemon": "^2.0.22",
     "pino": "^7.0.2",
     "pino-pretty": "^7.1.0",
     "prom-client": "^14.0.0",

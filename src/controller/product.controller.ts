@@ -4,8 +4,10 @@ import {
   createOrder,
   createSubOrder,
   createTypeProcess,
+  deleteFishTypeService,
   deleteSubOrderById,
   deleteTargetPuddleById,
+  getAllFishType,
   getAllOrderFromPuddle,
   getAllPuddle,
   getAllTypeProcess,
@@ -13,6 +15,7 @@ import {
   getOrderDetails,
   getSerialPuddle,
   getTargetPending,
+  insertFishType,
   insertPuddle,
   insertSubOrderTypeClearAll,
   insertTargetPuddle,
@@ -704,6 +707,46 @@ export const closeProcessTask = async (req: Request, res: Response) => {
       volume,
       remaining_volume,
       user_create_sub: getDataUser.idusers,
+    });
+    await DisConnect(connection);
+    return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const getListFishType = async (req: Request, res: Response) => {
+  try {
+    const connection = await Connect();
+    const result = await getAllFishType(connection);
+    await DisConnect(connection);
+    return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const createFishType = async (req: Request, res: Response) => {
+  try {
+    const { name } = req.body;
+    const connection = await Connect();
+    const result = await insertFishType(connection, { name });
+    await DisConnect(connection);
+    return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const deleteFishType = async (req: Request, res: Response) => {
+  try {
+    const idfish_type = req.params.idfish_type;
+    const connection = await Connect();
+    const result = await deleteFishTypeService(connection, {
+      idfish_type: Number(idfish_type),
     });
     await DisConnect(connection);
     return res.status(200).send(result);

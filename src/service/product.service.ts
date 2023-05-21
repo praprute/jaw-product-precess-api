@@ -619,3 +619,42 @@ export const updateTypeProcessSubOrder = async (
     throw new Error("bad request");
   }
 };
+
+export const getAllFishType = async (connection: Connection) => {
+  try {
+    const sql = `SELECT * FROM  ${DB}.fish_type;`;
+    const result = await Query(connection, sql);
+    return resp(true, result);
+  } catch (e) {
+    throw new Error("bad request");
+  }
+};
+
+export const insertFishType = async (
+  connection: Connection,
+  input: { name: string }
+) => {
+  try {
+    const { name } = input;
+    const sql = `INSERT INTO  ${DB}.fish_type (name) VALUES ('${name}');`;
+    const result = await Query(connection, sql);
+    return resp(true, result);
+  } catch (e) {
+    throw new Error("bad request");
+  }
+};
+
+export const deleteFishTypeService = async (
+  connection: Connection,
+  input: { idfish_type: number }
+) => {
+  try {
+    const { idfish_type } = input;
+    const sql = `DELETE FROM ${DB}.fish_type where idfish_type=${idfish_type};`;
+    const result = await Query(connection, sql);
+
+    return resp(true, result);
+  } catch (e) {
+    throw new Error("bad request");
+  }
+};

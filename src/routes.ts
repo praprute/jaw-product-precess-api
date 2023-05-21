@@ -25,15 +25,18 @@ import {
   addOnSaltWaterTask,
   cancelGetInTask,
   closeProcessTask,
+  createFishType,
   createOrderTask,
   createPuddleTask,
   createTypeProcessTask,
+  deleteFishType,
   exportFishSauceToNewPuddleTask,
   exportSaltWaterToNewPuddleTask,
   getAllOrdersFromPuddleTask,
   getAllPuddleTask,
   getAllTypeProcessTask,
   getDetailPuddleByIdTask,
+  getListFishType,
   getOrderDetailsTask,
   getSerialPuddleTask,
   getTargetPendingTask,
@@ -854,6 +857,11 @@ function routes(app: Express) {
     getFeeLaborPerBuildingByBuilding
   );
   app.get("/api/getAllFeeLaborFerment", verifyToken, getAllFeeLaborFerment);
+
+  // ---------- Fish type  ------------------------
+  app.get("/api/getListFishType", getListFishType);
+  app.post("/api/createFishType", verifyToken, createFishType);
+  app.delete("/api/deleteFishType/:idfish_type", verifyToken, deleteFishType);
 }
 
 export default routes;
