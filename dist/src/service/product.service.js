@@ -17,6 +17,7 @@ const config_1 = __importDefault(require("config"));
 const connect_1 = require("../utils/connect");
 const dotenv_1 = __importDefault(require("dotenv"));
 const response_1 = __importDefault(require("../utils/response"));
+const logger_1 = __importDefault(require("../utils/logger"));
 dotenv_1.default.config();
 const DB = config_1.default.get("database");
 const insertPuddle = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
@@ -385,6 +386,7 @@ const getAllFishType = (connection) => __awaiter(void 0, void 0, void 0, functio
         return (0, response_1.default)(true, result);
     }
     catch (e) {
+        logger_1.default.error(e);
         throw new Error("bad request");
     }
 });
@@ -397,6 +399,7 @@ const insertFishType = (connection, input) => __awaiter(void 0, void 0, void 0, 
         return (0, response_1.default)(true, result);
     }
     catch (e) {
+        logger_1.default.error(e);
         throw new Error("bad request");
     }
 });
@@ -409,6 +412,7 @@ const deleteFishTypeService = (connection, input) => __awaiter(void 0, void 0, v
         return (0, response_1.default)(true, result);
     }
     catch (e) {
+        logger_1.default.error(e);
         throw new Error("bad request");
     }
 });
