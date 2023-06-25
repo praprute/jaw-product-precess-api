@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateStockSolidSaltService = exports.getReceiveSolidSaltByOrderId = exports.insertLogSolidSaltStockReceive = exports.fillterReceiveSolidSalt = exports.getAllRowSolidSaltListReceive = exports.getSolidSaltListReceivePagination = exports.insertRecieveSolidSaltBill = exports.getReceiveFiashSauceByOrderId = exports.updateStockFiashSauceService = exports.insertLogFiashSauceStockReceive = exports.fillterReceiveFiashSauce = exports.getAllRowFiashSauceListReceive = exports.getFiashSauceListReceivePagination = exports.insertRecieveFiashSauceBill = exports.getReceiveSaltByOrderId = exports.updateStockSaltService = exports.insertLogSaltStockReceive = exports.fillterReceiveSalt = exports.getAllRowSaltListReceive = exports.getSaltListReceivePagination = exports.insertRecieveSaltBill = exports.getReceiveWeightFishByOrderId = exports.getAllRowListReceive = exports.getListReceivePagination = exports.insertLogStockReceive = exports.updateStockService = exports.updateOrderConnect = exports.fillterReceiveWeightFish = exports.getReceiveWeightFishById = exports.getAllReceiveFishWeight = exports.insertRecieveFishWeightBill = void 0;
+exports.deleteCustomerBil = exports.insertCustomer = exports.getAllRowCustomerByBill = exports.getCustomerByBillPagination = exports.getCustomerByBill = exports.updateStockSolidSaltService = exports.getReceiveSolidSaltByOrderId = exports.insertLogSolidSaltStockReceive = exports.fillterReceiveSolidSalt = exports.getAllRowSolidSaltListReceiveWithOutEmpty = exports.getAllRowSolidSaltListReceive = exports.getSolidSaltListReceivePaginationWithOutEmpty = exports.getSolidSaltListReceivePagination = exports.insertRecieveSolidSaltBill = exports.getReceiveFiashSauceByOrderId = exports.updateStockFiashSauceService = exports.insertLogFiashSauceStockReceive = exports.fillterReceiveFiashSauce = exports.getAllRowFiashSauceListReceiveWithOutEmpty = exports.getAllRowFiashSauceListReceive = exports.getFiashSauceListReceivePaginationWithOutEmpty = exports.getFiashSauceListReceivePagination = exports.insertRecieveFiashSauceBill = exports.getReceiveSaltByOrderId = exports.updateStockSaltService = exports.insertLogSaltStockReceive = exports.fillterReceiveSalt = exports.getAllRowSaltListReceiveWithOutEmpty = exports.getAllRowSaltListReceive = exports.getSaltListReceivePaginationWithOutEmpty = exports.getSaltListReceivePagination = exports.insertRecieveSaltBill = exports.getReceiveWeightFishByOrderId = exports.getAllRowListReceiveWithoutEmpty = exports.getAllRowListReceive = exports.getListReceivePaginationWithoutEmpty = exports.getListReceivePagination = exports.insertLogStockReceive = exports.updateStockService = exports.updateOrderConnect = exports.fillterReceiveWeightFish = exports.getReceiveWeightFishById = exports.getAllReceiveFishWeight = exports.insertRecieveFishWeightBill = void 0;
 const config_1 = __importDefault(require("config"));
 const connect_1 = require("../utils/connect");
 const dotenv_1 = __importDefault(require("dotenv"));
@@ -21,7 +21,7 @@ dotenv_1.default.config();
 const DB = config_1.default.get("database");
 const insertRecieveFishWeightBill = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { no, weigh_net, price_per_weigh, amount_price, vehicle_register, customer_name, product_name, store_name, description, } = input;
+        const { no, weigh_net, price_per_weigh, amount_price, vehicle_register, customer_name, product_name, store_name, description, date_action, } = input;
         const sql = `INSERT INTO ${DB}.receipt 
     ( no,
       weigh_net,
@@ -32,9 +32,9 @@ const insertRecieveFishWeightBill = (connection, input) => __awaiter(void 0, voi
       product_name,
       store_name,
       description,
-      stock ) 
+      stock, date_action ) 
     values ('${no}',  ${weigh_net},${price_per_weigh}, ${amount_price}, 
-   '${vehicle_register}', '${customer_name}', '${product_name}', '${store_name}', '${description}', ${weigh_net} );`;
+   '${vehicle_register}', '${customer_name}', '${product_name}', '${store_name}', '${description}', ${weigh_net}, '${date_action}' );`;
         const result = yield (0, connect_1.Query)(connection, sql);
         return (0, response_1.default)(true, result);
     }
@@ -128,6 +128,18 @@ const getListReceivePagination = (connection, input) => __awaiter(void 0, void 0
     }
 });
 exports.getListReceivePagination = getListReceivePagination;
+const getListReceivePaginationWithoutEmpty = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { page, offset } = input;
+        const sql = `SELECT * FROM ${DB}.receipt where stock != 0 limit ${page * offset}, ${offset}`;
+        const result = yield (0, connect_1.Query)(connection, sql);
+        return result;
+    }
+    catch (e) {
+        throw new Error(`bad query : ${e}`);
+    }
+});
+exports.getListReceivePaginationWithoutEmpty = getListReceivePaginationWithoutEmpty;
 const getAllRowListReceive = (connection) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.receipt;`;
@@ -139,6 +151,17 @@ const getAllRowListReceive = (connection) => __awaiter(void 0, void 0, void 0, f
     }
 });
 exports.getAllRowListReceive = getAllRowListReceive;
+const getAllRowListReceiveWithoutEmpty = (connection) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.receipt where stock != 0;`;
+        const result = yield (0, connect_1.Query)(connection, sql);
+        return result;
+    }
+    catch (e) {
+        throw new Error(`bad query : ${e}`);
+    }
+});
+exports.getAllRowListReceiveWithoutEmpty = getAllRowListReceiveWithoutEmpty;
 const getReceiveWeightFishByOrderId = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { order_id } = input;
@@ -153,14 +176,14 @@ const getReceiveWeightFishByOrderId = (connection, input) => __awaiter(void 0, v
     }
 });
 exports.getReceiveWeightFishByOrderId = getReceiveWeightFishByOrderId;
-// ---------------------------------- salt receipt ---------------------------------- 
+// ---------------------------------- salt receipt ----------------------------------
 const insertRecieveSaltBill = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { no, product_name, weigh_net, price_per_weigh, price_net, customer, } = input;
+        const { no, product_name, weigh_net, price_per_weigh, price_net, customer, date_action, } = input;
         const sql = `INSERT INTO ${DB}.salt_receipt 
-    ( no, product_name, weigh_net, price_per_weigh, price_net, customer, stock ) 
+    ( no, product_name, weigh_net, price_per_weigh, price_net, customer, stock, date_action ) 
     values ('${no}',  '${product_name}', ${weigh_net},${price_per_weigh}, ${price_net}, 
-    '${customer}',  ${weigh_net} );`;
+    '${customer}',  ${weigh_net}, '${date_action}' );`;
         const result = yield (0, connect_1.Query)(connection, sql);
         return (0, response_1.default)(true, result);
     }
@@ -181,6 +204,19 @@ const getSaltListReceivePagination = (connection, input) => __awaiter(void 0, vo
     }
 });
 exports.getSaltListReceivePagination = getSaltListReceivePagination;
+// where stock != 0;
+const getSaltListReceivePaginationWithOutEmpty = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { page, offset } = input;
+        const sql = `SELECT * FROM ${DB}.salt_receipt where stock != 0 limit ${page * offset}, ${offset}`;
+        const result = yield (0, connect_1.Query)(connection, sql);
+        return result;
+    }
+    catch (e) {
+        throw new Error(`bad query : ${e}`);
+    }
+});
+exports.getSaltListReceivePaginationWithOutEmpty = getSaltListReceivePaginationWithOutEmpty;
 const getAllRowSaltListReceive = (connection) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.salt_receipt;`;
@@ -192,6 +228,17 @@ const getAllRowSaltListReceive = (connection) => __awaiter(void 0, void 0, void 
     }
 });
 exports.getAllRowSaltListReceive = getAllRowSaltListReceive;
+const getAllRowSaltListReceiveWithOutEmpty = (connection) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.salt_receipt  where stock != 0;`;
+        const result = yield (0, connect_1.Query)(connection, sql);
+        return result;
+    }
+    catch (e) {
+        throw new Error(`bad query : ${e}`);
+    }
+});
+exports.getAllRowSaltListReceiveWithOutEmpty = getAllRowSaltListReceiveWithOutEmpty;
 const fillterReceiveSalt = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { no, weigh_net, customer_name, product_name, stock } = input;
@@ -244,14 +291,14 @@ const getReceiveSaltByOrderId = (connection, input) => __awaiter(void 0, void 0,
     }
 });
 exports.getReceiveSaltByOrderId = getReceiveSaltByOrderId;
-// ---------------------------------- Fish Sauce receipt ---------------------------------- 
+// ---------------------------------- Fish Sauce receipt ----------------------------------
 const insertRecieveFiashSauceBill = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { no, product_name, weigh_net, price_per_weigh, price_net, customer, } = input;
+        const { no, product_name, weigh_net, price_per_weigh, price_net, customer, date_action, } = input;
         const sql = `INSERT INTO ${DB}.fishsauce_receipt 
-    ( no, product_name, weigh_net, price_per_weigh, price_net, customer, stock ) 
+    ( no, product_name, weigh_net, price_per_weigh, price_net, customer, stock, date_action ) 
     values ('${no}',  '${product_name}', ${weigh_net},${price_per_weigh}, ${price_net}, 
-    '${customer}',  ${weigh_net} );`;
+    '${customer}',  ${weigh_net}, '${date_action}' );`;
         const result = yield (0, connect_1.Query)(connection, sql);
         return (0, response_1.default)(true, result);
     }
@@ -272,6 +319,19 @@ const getFiashSauceListReceivePagination = (connection, input) => __awaiter(void
     }
 });
 exports.getFiashSauceListReceivePagination = getFiashSauceListReceivePagination;
+const getFiashSauceListReceivePaginationWithOutEmpty = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { page, offset } = input;
+        const sql = `SELECT * FROM ${DB}.fishsauce_receipt where stock != 0 limit ${page * offset}, ${offset}`;
+        const result = yield (0, connect_1.Query)(connection, sql);
+        return result;
+    }
+    catch (e) {
+        throw new Error(`bad query : ${e}`);
+    }
+});
+exports.getFiashSauceListReceivePaginationWithOutEmpty = getFiashSauceListReceivePaginationWithOutEmpty;
+// where stock != 0
 const getAllRowFiashSauceListReceive = (connection) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.fishsauce_receipt;`;
@@ -283,6 +343,17 @@ const getAllRowFiashSauceListReceive = (connection) => __awaiter(void 0, void 0,
     }
 });
 exports.getAllRowFiashSauceListReceive = getAllRowFiashSauceListReceive;
+const getAllRowFiashSauceListReceiveWithOutEmpty = (connection) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.fishsauce_receipt  where stock != 0;`;
+        const result = yield (0, connect_1.Query)(connection, sql);
+        return result;
+    }
+    catch (e) {
+        throw new Error(`bad query : ${e}`);
+    }
+});
+exports.getAllRowFiashSauceListReceiveWithOutEmpty = getAllRowFiashSauceListReceiveWithOutEmpty;
 const fillterReceiveFiashSauce = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { no, weigh_net, customer_name, product_name, stock } = input;
@@ -335,14 +406,14 @@ const getReceiveFiashSauceByOrderId = (connection, input) => __awaiter(void 0, v
     }
 });
 exports.getReceiveFiashSauceByOrderId = getReceiveFiashSauceByOrderId;
-// ---------------------------------- solid salt receipt ---------------------------------- 
+// ---------------------------------- solid salt receipt ----------------------------------
 const insertRecieveSolidSaltBill = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { no, product_name, weigh_net, price_per_weigh, price_net, customer, } = input;
+        const { no, product_name, weigh_net, price_per_weigh, price_net, customer, date_action, } = input;
         const sql = `INSERT INTO ${DB}.solid_salt_receipt 
-    ( no, product_name, weigh_net, price_per_weigh, price_net, customer, stock ) 
+    ( no, product_name, weigh_net, price_per_weigh, price_net, customer, stock, date_action ) 
     values ('${no}',  '${product_name}', ${weigh_net},${price_per_weigh}, ${price_net}, 
-    '${customer}',  ${weigh_net} );`;
+    '${customer}',  ${weigh_net} , '${date_action}');`;
         const result = yield (0, connect_1.Query)(connection, sql);
         return (0, response_1.default)(true, result);
     }
@@ -363,6 +434,18 @@ const getSolidSaltListReceivePagination = (connection, input) => __awaiter(void 
     }
 });
 exports.getSolidSaltListReceivePagination = getSolidSaltListReceivePagination;
+const getSolidSaltListReceivePaginationWithOutEmpty = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { page, offset } = input;
+        const sql = `SELECT * FROM ${DB}.solid_salt_receipt where stock != 0 limit ${page * offset}, ${offset}`;
+        const result = yield (0, connect_1.Query)(connection, sql);
+        return result;
+    }
+    catch (e) {
+        throw new Error(`bad query : ${e}`);
+    }
+});
+exports.getSolidSaltListReceivePaginationWithOutEmpty = getSolidSaltListReceivePaginationWithOutEmpty;
 const getAllRowSolidSaltListReceive = (connection) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.solid_salt_receipt;`;
@@ -374,6 +457,17 @@ const getAllRowSolidSaltListReceive = (connection) => __awaiter(void 0, void 0, 
     }
 });
 exports.getAllRowSolidSaltListReceive = getAllRowSolidSaltListReceive;
+const getAllRowSolidSaltListReceiveWithOutEmpty = (connection) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.solid_salt_receipt  where stock != 0;`;
+        const result = yield (0, connect_1.Query)(connection, sql);
+        return result;
+    }
+    catch (e) {
+        throw new Error(`bad query : ${e}`);
+    }
+});
+exports.getAllRowSolidSaltListReceiveWithOutEmpty = getAllRowSolidSaltListReceiveWithOutEmpty;
 const fillterReceiveSolidSalt = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { no, weigh_net, customer_name, product_name, stock } = input;
@@ -426,3 +520,64 @@ const updateStockSolidSaltService = (connection, input) => __awaiter(void 0, voi
     }
 });
 exports.updateStockSolidSaltService = updateStockSolidSaltService;
+// query customer
+const getCustomerByBill = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { type_bill } = input;
+        const sql = `SELECT * FROM ${DB}.customer_bill where type_bill=${type_bill};`;
+        const result = yield (0, connect_1.Query)(connection, sql);
+        return (0, response_1.default)(true, result);
+    }
+    catch (e) {
+        throw new Error(`bad query : ${e}`);
+    }
+});
+exports.getCustomerByBill = getCustomerByBill;
+const getCustomerByBillPagination = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { type_bill, page, offset } = input;
+        const sql = `SELECT * FROM ${DB}.customer_bill where type_bill=${type_bill} limit ${page * offset}, ${offset}`;
+        const result = yield (0, connect_1.Query)(connection, sql);
+        return result;
+    }
+    catch (e) {
+        throw new Error(`bad query : ${e}`);
+    }
+});
+exports.getCustomerByBillPagination = getCustomerByBillPagination;
+const getAllRowCustomerByBill = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { type_bill } = input;
+        const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.customer_bill where type_bill=${type_bill} ;`;
+        const result = yield (0, connect_1.Query)(connection, sql);
+        return result;
+    }
+    catch (e) {
+        throw new Error(`bad query : ${e}`);
+    }
+});
+exports.getAllRowCustomerByBill = getAllRowCustomerByBill;
+const insertCustomer = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { type_bill, name } = input;
+        const sql = `INSERT INTO ${DB}.customer_bill (type_bill, name) VALUES (${type_bill}, '${name}');`;
+        const result = yield (0, connect_1.Query)(connection, sql);
+        return (0, response_1.default)(true, result);
+    }
+    catch (e) {
+        throw new Error(`bad query : ${e}`);
+    }
+});
+exports.insertCustomer = insertCustomer;
+const deleteCustomerBil = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { idcustomer_bill } = input;
+        const sql = `DELETE FROM ${DB}.customer_bill where idcustomer_bill=${idcustomer_bill};`;
+        const result = yield (0, connect_1.Query)(connection, sql);
+        return (0, response_1.default)(true, result);
+    }
+    catch (e) {
+        throw new Error("bad request");
+    }
+});
+exports.deleteCustomerBil = deleteCustomerBil;

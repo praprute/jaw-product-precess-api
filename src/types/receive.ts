@@ -10,4 +10,5 @@ export interface IRecieveFishWeightBill {
   description: string;
   order_connect?: number;
   stock?: number;
+  date_action: string;
 }

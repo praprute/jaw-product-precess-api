@@ -14,6 +14,7 @@ const product_schema_1 = require("./schema/product.schema");
 const receive_controller_1 = require("./controller/receive.controller");
 const receive_schema_1 = require("./schema/receive.schema");
 const fee_controller_1 = require("./controller/fee.controller");
+const setting_controller_1 = require("./controller/setting.controller");
 function routes(app) {
     /**
      * @openapi
@@ -559,23 +560,28 @@ function routes(app) {
     app.post("/api/fillterReceiveWeightFish", verifyToken_1.default, receive_controller_1.fillterReceiveWeightFishTask);
     app.get("/api/getReceiveWeightFishById/:idreceipt", verifyToken_1.default, receive_controller_1.getReceiveWeightFishByIdTask);
     app.get("/api/getReceiveFishWeightPaginationTask/:page/:offset", verifyToken_1.default, receive_controller_1.getReceiveFishWeightPaginationTask);
+    app.get("/api/getReceiveFishWeightPaginationWithOutEmptyTask/:page/:offset", verifyToken_1.default, receive_controller_1.getReceiveFishWeightPaginationWithOutEmptyTask);
     app.post("/api/addOnSaltWaterTask", verifyToken_1.default, product_controller_1.addOnSaltWaterTask);
     app.post("/api/updateStockTask", verifyToken_1.default, receive_controller_1.updateStockTask);
     app.get("/api/getReceiveWeightFishByOrdersIdTask/:order_id", verifyToken_1.default, receive_controller_1.getReceiveWeightFishByOrdersIdTask);
     // ---------- Solid Salt Billing ------------------------
     app.post("/api/createSolidSaltBillTask", verifyToken_1.default, receive_controller_1.createSolidSaltBillTask);
     app.get("/api/getReceiveSolidSaltBillPaginationTask/:page/:offset", verifyToken_1.default, receive_controller_1.getReceiveSolidSaltBillPaginationTask);
+    app.get("/api/getReceiveSolidSaltBillPaginationWithOutEmptyTask/:page/:offset", verifyToken_1.default, receive_controller_1.getReceiveSolidSaltBillPaginationWithOutEmptyTask);
     app.post("/api/fillterReceiveSolidSaltTask", verifyToken_1.default, receive_controller_1.fillterReceiveSolidSaltTask);
     app.post("/api/updateStockSolidSaltTask", verifyToken_1.default, receive_controller_1.updateStockSolidSaltTask);
     // ---------- Salt Billing ------------------------
     app.post("/api/createSaltBillTask", verifyToken_1.default, receive_controller_1.createSaltBillTask);
     app.get("/api/getReceiveSaltBillPaginationTask/:page/:offset", verifyToken_1.default, receive_controller_1.getReceiveSaltBillPaginationTask);
+    app.get("/api/getReceiveSaltBillPaginationWithOutEmptyTask/:page/:offset", verifyToken_1.default, receive_controller_1.getReceiveSaltBillPaginationWithOutEmptyTask);
+    // getReceiveSaltBillPaginationWithOutEmptyTask
     app.post("/api/fillterReceiveSaltTask", verifyToken_1.default, receive_controller_1.fillterReceiveSaltTask);
     app.get("/api/getLogReceiveSaltByOrdersIdTask/:order_id", verifyToken_1.default, receive_controller_1.getLogReceiveSaltByOrdersIdTask);
     app.post("/api/exportSaltWaterToNewPuddleTask", verifyToken_1.default, product_controller_1.exportSaltWaterToNewPuddleTask);
     // ---------- fish sauce Billing ------------------------
     app.post("/api/createFiashSauceBillTask", verifyToken_1.default, receive_controller_1.createFiashSauceBillTask);
     app.get("/api/getReceiveFiashSauceBillPaginationTask/:page/:offset", verifyToken_1.default, receive_controller_1.getReceiveFiashSauceBillPaginationTask);
+    app.get("/api/getReceiveFiashSauceBillPaginationWithOutEmptyTask/:page/:offset", verifyToken_1.default, receive_controller_1.getReceiveFiashSauceBillPaginationWithOutEmptyTask);
     app.post("/api/fillterReceiveFiashSauceTask", verifyToken_1.default, receive_controller_1.fillterReceiveFiashSauceTask);
     app.get("/api/getLogReceiveFiashSauceByOrdersIdTask/:order_id", verifyToken_1.default, receive_controller_1.getLogReceiveFiashSauceByOrdersIdTask);
     app.post("/api/addOnFishSauceWaterTask", verifyToken_1.default, product_controller_1.addOnFishSauceWaterTask);
@@ -591,5 +597,19 @@ function routes(app) {
     app.get("/api/getListFishType", product_controller_1.getListFishType);
     app.post("/api/createFishType", verifyToken_1.default, product_controller_1.createFishType);
     app.delete("/api/deleteFishType/:idfish_type", verifyToken_1.default, product_controller_1.deleteFishType);
+    // ---------- Setting Working Status type  ------------------------
+    app.get("/api/getListWorkingStatus", setting_controller_1.getListWorkingStatus);
+    app.post("/api/createWorkingStatus", verifyToken_1.default, setting_controller_1.createWorkingStatus);
+    app.delete("/api/deleteWorkingStatus/:idworking_status", verifyToken_1.default, setting_controller_1.deleteWorkingStatus);
+    app.put("/api/changeWorkingStatusPuddle", verifyToken_1.default, product_controller_1.changeWorkingStatusPuddle);
+    // ---------- status top salt ------------------------
+    app.put("/api/updateStatusTopSaltTask", verifyToken_1.default, product_controller_1.updateStatusTopSaltTask);
+    // ---------- DateStartFermant------------------------
+    app.put("/api/updateDateStartFermantTask", verifyToken_1.default, product_controller_1.updateDateStartFermantTask);
+    // ---------- customer ----------
+    app.get("/api/getCustomerByBillTask/:type_bill", verifyToken_1.default, receive_controller_1.getCustomerByBillTask);
+    app.get("/api/getCustomerByBillTaskPaginationTask/:page/:offset/:type_bill", verifyToken_1.default, receive_controller_1.getCustomerByBillTaskPaginationTask);
+    app.post("/api/createCustomer", verifyToken_1.default, receive_controller_1.createCustomer);
+    app.delete("/api/deleteCustomer/:idcustomer_bill", verifyToken_1.default, receive_controller_1.deleteCustomer);
 }
 exports.default = routes;

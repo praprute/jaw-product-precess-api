@@ -28,6 +28,7 @@ export const insertRecieveFishWeightBill = async (
       product_name,
       store_name,
       description,
+      date_action,
     } = input;
     const sql = `INSERT INTO ${DB}.receipt 
     ( no,
@@ -39,9 +40,9 @@ export const insertRecieveFishWeightBill = async (
       product_name,
       store_name,
       description,
-      stock ) 
+      stock, date_action ) 
     values ('${no}',  ${weigh_net},${price_per_weigh}, ${amount_price}, 
-   '${vehicle_register}', '${customer_name}', '${product_name}', '${store_name}', '${description}', ${weigh_net} );`;
+   '${vehicle_register}', '${customer_name}', '${product_name}', '${store_name}', '${description}', ${weigh_net}, '${date_action}' );`;
     const result = await Query(connection, sql);
     return resp(true, result);
   } catch (e: any) {
@@ -174,10 +175,41 @@ export const getListReceivePagination = async (
     throw new Error(`bad query : ${e}`);
   }
 };
+export const getListReceivePaginationWithoutEmpty = async (
+  connection: Connection,
+  input: {
+    page: number;
+    offset: number;
+  }
+) => {
+  try {
+    const { page, offset } = input;
+    const sql = `SELECT * FROM ${DB}.receipt where stock != 0 limit ${
+      page * offset
+    }, ${offset}`;
+    const result = await Query(connection, sql);
+    return result;
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
 
 export const getAllRowListReceive = async (connection: Connection) => {
   try {
     const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.receipt;`;
+    const result = await Query(connection, sql);
+    return result as IAllRows[];
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+export const getAllRowListReceiveWithoutEmpty = async (
+  connection: Connection
+) => {
+  try {
+    const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.receipt where stock != 0;`;
+
     const result = await Query(connection, sql);
     return result as IAllRows[];
   } catch (e: any) {
@@ -203,7 +235,7 @@ export const getReceiveWeightFishByOrderId = async (
   }
 };
 
-// ---------------------------------- salt receipt ---------------------------------- 
+// ---------------------------------- salt receipt ----------------------------------
 
 export const insertRecieveSaltBill = async (
   connection: Connection,
@@ -214,6 +246,7 @@ export const insertRecieveSaltBill = async (
     price_per_weigh: number;
     price_net: number;
     customer: string;
+    date_action: string;
   }
 ) => {
   try {
@@ -224,11 +257,12 @@ export const insertRecieveSaltBill = async (
       price_per_weigh,
       price_net,
       customer,
+      date_action,
     } = input;
     const sql = `INSERT INTO ${DB}.salt_receipt 
-    ( no, product_name, weigh_net, price_per_weigh, price_net, customer, stock ) 
+    ( no, product_name, weigh_net, price_per_weigh, price_net, customer, stock, date_action ) 
     values ('${no}',  '${product_name}', ${weigh_net},${price_per_weigh}, ${price_net}, 
-    '${customer}',  ${weigh_net} );`;
+    '${customer}',  ${weigh_net}, '${date_action}' );`;
     const result = await Query(connection, sql);
     return resp(true, result);
   } catch (e: any) {
@@ -254,10 +288,40 @@ export const getSaltListReceivePagination = async (
     throw new Error(`bad query : ${e}`);
   }
 };
+// where stock != 0;
 
+export const getSaltListReceivePaginationWithOutEmpty = async (
+  connection: Connection,
+  input: {
+    page: number;
+    offset: number;
+  }
+) => {
+  try {
+    const { page, offset } = input;
+    const sql = `SELECT * FROM ${DB}.salt_receipt where stock != 0 limit ${
+      page * offset
+    }, ${offset}`;
+    const result = await Query(connection, sql);
+    return result;
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
 export const getAllRowSaltListReceive = async (connection: Connection) => {
   try {
     const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.salt_receipt;`;
+    const result = await Query(connection, sql);
+    return result as IAllRows[];
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+export const getAllRowSaltListReceiveWithOutEmpty = async (
+  connection: Connection
+) => {
+  try {
+    const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.salt_receipt  where stock != 0;`;
     const result = await Query(connection, sql);
     return result as IAllRows[];
   } catch (e: any) {
@@ -342,7 +406,7 @@ export const getReceiveSaltByOrderId = async (
   }
 };
 
-// ---------------------------------- Fish Sauce receipt ---------------------------------- 
+// ---------------------------------- Fish Sauce receipt ----------------------------------
 
 export const insertRecieveFiashSauceBill = async (
   connection: Connection,
@@ -353,6 +417,7 @@ export const insertRecieveFiashSauceBill = async (
     price_per_weigh: number;
     price_net: number;
     customer: string;
+    date_action: string;
   }
 ) => {
   try {
@@ -363,11 +428,12 @@ export const insertRecieveFiashSauceBill = async (
       price_per_weigh,
       price_net,
       customer,
+      date_action,
     } = input;
     const sql = `INSERT INTO ${DB}.fishsauce_receipt 
-    ( no, product_name, weigh_net, price_per_weigh, price_net, customer, stock ) 
+    ( no, product_name, weigh_net, price_per_weigh, price_net, customer, stock, date_action ) 
     values ('${no}',  '${product_name}', ${weigh_net},${price_per_weigh}, ${price_net}, 
-    '${customer}',  ${weigh_net} );`;
+    '${customer}',  ${weigh_net}, '${date_action}' );`;
     const result = await Query(connection, sql);
     return resp(true, result);
   } catch (e: any) {
@@ -394,9 +460,43 @@ export const getFiashSauceListReceivePagination = async (
   }
 };
 
-export const getAllRowFiashSauceListReceive = async (connection: Connection) => {
+export const getFiashSauceListReceivePaginationWithOutEmpty = async (
+  connection: Connection,
+  input: {
+    page: number;
+    offset: number;
+  }
+) => {
+  try {
+    const { page, offset } = input;
+    const sql = `SELECT * FROM ${DB}.fishsauce_receipt where stock != 0 limit ${
+      page * offset
+    }, ${offset}`;
+    const result = await Query(connection, sql);
+    return result;
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+// where stock != 0
+
+export const getAllRowFiashSauceListReceive = async (
+  connection: Connection
+) => {
   try {
     const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.fishsauce_receipt;`;
+    const result = await Query(connection, sql);
+    return result as IAllRows[];
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+export const getAllRowFiashSauceListReceiveWithOutEmpty = async (
+  connection: Connection
+) => {
+  try {
+    const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.fishsauce_receipt  where stock != 0;`;
     const result = await Query(connection, sql);
     return result as IAllRows[];
   } catch (e: any) {
@@ -481,7 +581,7 @@ export const getReceiveFiashSauceByOrderId = async (
   }
 };
 
-// ---------------------------------- solid salt receipt ---------------------------------- 
+// ---------------------------------- solid salt receipt ----------------------------------
 
 export const insertRecieveSolidSaltBill = async (
   connection: Connection,
@@ -492,6 +592,7 @@ export const insertRecieveSolidSaltBill = async (
     price_per_weigh: number;
     price_net: number;
     customer: string;
+    date_action: string;
   }
 ) => {
   try {
@@ -502,18 +603,18 @@ export const insertRecieveSolidSaltBill = async (
       price_per_weigh,
       price_net,
       customer,
+      date_action,
     } = input;
     const sql = `INSERT INTO ${DB}.solid_salt_receipt 
-    ( no, product_name, weigh_net, price_per_weigh, price_net, customer, stock ) 
+    ( no, product_name, weigh_net, price_per_weigh, price_net, customer, stock, date_action ) 
     values ('${no}',  '${product_name}', ${weigh_net},${price_per_weigh}, ${price_net}, 
-    '${customer}',  ${weigh_net} );`;
+    '${customer}',  ${weigh_net} , '${date_action}');`;
     const result = await Query(connection, sql);
     return resp(true, result);
   } catch (e: any) {
     throw new Error(`bad insert : ${e}`);
   }
 };
-
 
 export const getSolidSaltListReceivePagination = async (
   connection: Connection,
@@ -534,9 +635,39 @@ export const getSolidSaltListReceivePagination = async (
   }
 };
 
+export const getSolidSaltListReceivePaginationWithOutEmpty = async (
+  connection: Connection,
+  input: {
+    page: number;
+    offset: number;
+  }
+) => {
+  try {
+    const { page, offset } = input;
+    const sql = `SELECT * FROM ${DB}.solid_salt_receipt where stock != 0 limit ${
+      page * offset
+    }, ${offset}`;
+    const result = await Query(connection, sql);
+    return result;
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
 export const getAllRowSolidSaltListReceive = async (connection: Connection) => {
   try {
     const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.solid_salt_receipt;`;
+    const result = await Query(connection, sql);
+    return result as IAllRows[];
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+export const getAllRowSolidSaltListReceiveWithOutEmpty = async (
+  connection: Connection
+) => {
+  try {
+    const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.solid_salt_receipt  where stock != 0;`;
     const result = await Query(connection, sql);
     return result as IAllRows[];
   } catch (e: any) {
@@ -566,7 +697,6 @@ export const fillterReceiveSolidSalt = async (
   }
 };
 
-
 export const insertLogSolidSaltStockReceive = async (
   connection: Connection,
   input: {
@@ -585,7 +715,6 @@ export const insertLogSolidSaltStockReceive = async (
     throw new Error(`bad query : ${e}`);
   }
 };
-
 
 export const getReceiveSolidSaltByOrderId = async (
   connection: Connection,
@@ -620,5 +749,92 @@ export const updateStockSolidSaltService = async (
     return resp(true, result);
   } catch (e: any) {
     throw new Error(`bad query : ${e}`);
+  }
+};
+
+// query customer
+export const getCustomerByBill = async (
+  connection: Connection,
+  input: {
+    type_bill: number;
+  }
+) => {
+  try {
+    const { type_bill } = input;
+    const sql = `SELECT * FROM ${DB}.customer_bill where type_bill=${type_bill};`;
+
+    const result = await Query(connection, sql);
+    return resp(true, result);
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+export const getCustomerByBillPagination = async (
+  connection: Connection,
+  input: {
+    type_bill: number;
+    page: number;
+    offset: number;
+  }
+) => {
+  try {
+    const { type_bill, page, offset } = input;
+    const sql = `SELECT * FROM ${DB}.customer_bill where type_bill=${type_bill} limit ${
+      page * offset
+    }, ${offset}`;
+    const result = await Query(connection, sql);
+    return result;
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+export const getAllRowCustomerByBill = async (
+  connection: Connection,
+  input: {
+    type_bill: number;
+  }
+) => {
+  try {
+    const { type_bill } = input;
+    const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.customer_bill where type_bill=${type_bill} ;`;
+    const result = await Query(connection, sql);
+    return result as IAllRows[];
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+export const insertCustomer = async (
+  connection: Connection,
+  input: {
+    type_bill: number;
+    name: string;
+  }
+) => {
+  try {
+    const { type_bill, name } = input;
+    const sql = `INSERT INTO ${DB}.customer_bill (type_bill, name) VALUES (${type_bill}, '${name}');`;
+
+    const result = await Query(connection, sql);
+    return resp(true, result);
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+export const deleteCustomerBil = async (
+  connection: Connection,
+  input: { idcustomer_bill: number }
+) => {
+  try {
+    const { idcustomer_bill } = input;
+    const sql = `DELETE FROM ${DB}.customer_bill where idcustomer_bill=${idcustomer_bill};`;
+    const result = await Query(connection, sql);
+
+    return resp(true, result);
+  } catch (e) {
+    throw new Error("bad request");
   }
 };

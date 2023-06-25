@@ -25,6 +25,7 @@ export const insertLaborPricePerBuilding = async (
     throw new Error(`bad insert : ${e}`);
   }
 };
+
 export const insertLaborPriceFerment = async (
   connection: Connection,
   input: {

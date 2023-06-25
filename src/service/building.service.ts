@@ -79,3 +79,16 @@ export const updateLimitBuilding = async (
     throw new Error(e);
   }
 };
+export const updateWorkingStatusPuddle = async (
+  connection: Connection,
+  input: { puddle_id: number; working_status: number }
+) => {
+  try {
+    const { puddle_id, working_status } = input;
+    const sql = `UPDATE ${DB}.puddle SET working_status = ${working_status} , update_time= now() WHERE idpuddle=${puddle_id} ; `;
+    const result: any = await Query(connection, sql);
+    return resp(true, "UPDATE_SUCCESS");
+  } catch (e: any) {
+    throw new Error(e);
+  }
+};

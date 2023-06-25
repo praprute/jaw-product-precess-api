@@ -12,7 +12,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteFishType = exports.createFishType = exports.getListFishType = exports.closeProcessTask = exports.updateProcessDescritionSubOrderTask = exports.throwItemsInPuddleTask = exports.createTypeProcessTask = exports.getAllTypeProcessTask = exports.getSerialPuddleTask = exports.cancelGetInTask = exports.submitImportFishTask = exports.getTargetPendingTask = exports.addOnFishSauceWaterTask = exports.addOnSaltWaterTask = exports.exportSaltWaterToNewPuddleTask = exports.exportFishSauceToNewPuddleTask = exports.getAllOrdersFromPuddleTask = exports.updatePriceSubOrderTask = exports.getOrderDetailsTask = exports.createOrderTask = exports.getDetailPuddleByIdTask = exports.getAllPuddleTask = exports.updateDetailPuddleTask = exports.createPuddleTask = void 0;
+exports.updateDateStartFermantTask = exports.updateStatusTopSaltTask = exports.changeWorkingStatusPuddle = exports.deleteFishType = exports.createFishType = exports.getListFishType = exports.closeProcessTask = exports.updateProcessDescritionSubOrderTask = exports.throwItemsInPuddleTask = exports.createTypeProcessTask = exports.getAllTypeProcessTask = exports.getSerialPuddleTask = exports.cancelGetInTask = exports.submitImportFishTask = exports.getTargetPendingTask = exports.addOnFishSauceWaterTask = exports.addOnSaltWaterTask = exports.exportSaltWaterToNewPuddleTask = exports.exportFishSauceToNewPuddleTask = exports.getAllOrdersFromPuddleTask = exports.updatePriceSubOrderTask = exports.getOrderDetailsTask = exports.createOrderTask = exports.getDetailPuddleByIdTask = exports.getAllPuddleTask = exports.updateDetailPuddleTask = exports.createPuddleTask = void 0;
+const building_service_1 = require("../service/building.service");
 const product_service_1 = require("../service/product.service");
 const receive_service_1 = require("../service/receive.service");
 const connect_1 = require("../utils/connect");
@@ -85,7 +86,7 @@ const getDetailPuddleByIdTask = (req, res) => __awaiter(void 0, void 0, void 0, 
 exports.getDetailPuddleByIdTask = getDetailPuddleByIdTask;
 const createOrderTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { order_name, uuid_puddle, puddle_id, fish, salt, laber, volume, description, status_puddle_order, fish_price, salt_price, laber_price, amount_items, } = req.body;
+        const { order_name, uuid_puddle, puddle_id, fish, salt, laber, volume, description, status_puddle_order, fish_price, salt_price, laber_price, amount_items, start_date, } = req.body;
         const connection = yield (0, connect_1.Connect)();
         const getDataUser = yield (0, getUUID_1.default)(req.headers.authorization);
         const queryInsertOrder = yield (0, product_service_1.createOrder)(connection, {
@@ -116,6 +117,7 @@ const createOrderTask = (req, res) => __awaiter(void 0, void 0, void 0, function
             amount_price: fish_price + salt_price + laber_price,
             amount_items: status_puddle_order === type_utils_1.TypeOrderPuddle.FERMENT ? 100 : amount_items,
             remaining_volume: status_puddle_order === 1 ? volume : 0,
+            start_date,
         });
         yield (0, connect_1.DisConnect)(connection);
         return res.status(200).send(queryCreateSubOrder);
@@ -190,7 +192,7 @@ exports.getAllOrdersFromPuddleTask = getAllOrdersFromPuddleTask;
  */
 const exportFishSauceToNewPuddleTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { order_id, type_process, amount_items, amount_unit_per_price, amount_price, remaining_items, remaining_unit_per_price, remaining_price, approved = 0, volume, id_puddle, remaining_volume, action_puddle, target_puddle, serial_puddle, process, } = req.body;
+        const { order_id, type_process, amount_items, amount_unit_per_price, amount_price, remaining_items, remaining_unit_per_price, remaining_price, approved = 0, volume, id_puddle, remaining_volume, action_puddle, target_puddle, serial_puddle, process, date_action, } = req.body;
         const connection = yield (0, connect_1.Connect)();
         const getDataUser = yield (0, getUUID_1.default)(req.headers.authorization);
         const result = yield (0, product_service_1.transferSidhsauce)(connection, {
@@ -209,6 +211,7 @@ const exportFishSauceToNewPuddleTask = (req, res) => __awaiter(void 0, void 0, v
             action_puddle: target_puddle,
             action_serial_puddle: serial_puddle,
             process,
+            date_action,
         });
         yield (0, product_service_1.insertTargetPuddle)(connection, {
             id_puddle: target_puddle,
@@ -229,7 +232,7 @@ const exportFishSauceToNewPuddleTask = (req, res) => __awaiter(void 0, void 0, v
 exports.exportFishSauceToNewPuddleTask = exportFishSauceToNewPuddleTask;
 const exportSaltWaterToNewPuddleTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { order_id, type_process, amount_items, amount_unit_per_price, amount_price, remaining_items, remaining_unit_per_price, remaining_price, approved = 0, volume, id_puddle, remaining_volume, action_puddle, target_puddle, serial_puddle, process, item_transfer, } = req.body;
+        const { order_id, type_process, amount_items, amount_unit_per_price, amount_price, remaining_items, remaining_unit_per_price, remaining_price, approved = 0, volume, id_puddle, remaining_volume, action_puddle, target_puddle, serial_puddle, process, item_transfer, date_action, } = req.body;
         const connection = yield (0, connect_1.Connect)();
         const getDataUser = yield (0, getUUID_1.default)(req.headers.authorization);
         const result = yield (0, product_service_1.transferSidhsauce)(connection, {
@@ -248,6 +251,7 @@ const exportSaltWaterToNewPuddleTask = (req, res) => __awaiter(void 0, void 0, v
             action_puddle: target_puddle,
             action_serial_puddle: serial_puddle,
             process,
+            date_action,
         });
         yield (0, product_service_1.insertTargetPuddle)(connection, {
             id_puddle: target_puddle,
@@ -269,7 +273,7 @@ const exportSaltWaterToNewPuddleTask = (req, res) => __awaiter(void 0, void 0, v
 exports.exportSaltWaterToNewPuddleTask = exportSaltWaterToNewPuddleTask;
 const addOnSaltWaterTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { order_id, type_process, amount_items, amount_unit_per_price, amount_price, remaining_items, remaining_unit_per_price, remaining_price, approved, volume, remaining_volume, process, new_stock, idreceipt, id_puddle, } = req.body;
+        const { order_id, type_process, amount_items, amount_unit_per_price, amount_price, remaining_items, remaining_unit_per_price, remaining_price, approved, volume, remaining_volume, process, new_stock, idreceipt, id_puddle, date_action, } = req.body;
         const connection = yield (0, connect_1.Connect)();
         const getDataUser = yield (0, getUUID_1.default)(req.headers.authorization);
         yield (0, product_service_1.addOnVolumn)(connection, {
@@ -286,6 +290,7 @@ const addOnSaltWaterTask = (req, res) => __awaiter(void 0, void 0, void 0, funct
             user_create_sub: getDataUser.idusers,
             remaining_volume,
             process,
+            date_action,
         });
         yield (0, receive_service_1.insertLogSaltStockReceive)(connection, {
             new_stock: new_stock,
@@ -308,7 +313,7 @@ const addOnSaltWaterTask = (req, res) => __awaiter(void 0, void 0, void 0, funct
 exports.addOnSaltWaterTask = addOnSaltWaterTask;
 const addOnFishSauceWaterTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { order_id, type_process, amount_items, amount_unit_per_price, amount_price, remaining_items, remaining_unit_per_price, remaining_price, approved, volume, remaining_volume, new_stock, idreceipt, id_puddle, } = req.body;
+        const { order_id, type_process, amount_items, amount_unit_per_price, amount_price, remaining_items, remaining_unit_per_price, remaining_price, approved, volume, remaining_volume, new_stock, idreceipt, id_puddle, date_action, } = req.body;
         const connection = yield (0, connect_1.Connect)();
         const getDataUser = yield (0, getUUID_1.default)(req.headers.authorization);
         yield (0, product_service_1.addOnVolumn)(connection, {
@@ -324,6 +329,7 @@ const addOnFishSauceWaterTask = (req, res) => __awaiter(void 0, void 0, void 0, 
             volume,
             user_create_sub: getDataUser.idusers,
             remaining_volume,
+            date_action,
         });
         yield (0, receive_service_1.insertLogFiashSauceStockReceive)(connection, {
             new_stock: new_stock,
@@ -363,7 +369,7 @@ const getTargetPendingTask = (req, res) => __awaiter(void 0, void 0, void 0, fun
 exports.getTargetPendingTask = getTargetPendingTask;
 const submitImportFishTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { volume, order_id, type_process, amount_items, amount_price, remaining_items, remaining_price, idtarget_puddle, lasted_subId, remaining_volume, action_puddle, action_serial_puddle, process, } = req.body;
+        const { volume, order_id, type_process, amount_items, amount_price, remaining_items, remaining_price, idtarget_puddle, lasted_subId, remaining_volume, action_puddle, action_serial_puddle, process, date_action, } = req.body;
         const connection = yield (0, connect_1.Connect)();
         const getDataUser = yield (0, getUUID_1.default)(req.headers.authorization);
         yield (0, product_service_1.transferSidhsauce)(connection, {
@@ -382,6 +388,7 @@ const submitImportFishTask = (req, res) => __awaiter(void 0, void 0, void 0, fun
             action_puddle,
             action_serial_puddle: action_serial_puddle,
             process,
+            date_action,
         });
         yield (0, product_service_1.updateStatusTargetPuddle)(connection, {
             idtarget_puddle,
@@ -515,7 +522,7 @@ const updateProcessDescritionSubOrderTask = (req, res) => __awaiter(void 0, void
 exports.updateProcessDescritionSubOrderTask = updateProcessDescritionSubOrderTask;
 const closeProcessTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { order_id, type_process, amount_items, amount_unit_per_price, amount_price, remaining_items, remaining_unit_per_price, remaining_price, approved, volume, remaining_volume, } = req.body;
+        const { order_id, type_process, amount_items, amount_unit_per_price, amount_price, remaining_items, remaining_unit_per_price, remaining_price, approved, volume, remaining_volume, date_action, } = req.body;
         const connection = yield (0, connect_1.Connect)();
         const getDataUser = yield (0, getUUID_1.default)(req.headers.authorization);
         const result = yield (0, product_service_1.insertSubOrderTypeClearAll)(connection, {
@@ -531,6 +538,7 @@ const closeProcessTask = (req, res) => __awaiter(void 0, void 0, void 0, functio
             volume,
             remaining_volume,
             user_create_sub: getDataUser.idusers,
+            date_action,
         });
         yield (0, connect_1.DisConnect)(connection);
         return res.status(200).send(result);
@@ -584,3 +592,54 @@ const deleteFishType = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.deleteFishType = deleteFishType;
+const changeWorkingStatusPuddle = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { puddle_id, working_status } = req.body;
+        const connection = yield (0, connect_1.Connect)();
+        const result = yield (0, building_service_1.updateWorkingStatusPuddle)(connection, {
+            puddle_id: Number(puddle_id),
+            working_status: Number(working_status),
+        });
+        yield (0, connect_1.DisConnect)(connection);
+        return res.status(200).send(result);
+    }
+    catch (e) {
+        logger_1.default.error(e);
+        return res.status(409).send(e.message);
+    }
+});
+exports.changeWorkingStatusPuddle = changeWorkingStatusPuddle;
+const updateStatusTopSaltTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { topSalt, idpuddle } = req.body;
+        const connection = yield (0, connect_1.Connect)();
+        const result = yield (0, product_service_1.updateStatusTopSalt)(connection, {
+            topSalt: Number(topSalt),
+            idpuddle: Number(idpuddle),
+        });
+        yield (0, connect_1.DisConnect)(connection);
+        return res.status(200).send(result);
+    }
+    catch (e) {
+        logger_1.default.error(e);
+        return res.status(409).send(e.message);
+    }
+});
+exports.updateStatusTopSaltTask = updateStatusTopSaltTask;
+const updateDateStartFermantTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { start_date, idpuddle } = req.body;
+        const connection = yield (0, connect_1.Connect)();
+        const result = yield (0, product_service_1.updateDateStartFermant)(connection, {
+            start_date: start_date,
+            idpuddle: Number(idpuddle),
+        });
+        yield (0, connect_1.DisConnect)(connection);
+        return res.status(200).send(result);
+    }
+    catch (e) {
+        logger_1.default.error(e);
+        return res.status(409).send(e.message);
+    }
+});
+exports.updateDateStartFermantTask = updateDateStartFermantTask;

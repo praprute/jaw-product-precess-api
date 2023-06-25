@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteFishTypeService = exports.insertFishType = exports.getAllFishType = exports.updateTypeProcessSubOrder = exports.createTypeProcess = exports.getAllTypeProcess = exports.getSerialPuddle = exports.deleteSubOrderById = exports.deleteTargetPuddleById = exports.updateStatusApprovedSubOrder = exports.updateStatusTargetPuddle = exports.submitImportFish = exports.getTargetPending = exports.getAllOrderFromPuddle = exports.insertTargetPuddle = exports.transferSidhsauce = exports.addOnVolumn = exports.insertSubOrderTypeClearAll = exports.updateAmountPriceOrder = exports.updatePriceSubOrder = exports.getOrderDetails = exports.createSubOrder = exports.updatePuddleOrderLasted = exports.createOrder = exports.getDetailPuddleById = exports.getAllPuddle = exports.updateDetailPuddle = exports.insertPuddle = void 0;
+exports.updateDateStartFermant = exports.updateStatusTopSalt = exports.deleteFishTypeService = exports.insertFishType = exports.getAllFishType = exports.updateTypeProcessSubOrder = exports.createTypeProcess = exports.getAllTypeProcess = exports.getSerialPuddle = exports.deleteSubOrderById = exports.deleteTargetPuddleById = exports.updateStatusApprovedSubOrder = exports.updateStatusTargetPuddle = exports.submitImportFish = exports.getTargetPending = exports.getAllOrderFromPuddle = exports.insertTargetPuddle = exports.transferSidhsauce = exports.addOnVolumn = exports.insertSubOrderTypeClearAll = exports.updateAmountPriceOrder = exports.updatePriceSubOrder = exports.getOrderDetails = exports.createSubOrder = exports.updatePuddleOrderLasted = exports.createOrder = exports.getDetailPuddleById = exports.getAllPuddle = exports.updateDetailPuddle = exports.insertPuddle = void 0;
 const config_1 = __importDefault(require("config"));
 const connect_1 = require("../utils/connect");
 const dotenv_1 = __importDefault(require("dotenv"));
@@ -53,7 +53,9 @@ exports.updateDetailPuddle = updateDetailPuddle;
 const getAllPuddle = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { building_id } = input;
-        const sql = `SELECT * FROM ${DB}.puddle where building_id=${building_id}`;
+        const sql = `SELECT * FROM ${DB}.puddle 
+    left join (SELECT idworking_status, title as working_status_title, color FROM jaw_production_process.working_status) working on puddle.working_status =  working.idworking_status
+    where building_id=${building_id}`;
         const result = yield (0, connect_1.Query)(connection, sql);
         return (0, response_1.default)(true, result);
     }
@@ -65,7 +67,9 @@ exports.getAllPuddle = getAllPuddle;
 const getDetailPuddleById = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { puddle_id } = input;
-        const sql = `SELECT * FROM ${DB}.puddle where idpuddle=${puddle_id}`;
+        const sql = `SELECT * FROM ${DB}.puddle 
+    left join (SELECT idworking_status, title as working_status_title FROM jaw_production_process.working_status) working on puddle.working_status =  working.idworking_status
+    where idpuddle=${puddle_id}`;
         const result = yield (0, connect_1.Query)(connection, sql);
         return (0, response_1.default)(true, result);
     }
@@ -89,7 +93,7 @@ exports.createOrder = createOrder;
 const updatePuddleOrderLasted = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { uuid_puddle, orderId, status, description } = input;
-        const sql = `UPDATE ${DB}.puddle SET lasted_order=${orderId}, status=${status}, description='${description}' WHERE uuid_puddle='${uuid_puddle}' ; `;
+        const sql = `UPDATE ${DB}.puddle SET lasted_order=${orderId}, status=${status}, description='${description}', working_status=null, topSalt=0, start_date=null  WHERE uuid_puddle='${uuid_puddle}' ; `;
         const queryUpdatePuddleOrderLasted = yield (0, connect_1.Query)(connection, sql);
         return (0, response_1.default)(true, queryUpdatePuddleOrderLasted);
     }
@@ -100,9 +104,9 @@ const updatePuddleOrderLasted = (connection, input) => __awaiter(void 0, void 0,
 exports.updatePuddleOrderLasted = updatePuddleOrderLasted;
 const createSubOrder = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { orderId, fish, salt, laber, description, userId, volume, fish_price, salt_price, laber_price, amount_unit_per_price, amount_price, amount_items, remaining_volume, } = input;
+        const { orderId, fish, salt, laber, description, userId, volume, fish_price, salt_price, laber_price, amount_unit_per_price, amount_price, amount_items, remaining_volume, start_date, } = input;
         const sql = `INSERT INTO ${DB}.sub_orders (idOrders, fish, salt, laber, description, user_create_sub, amount_items, volume,
-      fish_price,salt_price, laber_price,amount_unit_per_price,amount_price,remaining_items,remaining_volume) values (${orderId}, ${fish},${salt},${laber},'${description}',${userId}, ${amount_items}, ${volume}, ${fish_price}, ${salt_price},${laber_price},${amount_unit_per_price},${amount_price}, ${amount_items}, ${remaining_volume});`;
+      fish_price,salt_price, laber_price,amount_unit_per_price,amount_price,remaining_items,remaining_volume, date_action) values (${orderId}, ${fish},${salt},${laber},'${description}',${userId}, ${amount_items}, ${volume}, ${fish_price}, ${salt_price},${laber_price},${amount_unit_per_price},${amount_price}, ${amount_items}, ${remaining_volume}, '${start_date}');`;
         const queryCreateSubOrder = yield (0, connect_1.Query)(connection, sql);
         return (0, response_1.default)(true, queryCreateSubOrder);
     }
@@ -160,13 +164,13 @@ const updateAmountPriceOrder = (connection, input) => __awaiter(void 0, void 0, 
 exports.updateAmountPriceOrder = updateAmountPriceOrder;
 const insertSubOrderTypeClearAll = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { order_id, type_process, amount_items, amount_unit_per_price, amount_price, remaining_items, remaining_unit_per_price, remaining_price, approved, volume, remaining_volume, user_create_sub, } = input;
+        const { order_id, type_process, amount_items, amount_unit_per_price, amount_price, remaining_items, remaining_unit_per_price, remaining_price, approved, volume, remaining_volume, user_create_sub, date_action, } = input;
         const listField = `idOrders, type, amount_items, amount_unit_per_price, 
       amount_price, remaining_items, remaining_unit_per_price, remaining_price, 
-      approved, volume, user_create_sub, remaining_volume`;
+      approved, volume, user_create_sub, remaining_volume, date_action`;
         const fieldValue = `${order_id}, ${type_process}, ${amount_items}, ${amount_unit_per_price}, 
       ${amount_price}, ${remaining_items}, ${remaining_unit_per_price}, ${remaining_price}, 
-      ${approved}, ${volume}, ${user_create_sub}, ${remaining_volume}`;
+      ${approved}, ${volume}, ${user_create_sub}, ${remaining_volume}, '${date_action}'`;
         const sql = `INSERT INTO ${DB}.sub_orders (${listField}) values (${fieldValue});`;
         const result = yield (0, connect_1.Query)(connection, sql);
         return (0, response_1.default)(true, result);
@@ -178,13 +182,13 @@ const insertSubOrderTypeClearAll = (connection, input) => __awaiter(void 0, void
 exports.insertSubOrderTypeClearAll = insertSubOrderTypeClearAll;
 const addOnVolumn = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { order_id, type_process, amount_items, amount_unit_per_price, amount_price, remaining_items, remaining_unit_per_price, remaining_price, approved, volume, user_create_sub, remaining_volume, process, } = input;
+        const { order_id, type_process, amount_items, amount_unit_per_price, amount_price, remaining_items, remaining_unit_per_price, remaining_price, approved, volume, user_create_sub, remaining_volume, process, date_action, } = input;
         const listField = `idOrders, type, amount_items, amount_unit_per_price, 
       amount_price, remaining_items, remaining_unit_per_price, remaining_price, 
-      approved, volume, user_create_sub, remaining_volume,  type_process`;
+      approved, volume, user_create_sub, remaining_volume,  type_process, date_action`;
         const fieldValue = `${order_id}, ${type_process}, ${amount_items}, ${amount_unit_per_price}, 
       ${amount_price}, ${remaining_items}, ${remaining_unit_per_price}, ${remaining_price}, 
-      ${approved}, ${volume}, ${user_create_sub}, ${remaining_volume},${process ? process : null}`;
+      ${approved}, ${volume}, ${user_create_sub}, ${remaining_volume},${process ? process : null}, '${date_action}'`;
         const sql = `INSERT INTO ${DB}.sub_orders (${listField}) values (${fieldValue});`;
         const result = yield (0, connect_1.Query)(connection, sql);
         return (0, response_1.default)(true, result);
@@ -196,21 +200,21 @@ const addOnVolumn = (connection, input) => __awaiter(void 0, void 0, void 0, fun
 exports.addOnVolumn = addOnVolumn;
 const transferSidhsauce = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { order_id, type_process, amount_items, amount_unit_per_price, amount_price, remaining_items, remaining_unit_per_price, remaining_price, approved, volume, user_create_sub, remaining_volume, action_puddle, action_serial_puddle, process, } = input;
+        const { order_id, type_process, amount_items, amount_unit_per_price, amount_price, remaining_items, remaining_unit_per_price, remaining_price, approved, volume, user_create_sub, remaining_volume, action_puddle, action_serial_puddle, process, date_action, } = input;
         const listField = process
             ? `idOrders, type, amount_items, amount_unit_per_price, 
       amount_price, remaining_items, remaining_unit_per_price, remaining_price, 
-      approved, volume, user_create_sub, remaining_volume, action_puddle, action_serial_puddle, type_process`
+      approved, volume, user_create_sub, remaining_volume, action_puddle, action_serial_puddle, type_process, date_action`
             : `idOrders, type, amount_items, amount_unit_per_price, 
       amount_price, remaining_items, remaining_unit_per_price, remaining_price, 
-      approved, volume, user_create_sub, remaining_volume, action_puddle, action_serial_puddle`;
+      approved, volume, user_create_sub, remaining_volume, action_puddle, action_serial_puddle, date_action`;
         const fieldValue = process
             ? `${order_id}, ${type_process}, ${amount_items}, ${amount_unit_per_price}, 
       ${amount_price}, ${remaining_items}, ${remaining_unit_per_price}, ${remaining_price}, 
-      ${approved}, ${volume}, ${user_create_sub}, ${remaining_volume}, ${action_puddle}, ${action_serial_puddle}, ${process}`
+      ${approved}, ${volume}, ${user_create_sub}, ${remaining_volume}, ${action_puddle}, ${action_serial_puddle}, ${process}, '${date_action}'`
             : `${order_id}, ${type_process}, ${amount_items}, ${amount_unit_per_price}, 
       ${amount_price}, ${remaining_items}, ${remaining_unit_per_price}, ${remaining_price}, 
-      ${approved}, ${volume}, ${user_create_sub}, ${remaining_volume}, ${action_puddle}, ${action_serial_puddle}`;
+      ${approved}, ${volume}, ${user_create_sub}, ${remaining_volume}, ${action_puddle}, ${action_serial_puddle}, '${date_action}'`;
         const sql = `INSERT INTO ${DB}.sub_orders (${listField}) values (${fieldValue});`;
         const result = yield (0, connect_1.Query)(connection, sql);
         return (0, response_1.default)(true, result);
@@ -417,3 +421,27 @@ const deleteFishTypeService = (connection, input) => __awaiter(void 0, void 0, v
     }
 });
 exports.deleteFishTypeService = deleteFishTypeService;
+const updateStatusTopSalt = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { topSalt, idpuddle } = input;
+        const sql = `UPDATE  ${DB}.puddle SET topSalt = ${topSalt} where idpuddle = ${idpuddle} ;`;
+        const result = yield (0, connect_1.Query)(connection, sql);
+        return (0, response_1.default)(true, "UPDATE_SUCCESS");
+    }
+    catch (e) {
+        throw new Error("bad request");
+    }
+});
+exports.updateStatusTopSalt = updateStatusTopSalt;
+const updateDateStartFermant = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { start_date, idpuddle } = input;
+        const sql = `UPDATE  ${DB}.puddle SET start_date = '${start_date}' where idpuddle = ${idpuddle} ;`;
+        const result = yield (0, connect_1.Query)(connection, sql);
+        return (0, response_1.default)(true, "UPDATE_SUCCESS");
+    }
+    catch (e) {
+        throw new Error("bad request");
+    }
+});
+exports.updateDateStartFermant = updateDateStartFermant;

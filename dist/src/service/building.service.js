@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateLimitBuilding = exports.deleteBuilding = exports.getCountingPuddleFromBuilding = exports.getAllBuilding = exports.insertBuilding = void 0;
+exports.updateWorkingStatusPuddle = exports.updateLimitBuilding = exports.deleteBuilding = exports.getCountingPuddleFromBuilding = exports.getAllBuilding = exports.insertBuilding = void 0;
 const config_1 = __importDefault(require("config"));
 const connect_1 = require("../utils/connect");
 const dotenv_1 = __importDefault(require("dotenv"));
@@ -83,3 +83,15 @@ const updateLimitBuilding = (connection, input) => __awaiter(void 0, void 0, voi
     }
 });
 exports.updateLimitBuilding = updateLimitBuilding;
+const updateWorkingStatusPuddle = (connection, input) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { puddle_id, working_status } = input;
+        const sql = `UPDATE ${DB}.puddle SET working_status = ${working_status} , update_time= now() WHERE idpuddle=${puddle_id} ; `;
+        const result = yield (0, connect_1.Query)(connection, sql);
+        return (0, response_1.default)(true, "UPDATE_SUCCESS");
+    }
+    catch (e) {
+        throw new Error(e);
+    }
+});
+exports.updateWorkingStatusPuddle = updateWorkingStatusPuddle;

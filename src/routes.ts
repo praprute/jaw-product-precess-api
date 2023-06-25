@@ -24,6 +24,7 @@ import {
   addOnFishSauceWaterTask,
   addOnSaltWaterTask,
   cancelGetInTask,
+  changeWorkingStatusPuddle,
   closeProcessTask,
   createFishType,
   createOrderTask,
@@ -41,9 +42,11 @@ import {
   getSerialPuddleTask,
   getTargetPendingTask,
   submitImportFishTask,
+  updateDateStartFermantTask,
   updateDetailPuddleTask,
   updatePriceSubOrderTask,
   updateProcessDescritionSubOrderTask,
+  updateStatusTopSaltTask,
 } from "./controller/product.controller";
 import {
   createOrderSchema,
@@ -53,21 +56,29 @@ import {
   updatePriceSubOrderSchema,
 } from "./schema/product.schema";
 import {
+  createCustomer,
   createFiashSauceBillTask,
   createFishWeightBillTask,
   createSaltBillTask,
   createSolidSaltBillTask,
+  deleteCustomer,
   fillterReceiveFiashSauceTask,
   fillterReceiveSaltTask,
   fillterReceiveSolidSaltTask,
   fillterReceiveWeightFishTask,
+  getCustomerByBillTask,
+  getCustomerByBillTaskPaginationTask,
   getListReceiveWeightFishTask,
   getLogReceiveFiashSauceByOrdersIdTask,
   getLogReceiveSaltByOrdersIdTask,
   getReceiveFiashSauceBillPaginationTask,
+  getReceiveFiashSauceBillPaginationWithOutEmptyTask,
   getReceiveFishWeightPaginationTask,
+  getReceiveFishWeightPaginationWithOutEmptyTask,
   getReceiveSaltBillPaginationTask,
+  getReceiveSaltBillPaginationWithOutEmptyTask,
   getReceiveSolidSaltBillPaginationTask,
+  getReceiveSolidSaltBillPaginationWithOutEmptyTask,
   getReceiveWeightFishByIdTask,
   getReceiveWeightFishByOrdersIdTask,
   updateStockSolidSaltTask,
@@ -83,6 +94,11 @@ import {
   updateFeeLaborFerment,
   updateFeeLaborPerBuilding,
 } from "./controller/fee.controller";
+import {
+  createWorkingStatus,
+  deleteWorkingStatus,
+  getListWorkingStatus,
+} from "./controller/setting.controller";
 
 function routes(app: Express) {
   /**
@@ -745,6 +761,12 @@ function routes(app: Express) {
     getReceiveFishWeightPaginationTask
   );
 
+  app.get(
+    "/api/getReceiveFishWeightPaginationWithOutEmptyTask/:page/:offset",
+    verifyToken,
+    getReceiveFishWeightPaginationWithOutEmptyTask
+  );
+
   app.post("/api/addOnSaltWaterTask", verifyToken, addOnSaltWaterTask);
   app.post("/api/updateStockTask", verifyToken, updateStockTask);
 
@@ -768,6 +790,12 @@ function routes(app: Express) {
     getReceiveSolidSaltBillPaginationTask
   );
 
+  app.get(
+    "/api/getReceiveSolidSaltBillPaginationWithOutEmptyTask/:page/:offset",
+    verifyToken,
+    getReceiveSolidSaltBillPaginationWithOutEmptyTask
+  );
+
   app.post(
     "/api/fillterReceiveSolidSaltTask",
     verifyToken,
@@ -788,6 +816,12 @@ function routes(app: Express) {
     verifyToken,
     getReceiveSaltBillPaginationTask
   );
+  app.get(
+    "/api/getReceiveSaltBillPaginationWithOutEmptyTask/:page/:offset",
+    verifyToken,
+    getReceiveSaltBillPaginationWithOutEmptyTask
+  );
+  // getReceiveSaltBillPaginationWithOutEmptyTask
   app.post("/api/fillterReceiveSaltTask", verifyToken, fillterReceiveSaltTask);
 
   app.get(
@@ -809,11 +843,19 @@ function routes(app: Express) {
     verifyToken,
     createFiashSauceBillTask
   );
+
   app.get(
     "/api/getReceiveFiashSauceBillPaginationTask/:page/:offset",
     verifyToken,
     getReceiveFiashSauceBillPaginationTask
   );
+
+  app.get(
+    "/api/getReceiveFiashSauceBillPaginationWithOutEmptyTask/:page/:offset",
+    verifyToken,
+    getReceiveFiashSauceBillPaginationWithOutEmptyTask
+  );
+
   app.post(
     "/api/fillterReceiveFiashSauceTask",
     verifyToken,
@@ -862,6 +904,50 @@ function routes(app: Express) {
   app.get("/api/getListFishType", getListFishType);
   app.post("/api/createFishType", verifyToken, createFishType);
   app.delete("/api/deleteFishType/:idfish_type", verifyToken, deleteFishType);
+  // ---------- Setting Working Status type  ------------------------
+  app.get("/api/getListWorkingStatus", getListWorkingStatus);
+  app.post("/api/createWorkingStatus", verifyToken, createWorkingStatus);
+  app.delete(
+    "/api/deleteWorkingStatus/:idworking_status",
+    verifyToken,
+    deleteWorkingStatus
+  );
+  app.put(
+    "/api/changeWorkingStatusPuddle",
+    verifyToken,
+    changeWorkingStatusPuddle
+  );
+
+  // ---------- status top salt ------------------------
+
+  app.put("/api/updateStatusTopSaltTask", verifyToken, updateStatusTopSaltTask);
+
+  // ---------- DateStartFermant------------------------
+
+  app.put(
+    "/api/updateDateStartFermantTask",
+    verifyToken,
+    updateDateStartFermantTask
+  );
+
+  // ---------- customer ----------
+  app.get(
+    "/api/getCustomerByBillTask/:type_bill",
+    verifyToken,
+    getCustomerByBillTask
+  );
+
+  app.get(
+    "/api/getCustomerByBillTaskPaginationTask/:page/:offset/:type_bill",
+    verifyToken,
+    getCustomerByBillTaskPaginationTask
+  );
+  app.post("/api/createCustomer", verifyToken, createCustomer);
+  app.delete(
+    "/api/deleteCustomer/:idcustomer_bill",
+    verifyToken,
+    deleteCustomer
+  );
 }
 
 export default routes;

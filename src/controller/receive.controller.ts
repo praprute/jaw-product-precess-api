@@ -1,22 +1,35 @@
 import { Request, Response } from "express";
 import {
+  deleteCustomerBil,
   fillterReceiveFiashSauce,
   fillterReceiveSalt,
   fillterReceiveSolidSalt,
   fillterReceiveWeightFish,
   getAllReceiveFishWeight,
+  getAllRowCustomerByBill,
   getAllRowFiashSauceListReceive,
+  getAllRowFiashSauceListReceiveWithOutEmpty,
   getAllRowListReceive,
+  getAllRowListReceiveWithoutEmpty,
   getAllRowSaltListReceive,
+  getAllRowSaltListReceiveWithOutEmpty,
   getAllRowSolidSaltListReceive,
+  getAllRowSolidSaltListReceiveWithOutEmpty,
+  getCustomerByBill,
+  getCustomerByBillPagination,
   getFiashSauceListReceivePagination,
+  getFiashSauceListReceivePaginationWithOutEmpty,
   getListReceivePagination,
+  getListReceivePaginationWithoutEmpty,
   getReceiveFiashSauceByOrderId,
   getReceiveSaltByOrderId,
   getReceiveWeightFishById,
   getReceiveWeightFishByOrderId,
   getSaltListReceivePagination,
+  getSaltListReceivePaginationWithOutEmpty,
   getSolidSaltListReceivePagination,
+  getSolidSaltListReceivePaginationWithOutEmpty,
+  insertCustomer,
   insertLogSolidSaltStockReceive,
   insertLogStockReceive,
   insertRecieveFiashSauceBill,
@@ -42,6 +55,7 @@ export const createFishWeightBillTask = async (req: Request, res: Response) => {
       product_name,
       store_name,
       description,
+      date_action,
     } = req.body;
     const connection = await Connect();
     const result = await insertRecieveFishWeightBill(connection, {
@@ -54,6 +68,7 @@ export const createFishWeightBillTask = async (req: Request, res: Response) => {
       product_name,
       store_name,
       description,
+      date_action,
     });
     await DisConnect(connection);
     return res.status(200).send(result);
@@ -183,6 +198,30 @@ export const getReceiveFishWeightPaginationTask = async (
   }
 };
 
+export const getReceiveFishWeightPaginationWithOutEmptyTask = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { page, offset } = req.params;
+    const connection = await Connect();
+    const list = await getListReceivePaginationWithoutEmpty(connection, {
+      page: parseInt(page),
+      offset: parseInt(offset),
+    });
+    const countList = await getAllRowListReceiveWithoutEmpty(connection);
+    const responseData = {
+      data: list,
+      total: countList[0].allRows,
+    };
+    await DisConnect(connection);
+    return res.status(200).send(responseData);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
 export const updateStockTask = async (req: Request, res: Response) => {
   try {
     const { new_stock, idreceipt, order_target, id_puddle } = req.body;
@@ -217,6 +256,7 @@ export const createSolidSaltBillTask = async (req: Request, res: Response) => {
       price_per_weigh,
       price_net,
       customer,
+      date_action,
     } = req.body;
     const connection = await Connect();
     const result = await insertRecieveSolidSaltBill(connection, {
@@ -226,6 +266,7 @@ export const createSolidSaltBillTask = async (req: Request, res: Response) => {
       price_per_weigh,
       price_net,
       customer,
+      date_action,
     });
     await DisConnect(connection);
     return res.status(200).send(result);
@@ -247,6 +288,35 @@ export const getReceiveSolidSaltBillPaginationTask = async (
       offset: parseInt(offset),
     });
     const countList = await getAllRowSolidSaltListReceive(connection);
+    const responseData = {
+      data: list,
+      total: countList[0].allRows,
+    };
+    await DisConnect(connection);
+    return res.status(200).send(responseData);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const getReceiveSolidSaltBillPaginationWithOutEmptyTask = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { page, offset } = req.params;
+    const connection = await Connect();
+    const list = await getSolidSaltListReceivePaginationWithOutEmpty(
+      connection,
+      {
+        page: parseInt(page),
+        offset: parseInt(offset),
+      }
+    );
+    const countList = await getAllRowSolidSaltListReceiveWithOutEmpty(
+      connection
+    );
     const responseData = {
       data: list,
       total: countList[0].allRows,
@@ -337,6 +407,7 @@ export const createSaltBillTask = async (req: Request, res: Response) => {
       price_per_weigh,
       price_net,
       customer,
+      date_action,
     } = req.body;
     const connection = await Connect();
     const result = await insertRecieveSaltBill(connection, {
@@ -346,6 +417,7 @@ export const createSaltBillTask = async (req: Request, res: Response) => {
       price_per_weigh,
       price_net,
       customer,
+      date_action,
     });
     await DisConnect(connection);
     return res.status(200).send(result);
@@ -367,6 +439,29 @@ export const getReceiveSaltBillPaginationTask = async (
       offset: parseInt(offset),
     });
     const countList = await getAllRowSaltListReceive(connection);
+    const responseData = {
+      data: list,
+      total: countList[0].allRows,
+    };
+    await DisConnect(connection);
+    return res.status(200).send(responseData);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+export const getReceiveSaltBillPaginationWithOutEmptyTask = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { page, offset } = req.params;
+    const connection = await Connect();
+    const list = await getSaltListReceivePaginationWithOutEmpty(connection, {
+      page: parseInt(page),
+      offset: parseInt(offset),
+    });
+    const countList = await getAllRowSaltListReceiveWithOutEmpty(connection);
     const responseData = {
       data: list,
       total: countList[0].allRows,
@@ -431,6 +526,7 @@ export const createFiashSauceBillTask = async (req: Request, res: Response) => {
       price_per_weigh,
       price_net,
       customer,
+      date_action,
     } = req.body;
     const connection = await Connect();
     const result = await insertRecieveFiashSauceBill(connection, {
@@ -440,6 +536,7 @@ export const createFiashSauceBillTask = async (req: Request, res: Response) => {
       price_per_weigh,
       price_net,
       customer,
+      date_action,
     });
     await DisConnect(connection);
     return res.status(200).send(result);
@@ -461,6 +558,34 @@ export const getReceiveFiashSauceBillPaginationTask = async (
       offset: parseInt(offset),
     });
     const countList = await getAllRowFiashSauceListReceive(connection);
+    const responseData = {
+      data: list,
+      total: countList[0].allRows,
+    };
+    await DisConnect(connection);
+    return res.status(200).send(responseData);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+export const getReceiveFiashSauceBillPaginationWithOutEmptyTask = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { page, offset } = req.params;
+    const connection = await Connect();
+    const list = await getFiashSauceListReceivePaginationWithOutEmpty(
+      connection,
+      {
+        page: parseInt(page),
+        offset: parseInt(offset),
+      }
+    );
+    const countList = await getAllRowFiashSauceListReceiveWithOutEmpty(
+      connection
+    );
     const responseData = {
       data: list,
       total: countList[0].allRows,
@@ -504,6 +629,80 @@ export const getLogReceiveFiashSauceByOrdersIdTask = async (
     const connection = await Connect();
     const result = await getReceiveFiashSauceByOrderId(connection, {
       order_id: parseInt(order_id),
+    });
+    await DisConnect(connection);
+    return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+// ------- customer -------
+export const getCustomerByBillTask = async (req: Request, res: Response) => {
+  try {
+    const { type_bill } = req.params;
+    const connection = await Connect();
+    const result = await getCustomerByBill(connection, {
+      type_bill: parseInt(type_bill),
+    });
+    await DisConnect(connection);
+    return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const getCustomerByBillTaskPaginationTask = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { page, offset, type_bill } = req.params;
+    const connection = await Connect();
+    const list = await getCustomerByBillPagination(connection, {
+      page: parseInt(page),
+      offset: parseInt(offset),
+      type_bill: parseInt(type_bill),
+    });
+    const countList = await getAllRowCustomerByBill(connection, {
+      type_bill: parseInt(type_bill),
+    });
+    const responseData = {
+      data: list,
+      total: countList[0].allRows,
+    };
+    await DisConnect(connection);
+    return res.status(200).send(responseData);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const createCustomer = async (req: Request, res: Response) => {
+  try {
+    const { type_bill, name } = req.body;
+    const connection = await Connect();
+    const result = await insertCustomer(connection, {
+      type_bill: parseInt(type_bill),
+      name: name,
+    });
+    await DisConnect(connection);
+    return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const deleteCustomer = async (req: Request, res: Response) => {
+  try {
+    const idcustomer_bill = req.params.idcustomer_bill;
+    const connection = await Connect();
+    const result = await deleteCustomerBil(connection, {
+      idcustomer_bill: Number(idcustomer_bill),
     });
     await DisConnect(connection);
     return res.status(200).send(result);

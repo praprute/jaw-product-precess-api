@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { updateWorkingStatusPuddle } from "../service/building.service";
 import {
   addOnVolumn,
   createOrder,
@@ -21,11 +22,13 @@ import {
   insertTargetPuddle,
   transferSidhsauce,
   updateAmountPriceOrder,
+  updateDateStartFermant,
   updateDetailPuddle,
   updatePriceSubOrder,
   updatePuddleOrderLasted,
   updateStatusApprovedSubOrder,
   updateStatusTargetPuddle,
+  updateStatusTopSalt,
   updateTypeProcessSubOrder,
 } from "../service/product.service";
 import {
@@ -115,6 +118,7 @@ export const createOrderTask = async (req: Request, res: Response) => {
       salt_price,
       laber_price,
       amount_items,
+      start_date,
     } = req.body;
     const connection = await Connect();
 
@@ -154,6 +158,7 @@ export const createOrderTask = async (req: Request, res: Response) => {
       amount_items:
         status_puddle_order === TypeOrderPuddle.FERMENT ? 100 : amount_items,
       remaining_volume: status_puddle_order === 1 ? volume : 0,
+      start_date,
     });
     await DisConnect(connection);
     return res.status(200).send(queryCreateSubOrder);
@@ -257,6 +262,7 @@ export const exportFishSauceToNewPuddleTask = async (
       target_puddle,
       serial_puddle,
       process,
+      date_action,
     } = req.body;
     const connection = await Connect();
 
@@ -280,7 +286,9 @@ export const exportFishSauceToNewPuddleTask = async (
       action_puddle: target_puddle,
       action_serial_puddle: serial_puddle,
       process,
+      date_action,
     });
+
 
     await insertTargetPuddle(connection, {
       id_puddle: target_puddle,
@@ -321,6 +329,7 @@ export const exportSaltWaterToNewPuddleTask = async (
       serial_puddle,
       process,
       item_transfer,
+      date_action,
     } = req.body;
     const connection = await Connect();
 
@@ -344,6 +353,7 @@ export const exportSaltWaterToNewPuddleTask = async (
       action_puddle: target_puddle,
       action_serial_puddle: serial_puddle,
       process,
+      date_action,
     });
 
     await insertTargetPuddle(connection, {
@@ -381,6 +391,7 @@ export const addOnSaltWaterTask = async (req: Request, res: Response) => {
       new_stock,
       idreceipt,
       id_puddle,
+      date_action,
     } = req.body;
 
     const connection = await Connect();
@@ -403,6 +414,7 @@ export const addOnSaltWaterTask = async (req: Request, res: Response) => {
       user_create_sub: getDataUser.idusers,
       remaining_volume,
       process,
+      date_action,
     });
 
     await insertLogSaltStockReceive(connection, {
@@ -442,6 +454,7 @@ export const addOnFishSauceWaterTask = async (req: Request, res: Response) => {
       new_stock,
       idreceipt,
       id_puddle,
+      date_action,
     } = req.body;
 
     const connection = await Connect();
@@ -463,6 +476,7 @@ export const addOnFishSauceWaterTask = async (req: Request, res: Response) => {
       volume,
       user_create_sub: getDataUser.idusers,
       remaining_volume,
+      date_action,
     });
 
     await insertLogFiashSauceStockReceive(connection, {
@@ -517,6 +531,7 @@ export const submitImportFishTask = async (req: Request, res: Response) => {
       action_puddle,
       action_serial_puddle,
       process,
+      date_action,
     } = req.body;
 
     const connection = await Connect();
@@ -541,6 +556,7 @@ export const submitImportFishTask = async (req: Request, res: Response) => {
       action_puddle,
       action_serial_puddle: action_serial_puddle,
       process,
+      date_action,
     });
 
     await updateStatusTargetPuddle(connection, {
@@ -688,6 +704,7 @@ export const closeProcessTask = async (req: Request, res: Response) => {
       approved,
       volume,
       remaining_volume,
+      date_action,
     } = req.body;
     const connection = await Connect();
     const getDataUser: IUserPareToken = await getUserUUID(
@@ -707,6 +724,7 @@ export const closeProcessTask = async (req: Request, res: Response) => {
       volume,
       remaining_volume,
       user_create_sub: getDataUser.idusers,
+      date_action,
     });
     await DisConnect(connection);
     return res.status(200).send(result);
@@ -747,6 +765,59 @@ export const deleteFishType = async (req: Request, res: Response) => {
     const connection = await Connect();
     const result = await deleteFishTypeService(connection, {
       idfish_type: Number(idfish_type),
+    });
+    await DisConnect(connection);
+    return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const changeWorkingStatusPuddle = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { puddle_id, working_status } = req.body;
+    const connection = await Connect();
+    const result = await updateWorkingStatusPuddle(connection, {
+      puddle_id: Number(puddle_id),
+      working_status: Number(working_status),
+    });
+    await DisConnect(connection);
+    return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const updateStatusTopSaltTask = async (req: Request, res: Response) => {
+  try {
+    const { topSalt, idpuddle } = req.body;
+    const connection = await Connect();
+    const result = await updateStatusTopSalt(connection, {
+      topSalt: Number(topSalt),
+      idpuddle: Number(idpuddle),
+    });
+    await DisConnect(connection);
+    return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+export const updateDateStartFermantTask = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { start_date, idpuddle } = req.body;
+    const connection = await Connect();
+    const result = await updateDateStartFermant(connection, {
+      start_date: start_date,
+      idpuddle: Number(idpuddle),
     });
     await DisConnect(connection);
     return res.status(200).send(result);

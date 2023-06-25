@@ -12,13 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getLogReceiveFiashSauceByOrdersIdTask = exports.fillterReceiveFiashSauceTask = exports.getReceiveFiashSauceBillPaginationTask = exports.createFiashSauceBillTask = exports.getLogReceiveSaltByOrdersIdTask = exports.fillterReceiveSaltTask = exports.getReceiveSaltBillPaginationTask = exports.createSaltBillTask = exports.updateStockSolidSaltTask = exports.getLogReceiveSolidSaltByOrdersIdTask = exports.fillterReceiveSolidSaltTask = exports.getReceiveSolidSaltBillPaginationTask = exports.createSolidSaltBillTask = exports.updateStockTask = exports.getReceiveFishWeightPaginationTask = exports.updateOrderConnectTask = exports.fillterReceiveWeightFishTask = exports.getReceiveWeightFishByOrdersIdTask = exports.getReceiveWeightFishByIdTask = exports.getListReceiveWeightFishTask = exports.createFishWeightBillTask = void 0;
+exports.deleteCustomer = exports.createCustomer = exports.getCustomerByBillTaskPaginationTask = exports.getCustomerByBillTask = exports.getLogReceiveFiashSauceByOrdersIdTask = exports.fillterReceiveFiashSauceTask = exports.getReceiveFiashSauceBillPaginationWithOutEmptyTask = exports.getReceiveFiashSauceBillPaginationTask = exports.createFiashSauceBillTask = exports.getLogReceiveSaltByOrdersIdTask = exports.fillterReceiveSaltTask = exports.getReceiveSaltBillPaginationWithOutEmptyTask = exports.getReceiveSaltBillPaginationTask = exports.createSaltBillTask = exports.updateStockSolidSaltTask = exports.getLogReceiveSolidSaltByOrdersIdTask = exports.fillterReceiveSolidSaltTask = exports.getReceiveSolidSaltBillPaginationWithOutEmptyTask = exports.getReceiveSolidSaltBillPaginationTask = exports.createSolidSaltBillTask = exports.updateStockTask = exports.getReceiveFishWeightPaginationWithOutEmptyTask = exports.getReceiveFishWeightPaginationTask = exports.updateOrderConnectTask = exports.fillterReceiveWeightFishTask = exports.getReceiveWeightFishByOrdersIdTask = exports.getReceiveWeightFishByIdTask = exports.getListReceiveWeightFishTask = exports.createFishWeightBillTask = void 0;
 const receive_service_1 = require("../service/receive.service");
 const connect_1 = require("../utils/connect");
 const logger_1 = __importDefault(require("../utils/logger"));
 const createFishWeightBillTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { no, weigh_net, price_per_weigh, amount_price, vehicle_register, customer_name, product_name, store_name, description, } = req.body;
+        const { no, weigh_net, price_per_weigh, amount_price, vehicle_register, customer_name, product_name, store_name, description, date_action, } = req.body;
         const connection = yield (0, connect_1.Connect)();
         const result = yield (0, receive_service_1.insertRecieveFishWeightBill)(connection, {
             no,
@@ -30,6 +30,7 @@ const createFishWeightBillTask = (req, res) => __awaiter(void 0, void 0, void 0,
             product_name,
             store_name,
             description,
+            date_action,
         });
         yield (0, connect_1.DisConnect)(connection);
         return res.status(200).send(result);
@@ -146,6 +147,28 @@ const getReceiveFishWeightPaginationTask = (req, res) => __awaiter(void 0, void 
     }
 });
 exports.getReceiveFishWeightPaginationTask = getReceiveFishWeightPaginationTask;
+const getReceiveFishWeightPaginationWithOutEmptyTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { page, offset } = req.params;
+        const connection = yield (0, connect_1.Connect)();
+        const list = yield (0, receive_service_1.getListReceivePaginationWithoutEmpty)(connection, {
+            page: parseInt(page),
+            offset: parseInt(offset),
+        });
+        const countList = yield (0, receive_service_1.getAllRowListReceiveWithoutEmpty)(connection);
+        const responseData = {
+            data: list,
+            total: countList[0].allRows,
+        };
+        yield (0, connect_1.DisConnect)(connection);
+        return res.status(200).send(responseData);
+    }
+    catch (e) {
+        logger_1.default.error(e);
+        return res.status(409).send(e.message);
+    }
+});
+exports.getReceiveFishWeightPaginationWithOutEmptyTask = getReceiveFishWeightPaginationWithOutEmptyTask;
 const updateStockTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { new_stock, idreceipt, order_target, id_puddle } = req.body;
@@ -172,7 +195,7 @@ exports.updateStockTask = updateStockTask;
 // ------------------------ solid salt receipt ------------------------
 const createSolidSaltBillTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { no, product_name, weigh_net, price_per_weigh, price_net, customer, } = req.body;
+        const { no, product_name, weigh_net, price_per_weigh, price_net, customer, date_action, } = req.body;
         const connection = yield (0, connect_1.Connect)();
         const result = yield (0, receive_service_1.insertRecieveSolidSaltBill)(connection, {
             no,
@@ -181,6 +204,7 @@ const createSolidSaltBillTask = (req, res) => __awaiter(void 0, void 0, void 0, 
             price_per_weigh,
             price_net,
             customer,
+            date_action,
         });
         yield (0, connect_1.DisConnect)(connection);
         return res.status(200).send(result);
@@ -213,6 +237,28 @@ const getReceiveSolidSaltBillPaginationTask = (req, res) => __awaiter(void 0, vo
     }
 });
 exports.getReceiveSolidSaltBillPaginationTask = getReceiveSolidSaltBillPaginationTask;
+const getReceiveSolidSaltBillPaginationWithOutEmptyTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { page, offset } = req.params;
+        const connection = yield (0, connect_1.Connect)();
+        const list = yield (0, receive_service_1.getSolidSaltListReceivePaginationWithOutEmpty)(connection, {
+            page: parseInt(page),
+            offset: parseInt(offset),
+        });
+        const countList = yield (0, receive_service_1.getAllRowSolidSaltListReceiveWithOutEmpty)(connection);
+        const responseData = {
+            data: list,
+            total: countList[0].allRows,
+        };
+        yield (0, connect_1.DisConnect)(connection);
+        return res.status(200).send(responseData);
+    }
+    catch (e) {
+        logger_1.default.error(e);
+        return res.status(409).send(e.message);
+    }
+});
+exports.getReceiveSolidSaltBillPaginationWithOutEmptyTask = getReceiveSolidSaltBillPaginationWithOutEmptyTask;
 const fillterReceiveSolidSaltTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { no, weigh_net, customer_name, product_name, stock } = req.body;
@@ -280,7 +326,7 @@ exports.updateStockSolidSaltTask = updateStockSolidSaltTask;
 // ------------------------ salt receipt ------------------------
 const createSaltBillTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { no, product_name, weigh_net, price_per_weigh, price_net, customer, } = req.body;
+        const { no, product_name, weigh_net, price_per_weigh, price_net, customer, date_action, } = req.body;
         const connection = yield (0, connect_1.Connect)();
         const result = yield (0, receive_service_1.insertRecieveSaltBill)(connection, {
             no,
@@ -289,6 +335,7 @@ const createSaltBillTask = (req, res) => __awaiter(void 0, void 0, void 0, funct
             price_per_weigh,
             price_net,
             customer,
+            date_action,
         });
         yield (0, connect_1.DisConnect)(connection);
         return res.status(200).send(result);
@@ -321,6 +368,28 @@ const getReceiveSaltBillPaginationTask = (req, res) => __awaiter(void 0, void 0,
     }
 });
 exports.getReceiveSaltBillPaginationTask = getReceiveSaltBillPaginationTask;
+const getReceiveSaltBillPaginationWithOutEmptyTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { page, offset } = req.params;
+        const connection = yield (0, connect_1.Connect)();
+        const list = yield (0, receive_service_1.getSaltListReceivePaginationWithOutEmpty)(connection, {
+            page: parseInt(page),
+            offset: parseInt(offset),
+        });
+        const countList = yield (0, receive_service_1.getAllRowSaltListReceiveWithOutEmpty)(connection);
+        const responseData = {
+            data: list,
+            total: countList[0].allRows,
+        };
+        yield (0, connect_1.DisConnect)(connection);
+        return res.status(200).send(responseData);
+    }
+    catch (e) {
+        logger_1.default.error(e);
+        return res.status(409).send(e.message);
+    }
+});
+exports.getReceiveSaltBillPaginationWithOutEmptyTask = getReceiveSaltBillPaginationWithOutEmptyTask;
 const fillterReceiveSaltTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { no, weigh_net, customer_name, product_name, stock } = req.body;
@@ -365,7 +434,7 @@ exports.getLogReceiveSaltByOrdersIdTask = getLogReceiveSaltByOrdersIdTask;
 // ------------------------ fish sauce receipt ------------------------
 const createFiashSauceBillTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { no, product_name, weigh_net, price_per_weigh, price_net, customer, } = req.body;
+        const { no, product_name, weigh_net, price_per_weigh, price_net, customer, date_action, } = req.body;
         const connection = yield (0, connect_1.Connect)();
         const result = yield (0, receive_service_1.insertRecieveFiashSauceBill)(connection, {
             no,
@@ -374,6 +443,7 @@ const createFiashSauceBillTask = (req, res) => __awaiter(void 0, void 0, void 0,
             price_per_weigh,
             price_net,
             customer,
+            date_action,
         });
         yield (0, connect_1.DisConnect)(connection);
         return res.status(200).send(result);
@@ -406,6 +476,28 @@ const getReceiveFiashSauceBillPaginationTask = (req, res) => __awaiter(void 0, v
     }
 });
 exports.getReceiveFiashSauceBillPaginationTask = getReceiveFiashSauceBillPaginationTask;
+const getReceiveFiashSauceBillPaginationWithOutEmptyTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { page, offset } = req.params;
+        const connection = yield (0, connect_1.Connect)();
+        const list = yield (0, receive_service_1.getFiashSauceListReceivePaginationWithOutEmpty)(connection, {
+            page: parseInt(page),
+            offset: parseInt(offset),
+        });
+        const countList = yield (0, receive_service_1.getAllRowFiashSauceListReceiveWithOutEmpty)(connection);
+        const responseData = {
+            data: list,
+            total: countList[0].allRows,
+        };
+        yield (0, connect_1.DisConnect)(connection);
+        return res.status(200).send(responseData);
+    }
+    catch (e) {
+        logger_1.default.error(e);
+        return res.status(409).send(e.message);
+    }
+});
+exports.getReceiveFiashSauceBillPaginationWithOutEmptyTask = getReceiveFiashSauceBillPaginationWithOutEmptyTask;
 const fillterReceiveFiashSauceTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { no, weigh_net, customer_name, product_name, stock } = req.body;
@@ -442,3 +534,78 @@ const getLogReceiveFiashSauceByOrdersIdTask = (req, res) => __awaiter(void 0, vo
     }
 });
 exports.getLogReceiveFiashSauceByOrdersIdTask = getLogReceiveFiashSauceByOrdersIdTask;
+// ------- customer -------
+const getCustomerByBillTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { type_bill } = req.params;
+        const connection = yield (0, connect_1.Connect)();
+        const result = yield (0, receive_service_1.getCustomerByBill)(connection, {
+            type_bill: parseInt(type_bill),
+        });
+        yield (0, connect_1.DisConnect)(connection);
+        return res.status(200).send(result);
+    }
+    catch (e) {
+        logger_1.default.error(e);
+        return res.status(409).send(e.message);
+    }
+});
+exports.getCustomerByBillTask = getCustomerByBillTask;
+const getCustomerByBillTaskPaginationTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { page, offset, type_bill } = req.params;
+        const connection = yield (0, connect_1.Connect)();
+        const list = yield (0, receive_service_1.getCustomerByBillPagination)(connection, {
+            page: parseInt(page),
+            offset: parseInt(offset),
+            type_bill: parseInt(type_bill),
+        });
+        const countList = yield (0, receive_service_1.getAllRowCustomerByBill)(connection, {
+            type_bill: parseInt(type_bill),
+        });
+        const responseData = {
+            data: list,
+            total: countList[0].allRows,
+        };
+        yield (0, connect_1.DisConnect)(connection);
+        return res.status(200).send(responseData);
+    }
+    catch (e) {
+        logger_1.default.error(e);
+        return res.status(409).send(e.message);
+    }
+});
+exports.getCustomerByBillTaskPaginationTask = getCustomerByBillTaskPaginationTask;
+const createCustomer = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { type_bill, name } = req.body;
+        const connection = yield (0, connect_1.Connect)();
+        const result = yield (0, receive_service_1.insertCustomer)(connection, {
+            type_bill: parseInt(type_bill),
+            name: name,
+        });
+        yield (0, connect_1.DisConnect)(connection);
+        return res.status(200).send(result);
+    }
+    catch (e) {
+        logger_1.default.error(e);
+        return res.status(409).send(e.message);
+    }
+});
+exports.createCustomer = createCustomer;
+const deleteCustomer = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const idcustomer_bill = req.params.idcustomer_bill;
+        const connection = yield (0, connect_1.Connect)();
+        const result = yield (0, receive_service_1.deleteCustomerBil)(connection, {
+            idcustomer_bill: Number(idcustomer_bill),
+        });
+        yield (0, connect_1.DisConnect)(connection);
+        return res.status(200).send(result);
+    }
+    catch (e) {
+        logger_1.default.error(e);
+        return res.status(409).send(e.message);
+    }
+});
+exports.deleteCustomer = deleteCustomer;
