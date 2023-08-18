@@ -22,6 +22,7 @@ import {
   insertTargetPuddle,
   transferSidhsauce,
   updateAmountPriceOrder,
+  updateChemOrder,
   updateDateStartFermant,
   updateDetailPuddle,
   updatePriceSubOrder,
@@ -30,6 +31,7 @@ import {
   updateStatusTargetPuddle,
   updateStatusTopSalt,
   updateTypeProcessSubOrder,
+  updateTypePuddle,
 } from "../service/product.service";
 import {
   insertLogFiashSauceStockReceive,
@@ -160,6 +162,10 @@ export const createOrderTask = async (req: Request, res: Response) => {
       remaining_volume: status_puddle_order === 1 ? volume : 0,
       start_date,
     });
+    await updateTypePuddle(connection, {
+      type_process: 0,
+      idpuddle: puddle_id,
+    });
     await DisConnect(connection);
     return res.status(200).send(queryCreateSubOrder);
   } catch (e: any) {
@@ -289,7 +295,6 @@ export const exportFishSauceToNewPuddleTask = async (
       date_action,
     });
 
-
     await insertTargetPuddle(connection, {
       id_puddle: target_puddle,
       id_sub_order: result.message.insertId,
@@ -297,6 +302,11 @@ export const exportFishSauceToNewPuddleTask = async (
       source_puddle: id_puddle,
       source_serial_puddle: action_puddle,
       serial_puddle,
+    });
+
+    await updateTypePuddle(connection, {
+      type_process: type_process,
+      idpuddle: id_puddle,
     });
     await DisConnect(connection);
     return res.status(200).send(result);
@@ -365,6 +375,11 @@ export const exportSaltWaterToNewPuddleTask = async (
       serial_puddle,
       item_transfer,
     });
+
+    await updateTypePuddle(connection, {
+      type_process: type_process,
+      idpuddle: id_puddle,
+    });
     await DisConnect(connection);
     return res.status(200).send(result);
   } catch (e: any) {
@@ -429,6 +444,10 @@ export const addOnSaltWaterTask = async (req: Request, res: Response) => {
       idreceipt: idreceipt,
     });
 
+    await updateTypePuddle(connection, {
+      type_process: type_process,
+      idpuddle: id_puddle,
+    });
     await DisConnect(connection);
     return res.status(200).send(result);
   } catch (e: any) {
@@ -491,6 +510,11 @@ export const addOnFishSauceWaterTask = async (req: Request, res: Response) => {
       idreceipt: idreceipt,
     });
 
+    await updateTypePuddle(connection, {
+      type_process: type_process,
+      idpuddle: id_puddle,
+    });
+
     await DisConnect(connection);
     return res.status(200).send(result);
   } catch (e: any) {
@@ -532,6 +556,7 @@ export const submitImportFishTask = async (req: Request, res: Response) => {
       action_serial_puddle,
       process,
       date_action,
+      id_puddle,
     } = req.body;
 
     const connection = await Connect();
@@ -567,6 +592,11 @@ export const submitImportFishTask = async (req: Request, res: Response) => {
     const result = await updateStatusApprovedSubOrder(connection, {
       idsub_orders: lasted_subId,
       approved: 1,
+    });
+
+    await updateTypePuddle(connection, {
+      type_process: type_process,
+      idpuddle: id_puddle,
     });
     await DisConnect(connection);
     return res.status(200).send(result);
@@ -705,6 +735,7 @@ export const closeProcessTask = async (req: Request, res: Response) => {
       volume,
       remaining_volume,
       date_action,
+      id_puddle,
     } = req.body;
     const connection = await Connect();
     const getDataUser: IUserPareToken = await getUserUUID(
@@ -725,6 +756,11 @@ export const closeProcessTask = async (req: Request, res: Response) => {
       remaining_volume,
       user_create_sub: getDataUser.idusers,
       date_action,
+    });
+
+    await updateTypePuddle(connection, {
+      type_process: type_process,
+      idpuddle: id_puddle,
     });
     await DisConnect(connection);
     return res.status(200).send(result);
@@ -818,6 +854,24 @@ export const updateDateStartFermantTask = async (
     const result = await updateDateStartFermant(connection, {
       start_date: start_date,
       idpuddle: Number(idpuddle),
+    });
+    await DisConnect(connection);
+    return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const updateChemOrderTask = async (req: Request, res: Response) => {
+  try {
+    const { chem, value, idorders } = req.body;
+
+    const connection = await Connect();
+    const result = await updateChemOrder(connection, {
+      chem,
+      value,
+      idorders,
     });
     await DisConnect(connection);
     return res.status(200).send(result);

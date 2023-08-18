@@ -52,7 +52,7 @@ export const getAllPuddle = async (
   try {
     const { building_id } = input;
     const sql = `SELECT * FROM ${DB}.puddle 
-    left join (SELECT idworking_status, title as working_status_title, color FROM jaw_production_process.working_status) working on puddle.working_status =  working.idworking_status
+    left join (SELECT idworking_status, title as working_status_title, color FROM ${DB}.working_status) working on puddle.working_status =  working.idworking_status
     where building_id=${building_id}`;
     const result = await Query(connection, sql);
     return resp(true, result);
@@ -707,4 +707,41 @@ export const updateDateStartFermant = async (
   } catch (e) {
     throw new Error("bad request");
   }
+};
+
+export const updateChemOrder = async (
+  connection: Connection,
+  input: {
+    chem: string;
+    value: number;
+    idorders: number;
+  }
+) => {
+  try {
+    const { chem, value, idorders } = input;
+
+    const sql = `UPDATE  ${DB}.orders SET ${chem} = ${value} where idorders = ${idorders} ;`;
+    const result: any = await Query(connection, sql);
+    return resp(true, "UPDATE_SUCCESS");
+  } catch (e) {
+    throw new Error(`bad request : ${e}`);
+  }
+};
+
+export const updateTypePuddle = async (
+  connection: Connection,
+  input: {
+    type_process: number;
+    idpuddle: number;
+  }
+) => {
+    try {
+      const { type_process, idpuddle } = input;
+
+      const sql = `UPDATE  ${DB}.puddle SET type_process = ${type_process} where idpuddle = ${idpuddle} ;`;
+      const result: any = await Query(connection, sql);
+      return resp(true, "UPDATE_SUCCESS");
+    } catch (e) {
+      throw new Error(`bad request : ${e}`);
+    }
 };

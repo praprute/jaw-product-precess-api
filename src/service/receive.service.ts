@@ -299,7 +299,7 @@ export const getSaltListReceivePaginationWithOutEmpty = async (
 ) => {
   try {
     const { page, offset } = input;
-    const sql = `SELECT * FROM ${DB}.salt_receipt where stock != 0 limit ${
+    const sql = `SELECT * FROM ${DB}.salt_receipt where stock > 0 limit ${
       page * offset
     }, ${offset}`;
     const result = await Query(connection, sql);
@@ -469,10 +469,12 @@ export const getFiashSauceListReceivePaginationWithOutEmpty = async (
 ) => {
   try {
     const { page, offset } = input;
-    const sql = `SELECT * FROM ${DB}.fishsauce_receipt where stock != 0 limit ${
+    const sql = `SELECT * FROM ${DB}.fishsauce_receipt where stock > 0 limit ${
       page * offset
     }, ${offset}`;
     const result = await Query(connection, sql);
+
+    
     return result;
   } catch (e: any) {
     throw new Error(`bad query : ${e}`);

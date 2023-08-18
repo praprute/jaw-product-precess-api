@@ -42,6 +42,7 @@ import {
   getSerialPuddleTask,
   getTargetPendingTask,
   submitImportFishTask,
+  updateChemOrderTask,
   updateDateStartFermantTask,
   updateDetailPuddleTask,
   updatePriceSubOrderTask,
@@ -948,6 +949,10 @@ function routes(app: Express) {
     verifyToken,
     deleteCustomer
   );
+
+  // ---------- Chem------------------------
+
+  app.put("/api/updateChemOrderTask", verifyToken, updateChemOrderTask);
 }
 
 export default routes;
