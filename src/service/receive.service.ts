@@ -84,6 +84,8 @@ export const fillterReceiveWeightFish = async (
     product_name?: string;
     store_name?: string;
     stock?: string;
+    dateStart?: string;
+    dateEnd?: string;
   }
 ) => {
   try {
@@ -96,9 +98,20 @@ export const fillterReceiveWeightFish = async (
       store_name,
       stock,
     } = input;
-    const sql = `SELECT * FROM ${DB}.receipt where no LIKE '%${no}%' or weigh_net LIKE '%${weigh_net}%'
-    or vehicle_register LIKE '%${vehicle_register}%' or customer_name LIKE '%${customer_name}%' 
-    or product_name LIKE '%${product_name}%' or store_name LIKE '%${store_name}%' or stock LIKE '%${stock}%' ;`;
+    const sql = `SELECT * FROM ${DB}.receipt where ${
+      !!no ? `no LIKE '%${no}%'` : " "
+    } ${!!weigh_net ? `and weigh_net LIKE '%${weigh_net}%' ` : " "} 
+    ${
+      !!vehicle_register
+        ? `and vehicle_register LIKE '%${vehicle_register}%' `
+        : " "
+    } 
+    ${!!customer_name ? `and customer_name LIKE '%${customer_name}%' ` : " "} 
+    ${!!product_name ? `and product_name LIKE '%${product_name}%' ` : " "} 
+    ${!!store_name ? `and store_name LIKE '%${store_name}%' ` : " "} 
+    ${!!stock ? `and stock LIKE '%${stock}%' ` : " "} 
+    idreceipt > 0 ;`;
+    console.log("sql : ", sql);
     const result = await Query(connection, sql);
     return resp(true, result);
   } catch (e: any) {
@@ -164,17 +177,73 @@ export const getListReceivePagination = async (
   input: {
     page: number;
     offset: number;
+    no?: string;
+    weigh_net?: string;
+    vehicle_register?: string;
+    customer_name?: string;
+    product_name?: string;
+    store_name?: string;
+    stock?: string;
+    dateStart?: string;
+    dateEnd?: string;
   }
 ) => {
   try {
-    const { page, offset } = input;
-    const sql = `SELECT * FROM ${DB}.receipt limit ${page * offset}, ${offset}`;
+    const {
+      page,
+      offset,
+      no,
+      weigh_net,
+      vehicle_register,
+      customer_name,
+      product_name,
+      store_name,
+      stock,
+      dateStart,
+      dateEnd,
+    } = input;
+
+    let start = !!dateStart && dateStart !== "" ? dateStart : "1999-01-01";
+
+    const sql = `SELECT * FROM ${DB}.receipt where ${
+      !!no && no !== "" ? `no LIKE '%${no}%' and ` : " "
+    } ${
+      !!weigh_net && weigh_net !== ""
+        ? `weigh_net LIKE '%${weigh_net}%' and `
+        : " "
+    } 
+    ${
+      !!vehicle_register && vehicle_register !== ""
+        ? `vehicle_register LIKE '%${vehicle_register}%' and `
+        : " "
+    } 
+    ${
+      !!customer_name && customer_name !== ""
+        ? ` customer_name LIKE '%${customer_name}%' and `
+        : " "
+    } 
+    ${
+      !!product_name && product_name !== ""
+        ? ` product_name LIKE '%${product_name}%' and `
+        : " "
+    } 
+    ${
+      !!store_name && store_name !== ""
+        ? ` store_name LIKE '%${store_name}%' and `
+        : " "
+    } 
+    ${!!stock && stock !== "" ? ` stock LIKE '%${stock}%' and ` : " "} 
+    idreceipt > 0 and date_create BETWEEN '${start}' and ${
+      !!dateEnd && dateEnd !== "" ? `'${dateEnd}'` : "now()"
+    } ORDER BY date_create desc limit ${page * offset}, ${offset} ;`;
+
     const result = await Query(connection, sql);
     return result;
   } catch (e: any) {
     throw new Error(`bad query : ${e}`);
   }
 };
+
 export const getListReceivePaginationWithoutEmpty = async (
   connection: Connection,
   input: {
@@ -194,9 +263,66 @@ export const getListReceivePaginationWithoutEmpty = async (
   }
 };
 
-export const getAllRowListReceive = async (connection: Connection) => {
+export const getAllRowListReceive = async (
+  connection: Connection,
+  input: {
+    no?: string;
+    weigh_net?: string;
+    vehicle_register?: string;
+    customer_name?: string;
+    product_name?: string;
+    store_name?: string;
+    stock?: string;
+    dateStart?: string;
+    dateEnd?: string;
+  }
+) => {
   try {
-    const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.receipt;`;
+    const {
+      no,
+      weigh_net,
+      vehicle_register,
+      customer_name,
+      product_name,
+      store_name,
+      stock,
+      dateStart,
+      dateEnd,
+    } = input;
+
+    let start = !!dateStart && dateStart !== "" ? dateStart : "1999-01-01";
+
+    const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.receipt where ${
+      !!no && no !== "" ? `no LIKE '%${no}%' and ` : " "
+    } ${
+      !!weigh_net && weigh_net !== ""
+        ? `weigh_net LIKE '%${weigh_net}%' and `
+        : " "
+    } 
+    ${
+      !!vehicle_register && vehicle_register !== ""
+        ? `vehicle_register LIKE '%${vehicle_register}%' and `
+        : " "
+    } 
+    ${
+      !!customer_name && customer_name !== ""
+        ? ` customer_name LIKE '%${customer_name}%' and `
+        : " "
+    } 
+    ${
+      !!product_name && product_name !== ""
+        ? ` product_name LIKE '%${product_name}%' and `
+        : " "
+    } 
+    ${
+      !!store_name && store_name !== ""
+        ? ` store_name LIKE '%${store_name}%' and `
+        : " "
+    } 
+    ${!!stock && stock !== "" ? ` stock LIKE '%${stock}%' and ` : " "} 
+    idreceipt > 0 and date_create BETWEEN '${start}' and ${
+      !!dateEnd && dateEnd !== "" ? `'${dateEnd}'` : "now()"
+    } ORDER BY date_create desc ;`;
     const result = await Query(connection, sql);
     return result as IAllRows[];
   } catch (e: any) {
@@ -405,6 +531,506 @@ export const getReceiveSaltByOrderId = async (
     throw new Error(`bad query : ${e}`);
   }
 };
+// ---------------------------------- Ampan receipt ----------------------------------
+export const insertRecieveAmpanBill = async (
+  connection: Connection,
+  input: {
+    no: string;
+    product_name: string;
+    weigh_net: number;
+    price_per_weigh: number;
+    price_net: number;
+    customer: string;
+    date_action: string;
+  }
+) => {
+  try {
+    const {
+      no,
+      product_name,
+      weigh_net,
+      price_per_weigh,
+      price_net,
+      customer,
+      date_action,
+    } = input;
+    const sql = `INSERT INTO ${DB}.ampan_receipt 
+    ( no, product_name, weigh_net, price_per_weigh, price_net, customer, stock, date_action ) 
+    values ('${no}',  '${product_name}', ${weigh_net},${price_per_weigh}, ${price_net}, 
+    '${customer}',  ${weigh_net}, '${date_action}' );`;
+    const result = await Query(connection, sql);
+    return resp(true, result);
+  } catch (e: any) {
+    throw new Error(`bad insert : ${e}`);
+  }
+};
+
+export const getAmpanListReceivePagination = async (
+  connection: Connection,
+  input: {
+    page: number;
+    offset: number;
+    no?: string;
+    weigh_net?: string;
+    customer_name?: string;
+    product_name?: string;
+    stock?: string;
+    dateStart?: string;
+    dateEnd?: string;
+  }
+) => {
+  try {
+    const {
+      page,
+      offset,
+      no,
+      weigh_net,
+      customer_name,
+      product_name,
+      stock,
+      dateStart,
+      dateEnd,
+    } = input;
+
+    let start = !!dateStart && dateStart !== "" ? dateStart : "1999-01-01";
+    const sql = `SELECT * FROM ${DB}.ampan_receipt where ${
+      !!no && no !== "" ? `no LIKE '%${no}%' and ` : " "
+    } ${
+      !!weigh_net && weigh_net !== ""
+        ? `weigh_net LIKE '%${weigh_net}%' and `
+        : " "
+    } 
+    ${
+      !!customer_name && customer_name !== ""
+        ? ` customer_name LIKE '%${customer_name}%' and `
+        : " "
+    } 
+    ${
+      !!product_name && product_name !== ""
+        ? ` product_name LIKE '%${product_name}%' and `
+        : " "
+    }
+    ${!!stock && stock !== "" ? ` stock LIKE '%${stock}%' and ` : " "} 
+    idampan_receipt > 0 and date_create BETWEEN '${start}' and ${
+      !!dateEnd && dateEnd !== "" ? `'${dateEnd}'` : "now()"
+    } ORDER BY date_create desc limit ${page * offset}, ${offset} ;`;
+    const result = await Query(connection, sql);
+    return result;
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+export const getAllRowAmpanListReceive = async (
+  connection: Connection,
+  input: {
+    no?: string;
+    weigh_net?: string;
+    customer_name?: string;
+    product_name?: string;
+    stock?: string;
+    dateStart?: string;
+    dateEnd?: string;
+  }
+) => {
+  try {
+    const {
+      no,
+      weigh_net,
+      customer_name,
+      product_name,
+      stock,
+      dateStart,
+      dateEnd,
+    } = input;
+    let start = !!dateStart && dateStart !== "" ? dateStart : "1999-01-01";
+    const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.ampan_receipt where ${
+      !!no && no !== "" ? `no LIKE '%${no}%' and ` : " "
+    } ${
+      !!weigh_net && weigh_net !== ""
+        ? `weigh_net LIKE '%${weigh_net}%' and `
+        : " "
+    } 
+    ${
+      !!customer_name && customer_name !== ""
+        ? ` customer_name LIKE '%${customer_name}%' and `
+        : " "
+    } 
+    ${
+      !!product_name && product_name !== ""
+        ? ` product_name LIKE '%${product_name}%' and `
+        : " "
+    }
+    ${!!stock && stock !== "" ? ` stock LIKE '%${stock}%' and ` : " "} 
+    idampan_receipt > 0 and date_create BETWEEN '${start}' and ${
+      !!dateEnd && dateEnd !== "" ? `'${dateEnd}'` : "now()"
+    } ORDER BY date_create desc ;`;
+    const result = await Query(connection, sql);
+    return result as IAllRows[];
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+export const fillterReceiveAmpan = async (
+  connection: Connection,
+  input: {
+    no?: string;
+    weigh_net?: string;
+    customer_name?: string;
+    product_name?: string;
+    stock?: string;
+  }
+) => {
+  try {
+    const { no, weigh_net, customer_name, product_name, stock } = input;
+    const sql = `SELECT * FROM ${DB}.ampan_receipt where no LIKE '%${no}%' or weigh_net LIKE '%${weigh_net}%'
+    or customer LIKE '%${customer_name}%' 
+    or product_name LIKE '%${product_name}%' or stock LIKE '%${stock}%' ;`;
+    const result = await Query(connection, sql);
+    return resp(true, result);
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+export const getAmpanListReceivePaginationWithOutEmpty = async (
+  connection: Connection,
+  input: {
+    page: number;
+    offset: number;
+  }
+) => {
+  try {
+    const { page, offset } = input;
+    const sql = `SELECT * FROM ${DB}.ampan_receipt where stock > 0 limit ${
+      page * offset
+    }, ${offset}`;
+    const result = await Query(connection, sql);
+
+    return result;
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+export const getAllAmpanSauceListReceiveWithOutEmpty = async (
+  connection: Connection
+) => {
+  try {
+    const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.ampan_receipt  where stock != 0;`;
+    const result = await Query(connection, sql);
+    return result as IAllRows[];
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+export const insertLogAmpanStockReceive = async (
+  connection: Connection,
+  input: {
+    new_stock: number;
+    idreceipt: number;
+    order_target: number;
+    id_puddle: number;
+  }
+) => {
+  try {
+    const { new_stock, idreceipt, order_target, id_puddle } = input;
+    const sql = `INSERT INTO ${DB}.log_ampan (amount, receipt_target, order_target, puddle) values (${new_stock}, ${idreceipt}, ${order_target}, ${id_puddle});`;
+    const result = await Query(connection, sql);
+    return resp(true, result);
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+export const updateStockAmpanService = async (
+  connection: Connection,
+  input: {
+    new_stock: number;
+    idreceipt: number;
+  }
+) => {
+  try {
+    const { new_stock, idreceipt } = input;
+    const sql = `UPDATE ${DB}.ampan_receipt SET stock = stock-${new_stock} WHERE idampan_receipt = ${idreceipt};`;
+    const result = await Query(connection, sql);
+    return resp(true, result);
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+export const getReceiveAmpanByOrderId = async (
+  connection: Connection,
+  input: {
+    order_id: number;
+  }
+) => {
+  try {
+    const { order_id } = input;
+    const sql = `SELECT * FROM  ${DB}.log_ampan 
+    inner join (SELECT idampan_receipt, no, product_name,weigh_net, stock FROM  ${DB}.ampan_receipt) receipe_table on receipe_table.idampan_receipt = log_ampan.receipt_target 
+    where order_target = ${order_id};`;
+
+    const result = await Query(connection, sql);
+    return result;
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+// ---------------------------------- Fishy receipt ----------------------------------
+
+export const insertRecieveFishyBill = async (
+  connection: Connection,
+  input: {
+    no: string;
+    product_name: string;
+    weigh_net: number;
+    price_per_weigh: number;
+    price_net: number;
+    customer: string;
+    date_action: string;
+  }
+) => {
+  try {
+    const {
+      no,
+      product_name,
+      weigh_net,
+      price_per_weigh,
+      price_net,
+      customer,
+      date_action,
+    } = input;
+    const sql = `INSERT INTO ${DB}.fishy_receipt 
+    ( no, product_name, weigh_net, price_per_weigh, price_net, customer, stock, date_action ) 
+    values ('${no}',  '${product_name}', ${weigh_net},${price_per_weigh}, ${price_net}, 
+    '${customer}',  ${weigh_net}, '${date_action}' );`;
+    const result = await Query(connection, sql);
+    return resp(true, result);
+  } catch (e: any) {
+    throw new Error(`bad insert : ${e}`);
+  }
+};
+
+export const getFishyListReceivePagination = async (
+  connection: Connection,
+  input: {
+    page: number;
+    offset: number;
+    no?: string;
+    weigh_net?: string;
+    customer_name?: string;
+    product_name?: string;
+    stock?: string;
+    dateStart?: string;
+    dateEnd?: string;
+  }
+) => {
+  try {
+    const {
+      page,
+      offset,
+      no,
+      weigh_net,
+      customer_name,
+      product_name,
+      stock,
+      dateStart,
+      dateEnd,
+    } = input;
+
+    let start = !!dateStart && dateStart !== "" ? dateStart : "1999-01-01";
+    const sql = `SELECT * FROM ${DB}.fishy_receipt where ${
+      !!no && no !== "" ? `no LIKE '%${no}%' and ` : " "
+    } ${
+      !!weigh_net && weigh_net !== ""
+        ? `weigh_net LIKE '%${weigh_net}%' and `
+        : " "
+    } 
+    ${
+      !!customer_name && customer_name !== ""
+        ? ` customer_name LIKE '%${customer_name}%' and `
+        : " "
+    } 
+    ${
+      !!product_name && product_name !== ""
+        ? ` product_name LIKE '%${product_name}%' and `
+        : " "
+    }
+    ${!!stock && stock !== "" ? ` stock LIKE '%${stock}%' and ` : " "} 
+    idfishy_receipt > 0 and date_create BETWEEN '${start}' and ${
+      !!dateEnd && dateEnd !== "" ? `'${dateEnd}'` : "now()"
+    } ORDER BY date_create desc limit ${page * offset}, ${offset} ;`;
+    const result = await Query(connection, sql);
+    return result;
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+export const getAllRowFishyListReceive = async (
+  connection: Connection,
+  input: {
+    no?: string;
+    weigh_net?: string;
+    customer_name?: string;
+    product_name?: string;
+    stock?: string;
+    dateStart?: string;
+    dateEnd?: string;
+  }
+) => {
+  try {
+    const {
+      no,
+      weigh_net,
+      customer_name,
+      product_name,
+      stock,
+      dateStart,
+      dateEnd,
+    } = input;
+    let start = !!dateStart && dateStart !== "" ? dateStart : "1999-01-01";
+    const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.fishy_receipt where ${
+      !!no && no !== "" ? `no LIKE '%${no}%' and ` : " "
+    } ${
+      !!weigh_net && weigh_net !== ""
+        ? `weigh_net LIKE '%${weigh_net}%' and `
+        : " "
+    } 
+    ${
+      !!customer_name && customer_name !== ""
+        ? ` customer_name LIKE '%${customer_name}%' and `
+        : " "
+    } 
+    ${
+      !!product_name && product_name !== ""
+        ? ` product_name LIKE '%${product_name}%' and `
+        : " "
+    }
+    ${!!stock && stock !== "" ? ` stock LIKE '%${stock}%' and ` : " "} 
+    idfishy_receipt > 0 and date_create BETWEEN '${start}' and ${
+      !!dateEnd && dateEnd !== "" ? `'${dateEnd}'` : "now()"
+    } ORDER BY date_create desc ;`;
+    const result = await Query(connection, sql);
+    return result as IAllRows[];
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+export const getFishyListReceivePaginationWithOutEmpty = async (
+  connection: Connection,
+  input: {
+    page: number;
+    offset: number;
+  }
+) => {
+  try {
+    const { page, offset } = input;
+    const sql = `SELECT * FROM ${DB}.fishy_receipt where stock > 0 limit ${
+      page * offset
+    }, ${offset}`;
+    const result = await Query(connection, sql);
+
+    return result;
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+export const getAllFishyListReceiveWithOutEmpty = async (
+  connection: Connection
+) => {
+  try {
+    const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.fishy_receipt  where stock != 0;`;
+    const result = await Query(connection, sql);
+    return result as IAllRows[];
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+export const fillterReceiveFishy = async (
+  connection: Connection,
+  input: {
+    no?: string;
+    weigh_net?: string;
+    customer_name?: string;
+    product_name?: string;
+    stock?: string;
+  }
+) => {
+  try {
+    const { no, weigh_net, customer_name, product_name, stock } = input;
+    const sql = `SELECT * FROM ${DB}.fishy_receipt where no LIKE '%${no}%' or weigh_net LIKE '%${weigh_net}%'
+    or customer LIKE '%${customer_name}%' 
+    or product_name LIKE '%${product_name}%' or stock LIKE '%${stock}%' ;`;
+    const result = await Query(connection, sql);
+    return resp(true, result);
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+export const insertLogFishyStockReceive = async (
+  connection: Connection,
+  input: {
+    new_stock: number;
+    idreceipt: number;
+    order_target: number;
+    id_puddle: number;
+  }
+) => {
+  try {
+    const { new_stock, idreceipt, order_target, id_puddle } = input;
+    const sql = `INSERT INTO ${DB}.log_fishy (amount, receipt_target, order_target, puddle) values (${new_stock}, ${idreceipt}, ${order_target}, ${id_puddle});`;
+    const result = await Query(connection, sql);
+    return resp(true, result);
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+export const updateStockFishyService = async (
+  connection: Connection,
+  input: {
+    new_stock: number;
+    idreceipt: number;
+  }
+) => {
+  try {
+    const { new_stock, idreceipt } = input;
+    const sql = `UPDATE ${DB}.fishy_receipt SET stock = stock-${new_stock} WHERE idfishy_receipt = ${idreceipt};`;
+    const result = await Query(connection, sql);
+    return resp(true, result);
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+export const getReceiveFishyByOrderId = async (
+  connection: Connection,
+  input: {
+    order_id: number;
+  }
+) => {
+  try {
+    const { order_id } = input;
+    const sql = `SELECT * FROM  ${DB}.log_fishy 
+    inner join (SELECT idfishy_receipt, no, product_name,weigh_net, stock FROM  ${DB}.fishy_receipt) receipe_table on receipe_table.idfishy_receipt = log_fishy.receipt_target 
+    where order_target = ${order_id};`;
+
+    const result = await Query(connection, sql);
+    return result;
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
 
 // ---------------------------------- Fish Sauce receipt ----------------------------------
 
@@ -446,13 +1072,51 @@ export const getFiashSauceListReceivePagination = async (
   input: {
     page: number;
     offset: number;
+    no?: string;
+    weigh_net?: string;
+    customer_name?: string;
+    product_name?: string;
+    stock?: string;
+    dateStart?: string;
+    dateEnd?: string;
   }
 ) => {
   try {
-    const { page, offset } = input;
-    const sql = `SELECT * FROM ${DB}.fishsauce_receipt limit ${
-      page * offset
-    }, ${offset}`;
+    const {
+      page,
+      offset,
+      no,
+      weigh_net,
+      customer_name,
+      product_name,
+      stock,
+      dateStart,
+      dateEnd,
+    } = input;
+
+    let start = !!dateStart && dateStart !== "" ? dateStart : "1999-01-01";
+    const sql = `SELECT * FROM ${DB}.fishsauce_receipt where ${
+      !!no && no !== "" ? `no LIKE '%${no}%' and ` : " "
+    } ${
+      !!weigh_net && weigh_net !== ""
+        ? `weigh_net LIKE '%${weigh_net}%' and `
+        : " "
+    } 
+    ${
+      !!customer_name && customer_name !== ""
+        ? ` customer_name LIKE '%${customer_name}%' and `
+        : " "
+    } 
+    ${
+      !!product_name && product_name !== ""
+        ? ` product_name LIKE '%${product_name}%' and `
+        : " "
+    }
+    ${!!stock && stock !== "" ? ` stock LIKE '%${stock}%' and ` : " "} 
+    idfishsauce_receipt > 0 and date_create BETWEEN '${start}' and ${
+      !!dateEnd && dateEnd !== "" ? `'${dateEnd}'` : "now()"
+    } ORDER BY date_create desc limit ${page * offset}, ${offset} ;`;
+
     const result = await Query(connection, sql);
     return result;
   } catch (e: any) {
@@ -474,26 +1138,63 @@ export const getFiashSauceListReceivePaginationWithOutEmpty = async (
     }, ${offset}`;
     const result = await Query(connection, sql);
 
-    
     return result;
   } catch (e: any) {
     throw new Error(`bad query : ${e}`);
   }
 };
 
-// where stock != 0
-
 export const getAllRowFiashSauceListReceive = async (
-  connection: Connection
+  connection: Connection,
+  input: {
+    no?: string;
+    weigh_net?: string;
+    customer_name?: string;
+    product_name?: string;
+    stock?: string;
+    dateStart?: string;
+    dateEnd?: string;
+  }
 ) => {
   try {
-    const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.fishsauce_receipt;`;
+    const {
+      no,
+      weigh_net,
+      customer_name,
+      product_name,
+      stock,
+      dateStart,
+      dateEnd,
+    } = input;
+    let start = !!dateStart && dateStart !== "" ? dateStart : "1999-01-01";
+    const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.fishsauce_receipt where ${
+      !!no && no !== "" ? `no LIKE '%${no}%' and ` : " "
+    } ${
+      !!weigh_net && weigh_net !== ""
+        ? `weigh_net LIKE '%${weigh_net}%' and `
+        : " "
+    } 
+    ${
+      !!customer_name && customer_name !== ""
+        ? ` customer_name LIKE '%${customer_name}%' and `
+        : " "
+    } 
+    ${
+      !!product_name && product_name !== ""
+        ? ` product_name LIKE '%${product_name}%' and `
+        : " "
+    }
+    ${!!stock && stock !== "" ? ` stock LIKE '%${stock}%' and ` : " "} 
+    idfishsauce_receipt > 0 and date_create BETWEEN '${start}' and ${
+      !!dateEnd && dateEnd !== "" ? `'${dateEnd}'` : "now()"
+    } ORDER BY date_create desc ;`;
     const result = await Query(connection, sql);
     return result as IAllRows[];
   } catch (e: any) {
     throw new Error(`bad query : ${e}`);
   }
 };
+
 export const getAllRowFiashSauceListReceiveWithOutEmpty = async (
   connection: Connection
 ) => {

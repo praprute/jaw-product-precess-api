@@ -30,13 +30,18 @@ import {
   updateStatusApprovedSubOrder,
   updateStatusTargetPuddle,
   updateStatusTopSalt,
+  updateTimeActionPuddle,
   updateTypeProcessSubOrder,
   updateTypePuddle,
 } from "../service/product.service";
 import {
+  insertLogAmpanStockReceive,
   insertLogFiashSauceStockReceive,
+  insertLogFishyStockReceive,
   insertLogSaltStockReceive,
+  updateStockAmpanService,
   updateStockFiashSauceService,
+  updateStockFishyService,
   updateStockSaltService,
 } from "../service/receive.service";
 import { Connect, DisConnect } from "../utils/connect";
@@ -242,7 +247,6 @@ export const getAllOrdersFromPuddleTask = async (
     return res.status(409).send(e.message);
   }
 };
-
 /**
  * -type_process : 1 นำออก , 2 นำเข้า , 3 ถ่ายกาก
  */
@@ -269,6 +273,7 @@ export const exportFishSauceToNewPuddleTask = async (
       serial_puddle,
       process,
       date_action,
+      round,
     } = req.body;
     const connection = await Connect();
 
@@ -293,6 +298,7 @@ export const exportFishSauceToNewPuddleTask = async (
       action_serial_puddle: serial_puddle,
       process,
       date_action,
+      round,
     });
 
     await insertTargetPuddle(connection, {
@@ -306,6 +312,12 @@ export const exportFishSauceToNewPuddleTask = async (
 
     await updateTypePuddle(connection, {
       type_process: type_process,
+      idpuddle: id_puddle,
+      round,
+    });
+
+    await updateTimeActionPuddle(connection, {
+      updateTime: date_action,
       idpuddle: id_puddle,
     });
     await DisConnect(connection);
@@ -340,6 +352,7 @@ export const exportSaltWaterToNewPuddleTask = async (
       process,
       item_transfer,
       date_action,
+      round,
     } = req.body;
     const connection = await Connect();
 
@@ -364,6 +377,7 @@ export const exportSaltWaterToNewPuddleTask = async (
       action_serial_puddle: serial_puddle,
       process,
       date_action,
+      round,
     });
 
     await insertTargetPuddle(connection, {
@@ -378,6 +392,12 @@ export const exportSaltWaterToNewPuddleTask = async (
 
     await updateTypePuddle(connection, {
       type_process: type_process,
+      idpuddle: id_puddle,
+      round,
+    });
+
+    await updateTimeActionPuddle(connection, {
+      updateTime: date_action,
       idpuddle: id_puddle,
     });
     await DisConnect(connection);
@@ -448,6 +468,217 @@ export const addOnSaltWaterTask = async (req: Request, res: Response) => {
       type_process: type_process,
       idpuddle: id_puddle,
     });
+
+    await updateTimeActionPuddle(connection, {
+      updateTime: date_action,
+      idpuddle: id_puddle,
+    });
+    await DisConnect(connection);
+    return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e);
+  }
+};
+
+export const addOnFishyTask = async (req: Request, res: Response) => {
+  try {
+    const {
+      order_id,
+      type_process,
+      amount_items,
+      amount_unit_per_price,
+      amount_price,
+      remaining_items,
+      remaining_unit_per_price,
+      remaining_price,
+      approved,
+      volume,
+      remaining_volume,
+      process,
+      new_stock,
+      idreceipt,
+      id_puddle,
+      date_action,
+    } = req.body;
+
+    const connection = await Connect();
+
+    const getDataUser: IUserPareToken = await getUserUUID(
+      req.headers.authorization as string
+    );
+
+    await addOnVolumn(connection, {
+      order_id,
+      type_process,
+      amount_items,
+      amount_unit_per_price: !!amount_unit_per_price
+        ? amount_unit_per_price
+        : 0,
+      amount_price,
+      remaining_items,
+      remaining_unit_per_price,
+      remaining_price,
+      approved: 1,
+      volume,
+      user_create_sub: getDataUser.idusers,
+      remaining_volume,
+      process,
+      date_action,
+    });
+
+    await insertLogFishyStockReceive(connection, {
+      new_stock: new_stock,
+      idreceipt: idreceipt,
+      order_target: order_id,
+      id_puddle: id_puddle,
+    });
+
+    const result = await updateStockFishyService(connection, {
+      new_stock: new_stock,
+      idreceipt: idreceipt,
+    });
+
+    await updateTypePuddle(connection, {
+      type_process: type_process,
+      idpuddle: id_puddle,
+    });
+
+    await updateTimeActionPuddle(connection, {
+      updateTime: date_action,
+      idpuddle: id_puddle,
+    });
+    await DisConnect(connection);
+    return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e);
+  }
+};
+
+export const addOnAmpanTask = async (req: Request, res: Response) => {
+  try {
+    const {
+      order_id,
+      type_process,
+      amount_items,
+      amount_unit_per_price,
+      amount_price,
+      remaining_items,
+      remaining_unit_per_price,
+      remaining_price,
+      approved,
+      volume,
+      remaining_volume,
+      process,
+      new_stock,
+      idreceipt,
+      id_puddle,
+      date_action,
+    } = req.body;
+
+    const connection = await Connect();
+
+    const getDataUser: IUserPareToken = await getUserUUID(
+      req.headers.authorization as string
+    );
+
+    await addOnVolumn(connection, {
+      order_id,
+      type_process,
+      amount_items,
+      amount_unit_per_price,
+      amount_price,
+      remaining_items,
+      remaining_unit_per_price,
+      remaining_price,
+      approved: 1,
+      volume,
+      user_create_sub: getDataUser.idusers,
+      remaining_volume,
+      process,
+      date_action,
+    });
+
+    await insertLogAmpanStockReceive(connection, {
+      new_stock: new_stock,
+      idreceipt: idreceipt,
+      order_target: order_id,
+      id_puddle: id_puddle,
+    });
+
+    const result = await updateStockAmpanService(connection, {
+      new_stock: new_stock,
+      idreceipt: idreceipt,
+    });
+
+    await updateTypePuddle(connection, {
+      type_process: type_process,
+      idpuddle: id_puddle,
+    });
+
+    await updateTimeActionPuddle(connection, {
+      updateTime: date_action,
+      idpuddle: id_puddle,
+    });
+    await DisConnect(connection);
+    return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e);
+  }
+};
+
+export const addOnNonePrice = async (req: Request, res: Response) => {
+  try {
+    const {
+      order_id,
+      type_process,
+      amount_items,
+      amount_unit_per_price,
+      amount_price,
+      remaining_items,
+      remaining_unit_per_price,
+      remaining_price,
+      approved,
+      volume,
+      remaining_volume,
+      id_puddle,
+      date_action,
+    } = req.body;
+
+    const connection = await Connect();
+
+    const getDataUser: IUserPareToken = await getUserUUID(
+      req.headers.authorization as string
+    );
+
+    await addOnVolumn(connection, {
+      order_id,
+      type_process,
+      amount_items,
+      amount_unit_per_price,
+      amount_price,
+      remaining_items,
+      remaining_unit_per_price,
+      remaining_price,
+      approved: 1,
+      volume,
+      user_create_sub: getDataUser.idusers,
+      remaining_volume,
+      date_action,
+    });
+
+    const result = await updateTypePuddle(connection, {
+      type_process: type_process,
+      idpuddle: id_puddle,
+    });
+
+    await updateTimeActionPuddle(connection, {
+      updateTime: date_action,
+      idpuddle: id_puddle,
+    });
+
     await DisConnect(connection);
     return res.status(200).send(result);
   } catch (e: any) {
@@ -515,6 +746,10 @@ export const addOnFishSauceWaterTask = async (req: Request, res: Response) => {
       idpuddle: id_puddle,
     });
 
+    await updateTimeActionPuddle(connection, {
+      updateTime: date_action,
+      idpuddle: id_puddle,
+    });
     await DisConnect(connection);
     return res.status(200).send(result);
   } catch (e: any) {
@@ -557,6 +792,7 @@ export const submitImportFishTask = async (req: Request, res: Response) => {
       process,
       date_action,
       id_puddle,
+      round,
     } = req.body;
 
     const connection = await Connect();
@@ -582,6 +818,7 @@ export const submitImportFishTask = async (req: Request, res: Response) => {
       action_serial_puddle: action_serial_puddle,
       process,
       date_action,
+      round,
     });
 
     await updateStatusTargetPuddle(connection, {
@@ -597,7 +834,14 @@ export const submitImportFishTask = async (req: Request, res: Response) => {
     await updateTypePuddle(connection, {
       type_process: type_process,
       idpuddle: id_puddle,
+      round,
     });
+
+    await updateTimeActionPuddle(connection, {
+      updateTime: date_action,
+      idpuddle: id_puddle,
+    });
+    
     await DisConnect(connection);
     return res.status(200).send(result);
   } catch (e: any) {
@@ -844,6 +1088,7 @@ export const updateStatusTopSaltTask = async (req: Request, res: Response) => {
     return res.status(409).send(e.message);
   }
 };
+
 export const updateDateStartFermantTask = async (
   req: Request,
   res: Response

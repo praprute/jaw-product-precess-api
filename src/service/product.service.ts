@@ -355,6 +355,7 @@ export const transferSidhsauce = async (
     action_serial_puddle: number;
     process?: number;
     date_action?: string;
+    round?: number;
   }
 ) => {
   try {
@@ -375,22 +376,23 @@ export const transferSidhsauce = async (
       action_serial_puddle,
       process,
       date_action,
+      round,
     } = input;
     const listField = process
       ? `idOrders, type, amount_items, amount_unit_per_price, 
       amount_price, remaining_items, remaining_unit_per_price, remaining_price, 
-      approved, volume, user_create_sub, remaining_volume, action_puddle, action_serial_puddle, type_process, date_action`
+      approved, volume, user_create_sub, remaining_volume, action_puddle, action_serial_puddle, type_process, date_action, round`
       : `idOrders, type, amount_items, amount_unit_per_price, 
       amount_price, remaining_items, remaining_unit_per_price, remaining_price, 
-      approved, volume, user_create_sub, remaining_volume, action_puddle, action_serial_puddle, date_action`;
+      approved, volume, user_create_sub, remaining_volume, action_puddle, action_serial_puddle, date_action, round`;
 
     const fieldValue = process
       ? `${order_id}, ${type_process}, ${amount_items}, ${amount_unit_per_price}, 
       ${amount_price}, ${remaining_items}, ${remaining_unit_per_price}, ${remaining_price}, 
-      ${approved}, ${volume}, ${user_create_sub}, ${remaining_volume}, ${action_puddle}, ${action_serial_puddle}, ${process}, '${date_action}'`
+      ${approved}, ${volume}, ${user_create_sub}, ${remaining_volume}, ${action_puddle}, ${action_serial_puddle}, ${process}, '${date_action}', ${round}`
       : `${order_id}, ${type_process}, ${amount_items}, ${amount_unit_per_price}, 
       ${amount_price}, ${remaining_items}, ${remaining_unit_per_price}, ${remaining_price}, 
-      ${approved}, ${volume}, ${user_create_sub}, ${remaining_volume}, ${action_puddle}, ${action_serial_puddle}, '${date_action}'`;
+      ${approved}, ${volume}, ${user_create_sub}, ${remaining_volume}, ${action_puddle}, ${action_serial_puddle}, '${date_action}', ${round}`;
 
     const sql = `INSERT INTO ${DB}.sub_orders (${listField}) values (${fieldValue});`;
     const result = await Query(connection, sql);
@@ -733,15 +735,36 @@ export const updateTypePuddle = async (
   input: {
     type_process: number;
     idpuddle: number;
+    round?: number;
   }
 ) => {
-    try {
-      const { type_process, idpuddle } = input;
+  try {
+    const { type_process, idpuddle, round } = input;
+    
+    const sql = `UPDATE  ${DB}.puddle SET type_process = ${type_process} ${
+      !!round ? `, round = ${round}` : ", round = 0"
+    } where idpuddle = ${idpuddle} ;`;
+    const result: any = await Query(connection, sql);
+    return resp(true, "UPDATE_SUCCESS");
+  } catch (e) {
+    throw new Error(`bad request : ${e}`);
+  }
+};
 
-      const sql = `UPDATE  ${DB}.puddle SET type_process = ${type_process} where idpuddle = ${idpuddle} ;`;
-      const result: any = await Query(connection, sql);
-      return resp(true, "UPDATE_SUCCESS");
-    } catch (e) {
-      throw new Error(`bad request : ${e}`);
-    }
+export const updateTimeActionPuddle = async (
+  connection: Connection,
+  input: {
+    updateTime?: string;
+    idpuddle: number;
+  }
+) => {
+  try {
+    const { updateTime, idpuddle } = input;
+
+    const sql = `UPDATE  ${DB}.puddle SET action_time = '${updateTime}' where idpuddle = ${idpuddle} ;`;
+    const result: any = await Query(connection, sql);
+    return resp(true, "UPDATE_SUCCESS");
+  } catch (e) {
+    throw new Error(`bad request : ${e}`);
+  }
 };

@@ -21,7 +21,10 @@ import {
   updateBuildingSchema,
 } from "./schema/building.schema";
 import {
+  addOnAmpanTask,
   addOnFishSauceWaterTask,
+  addOnFishyTask,
+  addOnNonePrice,
   addOnSaltWaterTask,
   cancelGetInTask,
   changeWorkingStatusPuddle,
@@ -57,13 +60,17 @@ import {
   updatePriceSubOrderSchema,
 } from "./schema/product.schema";
 import {
+  createAmpanBillTask,
   createCustomer,
   createFiashSauceBillTask,
   createFishWeightBillTask,
+  createFishyBillTask,
   createSaltBillTask,
   createSolidSaltBillTask,
   deleteCustomer,
+  fillterReceiveAmpanTask,
   fillterReceiveFiashSauceTask,
+  fillterReceiveFishyTask,
   fillterReceiveSaltTask,
   fillterReceiveSolidSaltTask,
   fillterReceiveWeightFishTask,
@@ -72,10 +79,14 @@ import {
   getListReceiveWeightFishTask,
   getLogReceiveFiashSauceByOrdersIdTask,
   getLogReceiveSaltByOrdersIdTask,
+  getReceiveAmpanBillPaginationTask,
+  getReceiveAmpanBillPaginationWithOutEmptyTask,
   getReceiveFiashSauceBillPaginationTask,
   getReceiveFiashSauceBillPaginationWithOutEmptyTask,
   getReceiveFishWeightPaginationTask,
   getReceiveFishWeightPaginationWithOutEmptyTask,
+  getReceiveFishyBillPaginationTask,
+  getReceiveFishyBillPaginationWithOutEmptyTask,
   getReceiveSaltBillPaginationTask,
   getReceiveSaltBillPaginationWithOutEmptyTask,
   getReceiveSolidSaltBillPaginationTask,
@@ -756,7 +767,7 @@ function routes(app: Express) {
     getReceiveWeightFishByIdTask
   );
 
-  app.get(
+  app.post(
     "/api/getReceiveFishWeightPaginationTask/:page/:offset",
     verifyToken,
     getReceiveFishWeightPaginationTask
@@ -836,6 +847,50 @@ function routes(app: Express) {
     verifyToken,
     exportSaltWaterToNewPuddleTask
   );
+  // ---------- Ampan Billing ------------------------
+  app.post("/api/createAmpanBillTask", verifyToken, createAmpanBillTask);
+
+  app.post(
+    "/api/getReceiveAmpanBillPaginationTask/:page/:offset",
+    verifyToken,
+    getReceiveAmpanBillPaginationTask
+  );
+  app.post(
+    "/api/fillterReceiveAmpanTask",
+    verifyToken,
+    fillterReceiveAmpanTask
+  );
+
+  app.get(
+    "/api/getReceiveAmpanBillPaginationWithOutEmptyTask/:page/:offset",
+    verifyToken,
+    getReceiveAmpanBillPaginationWithOutEmptyTask
+  );
+
+  app.post("/api/addOnAmpanTask", verifyToken, addOnAmpanTask);
+
+  // ---------- Fishy Billing ------------------------
+
+  app.post("/api/createFishyBillTask", verifyToken, createFishyBillTask);
+
+  app.post(
+    "/api/getReceiveFishyBillPaginationTask/:page/:offset",
+    verifyToken,
+    getReceiveFishyBillPaginationTask
+  );
+  app.post(
+    "/api/fillterReceiveFishyTask",
+    verifyToken,
+    fillterReceiveFishyTask
+  );
+
+  app.get(
+    "/api/getReceiveFishyBillPaginationWithOutEmptyTask/:page/:offset",
+    verifyToken,
+    getReceiveFishyBillPaginationWithOutEmptyTask
+  );
+
+  app.post("/api/addOnFishyTask", verifyToken, addOnFishyTask);
 
   // ---------- fish sauce Billing ------------------------
 
@@ -845,7 +900,7 @@ function routes(app: Express) {
     createFiashSauceBillTask
   );
 
-  app.get(
+  app.post(
     "/api/getReceiveFiashSauceBillPaginationTask/:page/:offset",
     verifyToken,
     getReceiveFiashSauceBillPaginationTask
@@ -874,6 +929,7 @@ function routes(app: Express) {
     verifyToken,
     addOnFishSauceWaterTask
   );
+  app.post("/api/addOnNonePrice", verifyToken, addOnNonePrice);
 
   // ---------- Labor cost  ------------------------
 
