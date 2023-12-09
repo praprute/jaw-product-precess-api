@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { updateWorkingStatusPuddle } from "../service/building.service";
 import {
   addOnVolumn,
+  changeVolumeForEitService,
   createOrder,
   createSubOrder,
   createTypeProcess,
@@ -13,6 +14,7 @@ import {
   getAllPuddle,
   getAllTypeProcess,
   getDetailPuddleById,
+  getLastedSubOrderByIdOrder,
   getOrderDetails,
   getSerialPuddle,
   getTargetPending,
@@ -126,6 +128,7 @@ export const createOrderTask = async (req: Request, res: Response) => {
       laber_price,
       amount_items,
       start_date,
+      type_process = 0,
     } = req.body;
     const connection = await Connect();
 
@@ -168,8 +171,10 @@ export const createOrderTask = async (req: Request, res: Response) => {
       start_date,
     });
     await updateTypePuddle(connection, {
-      type_process: 0,
+      type_process: type_process,
       idpuddle: puddle_id,
+      start_date,
+      action_date: start_date,
     });
     await DisConnect(connection);
     return res.status(200).send(queryCreateSubOrder);
@@ -841,7 +846,7 @@ export const submitImportFishTask = async (req: Request, res: Response) => {
       updateTime: date_action,
       idpuddle: id_puddle,
     });
-    
+
     await DisConnect(connection);
     return res.status(200).send(result);
   } catch (e: any) {
@@ -1120,6 +1125,133 @@ export const updateChemOrderTask = async (req: Request, res: Response) => {
     });
     await DisConnect(connection);
     return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const getLastedSubOrderById = async (req: Request, res: Response) => {
+  try {
+    const { puddle_id } = req.query;
+
+    const connection = await Connect();
+    const detailPuddle = await getDetailPuddleById(connection, {
+      puddle_id: Number(puddle_id),
+    });
+    if (!!detailPuddle.message[0]?.lasted_order) {
+      // lasted_order
+      const response = await getLastedSubOrderByIdOrder(connection, {
+        order_id: detailPuddle.message[0]?.lasted_order,
+      });
+      await DisConnect(connection);
+      return res.status(200).send({
+        ...response,
+        idpuddle: detailPuddle.message[0]?.idpuddle,
+        serial: detailPuddle.message[0]?.serial,
+      });
+    } else {
+      await DisConnect(connection);
+      res.status(409).send("INVALID_ORDER");
+    }
+  } catch (e: any) {
+    return res.status(409).send(e.message);
+  }
+};
+
+export const exportFishSauceToNewPuddleForMixingTask = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const {
+      order_id,
+      type_process = 12,
+      amount_items,
+      amount_unit_per_price,
+      amount_price,
+      remaining_items,
+      remaining_unit_per_price,
+      remaining_price,
+      approved = 0,
+      volume,
+      id_puddle,
+      remaining_volume,
+      action_puddle,
+      target_puddle,
+      serial_puddle,
+      process,
+      date_action,
+      round,
+    } = req.body;
+    const connection = await Connect();
+
+    const getDataUser: IUserPareToken = await getUserUUID(
+      req.headers.authorization as string
+    );
+
+    const result = await transferSidhsauce(connection, {
+      order_id,
+      type_process,
+      amount_items,
+      amount_unit_per_price,
+      amount_price,
+      remaining_items,
+      remaining_unit_per_price,
+      remaining_price,
+      approved,
+      volume,
+      user_create_sub: getDataUser.idusers,
+      remaining_volume,
+      action_puddle: target_puddle,
+      action_serial_puddle: serial_puddle,
+      process,
+      date_action,
+      round,
+    });
+
+    await insertTargetPuddle(connection, {
+      id_puddle: target_puddle,
+      id_sub_order: result.message.insertId,
+      status: 0,
+      source_puddle: id_puddle,
+      source_serial_puddle: action_puddle,
+      serial_puddle,
+    });
+
+    await updateTypePuddle(connection, {
+      type_process: type_process,
+      idpuddle: id_puddle,
+      round,
+    });
+
+    await updateTimeActionPuddle(connection, {
+      updateTime: date_action,
+      idpuddle: id_puddle,
+    });
+    await DisConnect(connection);
+    return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const changeVolumeForEdit = async (req: Request, res: Response) => {
+  try {
+    const { volume, idsub_orders } = req.body;
+    const connection = await Connect();
+    const result = await changeVolumeForEitService(connection, {
+      volume: Number(volume),
+      idsub_orders: Number(idsub_orders),
+    });
+    if (result.success === "success") {
+      return res.status(200).send({ success: result.success });
+    } else {
+      return res
+        .status(500)
+        .send({ success: "error", message: result.message });
+    }
   } catch (e: any) {
     logger.error(e);
     return res.status(409).send(e.message);

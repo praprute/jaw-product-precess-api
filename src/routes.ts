@@ -27,6 +27,7 @@ import {
   addOnNonePrice,
   addOnSaltWaterTask,
   cancelGetInTask,
+  changeVolumeForEdit,
   changeWorkingStatusPuddle,
   closeProcessTask,
   createFishType,
@@ -40,6 +41,7 @@ import {
   getAllPuddleTask,
   getAllTypeProcessTask,
   getDetailPuddleByIdTask,
+  getLastedSubOrderById,
   getListFishType,
   getOrderDetailsTask,
   getSerialPuddleTask,
@@ -1009,6 +1011,14 @@ function routes(app: Express) {
   // ---------- Chem------------------------
 
   app.put("/api/updateChemOrderTask", verifyToken, updateChemOrderTask);
+
+  // ---------- Mix Sauce Feature ------------------------
+
+  app.get("/api/getLastedSubOrderById/", verifyToken, getLastedSubOrderById);
+
+  // ---------- Change Volume Feature ------------------------
+
+  app.put("/api/changeVolumeForEdit", verifyToken, changeVolumeForEdit);
 }
 
 export default routes;

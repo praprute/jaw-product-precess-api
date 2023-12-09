@@ -150,7 +150,9 @@ export const createSubOrder = async (
     } = input;
 
     const sql = `INSERT INTO ${DB}.sub_orders (idOrders, fish, salt, laber, description, user_create_sub, amount_items, volume,
-      fish_price,salt_price, laber_price,amount_unit_per_price,amount_price,remaining_items,remaining_volume, date_action) values (${orderId}, ${fish},${salt},${laber},'${description}',${userId}, ${amount_items}, ${volume}, ${fish_price}, ${salt_price},${laber_price},${amount_unit_per_price},${amount_price}, ${amount_items}, ${remaining_volume}, '${start_date}');`;
+      fish_price,salt_price, laber_price,amount_unit_per_price,amount_price,remaining_items,remaining_volume, date_action, remaining_unit_per_price, remaining_price) 
+      values (${orderId}, ${fish},${salt},${laber},'${description}',${userId}, ${amount_items}, ${volume},
+       ${fish_price}, ${salt_price},${laber_price},${amount_unit_per_price},${amount_price}, ${amount_items}, ${remaining_volume}, '${start_date}',${amount_unit_per_price},${amount_price} );`;
     const queryCreateSubOrder = await Query(connection, sql);
     return resp(true, queryCreateSubOrder);
   } catch (e: any) {
@@ -736,14 +738,25 @@ export const updateTypePuddle = async (
     type_process: number;
     idpuddle: number;
     round?: number;
+    start_date?: string;
+    action_date?: string;
   }
 ) => {
   try {
-    const { type_process, idpuddle, round } = input;
-    
+    const {
+      type_process,
+      idpuddle,
+      round,
+      start_date = null,
+      action_date = null,
+    } = input;
+
     const sql = `UPDATE  ${DB}.puddle SET type_process = ${type_process} ${
       !!round ? `, round = ${round}` : ", round = 0"
-    } where idpuddle = ${idpuddle} ;`;
+    } 
+    ${!!start_date ? `, start_date = '${start_date}'` : ""}
+    ${!!action_date ? `, action_time = '${action_date}'` : ""}
+    where idpuddle = ${idpuddle} ;`;
     const result: any = await Query(connection, sql);
     return resp(true, "UPDATE_SUCCESS");
   } catch (e) {
@@ -764,6 +777,40 @@ export const updateTimeActionPuddle = async (
     const sql = `UPDATE  ${DB}.puddle SET action_time = '${updateTime}' where idpuddle = ${idpuddle} ;`;
     const result: any = await Query(connection, sql);
     return resp(true, "UPDATE_SUCCESS");
+  } catch (e) {
+    throw new Error(`bad request : ${e}`);
+  }
+};
+
+export const getLastedSubOrderByIdOrder = async (
+  connection: Connection,
+  input: {
+    order_id: number;
+  }
+) => {
+  try {
+    const { order_id } = input;
+
+    const sql = `SELECT * FROM ${DB}.sub_orders where idOrders = ${order_id} order by idsub_orders desc limit 1 ;`;
+    const result: any = await Query(connection, sql);
+    return resp(true, result);
+  } catch (e) {
+    throw new Error(`bad request : ${e}`);
+  }
+};
+
+export const changeVolumeForEitService = async (
+  connection: Connection,
+  input: {
+    volume: number;
+    idsub_orders: number;
+  }
+) => {
+  try {
+    const { volume, idsub_orders } = input;
+    const sql = `UPDATE  ${DB}.sub_orders SET volume = ${volume} , remaining_volume = ${volume} where idsub_orders = ${idsub_orders} ;`;
+    const result: any = await Query(connection, sql);
+    return resp(true, result);
   } catch (e) {
     throw new Error(`bad request : ${e}`);
   }
