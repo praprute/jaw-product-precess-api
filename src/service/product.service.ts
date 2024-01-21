@@ -416,6 +416,7 @@ export const insertTargetPuddle = async (
     source_serial_puddle: number;
     serial_puddle?: number;
     item_transfer?: number;
+    type_process?:number
   }
 ) => {
   try {
@@ -427,10 +428,15 @@ export const insertTargetPuddle = async (
       source_serial_puddle,
       serial_puddle,
       item_transfer,
+      type_process
     } = input;
-    const sql = `INSERT INTO ${DB}.target_puddle (id_puddle, id_sub_order, status, source_puddle, source_serial_puddle, serial_puddle, item_transfer) values (${id_puddle}, ${id_sub_order}, ${status}, ${source_puddle},${source_serial_puddle}, ${serial_puddle} ,${
+
+    const sql = type_process === 14 ? `INSERT INTO ${DB}.target_puddle (id_puddle, id_sub_order, status, source_puddle, source_serial_puddle, serial_puddle, item_transfer, type_process) values (${id_puddle}, ${id_sub_order}, ${status}, ${source_puddle},${source_serial_puddle}, ${serial_puddle} ,${
       item_transfer ? item_transfer : 0
-    });`;
+    }, ${type_process});` : `INSERT INTO ${DB}.target_puddle (id_puddle, id_sub_order, status, source_puddle, source_serial_puddle, serial_puddle, item_transfer) values (${id_puddle}, ${id_sub_order}, ${status}, ${source_puddle},${source_serial_puddle}, ${serial_puddle} ,${
+      item_transfer ? item_transfer : 0
+    });`
+   
     await Query(connection, sql);
 
     return resp(true, "INSERT_SUCCESS");
@@ -468,7 +474,7 @@ export const getTargetPending = async (
   try {
     const { id_puddle, status } = input;
     const sql = `SELECT * FROM ${DB}.target_puddle
-    inner join (SELECT * FROM jaw_production_process.sub_orders) sub_orders ON target_puddle.id_sub_order = sub_orders.idsub_orders
+    inner join (SELECT idsub_orders, idOrders, type, fish, salt, laber, other, fish_sauce, fish_price, salt_price, laber_price, amount_items, amount_unit_per_price, amount_price, remaining_items, remaining_unit_per_price, remaining_price, description, user_create_sub, date_create, approved, volume, remaining_volume, action_puddle, action_serial_puddle, date_action, tn, nacl, ph, round FROM jaw_production_process.sub_orders) sub_orders ON target_puddle.id_sub_order = sub_orders.idsub_orders
     where id_puddle = ${id_puddle} and status = ${status}
     ;`;
     const result = await Query(connection, sql);

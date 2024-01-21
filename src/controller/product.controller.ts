@@ -288,7 +288,7 @@ export const exportFishSauceToNewPuddleTask = async (
 
     const result = await transferSidhsauce(connection, {
       order_id,
-      type_process,
+      type_process : type_process === 14 ? 1 : type_process,
       amount_items,
       amount_unit_per_price,
       amount_price,
@@ -313,10 +313,11 @@ export const exportFishSauceToNewPuddleTask = async (
       source_puddle: id_puddle,
       source_serial_puddle: action_puddle,
       serial_puddle,
+      type_process
     });
 
     await updateTypePuddle(connection, {
-      type_process: type_process,
+      type_process: type_process === 14 ? 1 : type_process,
       idpuddle: id_puddle,
       round,
     });
