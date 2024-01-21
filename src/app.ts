@@ -15,7 +15,6 @@ const PORT = config.get<number>("port");
 const Host = config.get<any>("host");
 const app = express();
 
-// app.use(helmet());
 app.use(
   cors({
     origin: "*",
@@ -25,7 +24,6 @@ app.use(
   })
 );
 app.use(express.json());
-// app.use("/api", routes);
 
 app.use(
   myConnection(
@@ -42,6 +40,7 @@ app.use(
     "pool"
   )
 );
+
 
 app.listen(PORT, async () => {
   log.info(`App is running at http://${Host}:${PORT}`);
