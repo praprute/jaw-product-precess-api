@@ -416,7 +416,7 @@ export const insertTargetPuddle = async (
     source_serial_puddle: number;
     serial_puddle?: number;
     item_transfer?: number;
-    type_process?:number
+    type_process?: number;
   }
 ) => {
   try {
@@ -428,15 +428,18 @@ export const insertTargetPuddle = async (
       source_serial_puddle,
       serial_puddle,
       item_transfer,
-      type_process
+      type_process,
     } = input;
 
-    const sql = type_process === 14 ? `INSERT INTO ${DB}.target_puddle (id_puddle, id_sub_order, status, source_puddle, source_serial_puddle, serial_puddle, item_transfer, type_process) values (${id_puddle}, ${id_sub_order}, ${status}, ${source_puddle},${source_serial_puddle}, ${serial_puddle} ,${
-      item_transfer ? item_transfer : 0
-    }, ${type_process});` : `INSERT INTO ${DB}.target_puddle (id_puddle, id_sub_order, status, source_puddle, source_serial_puddle, serial_puddle, item_transfer) values (${id_puddle}, ${id_sub_order}, ${status}, ${source_puddle},${source_serial_puddle}, ${serial_puddle} ,${
-      item_transfer ? item_transfer : 0
-    });`
-   
+    const sql =
+      type_process === 14
+        ? `INSERT INTO ${DB}.target_puddle (id_puddle, id_sub_order, status, source_puddle, source_serial_puddle, serial_puddle, item_transfer, type_process) values (${id_puddle}, ${id_sub_order}, ${status}, ${source_puddle},${source_serial_puddle}, ${serial_puddle} ,${
+            item_transfer ? item_transfer : 0
+          }, ${type_process});`
+        : `INSERT INTO ${DB}.target_puddle (id_puddle, id_sub_order, status, source_puddle, source_serial_puddle, serial_puddle, item_transfer) values (${id_puddle}, ${id_sub_order}, ${status}, ${source_puddle},${source_serial_puddle}, ${serial_puddle} ,${
+            item_transfer ? item_transfer : 0
+          });`;
+
     await Query(connection, sql);
 
     return resp(true, "INSERT_SUCCESS");
@@ -629,13 +632,30 @@ export const createTypeProcess = async (
 export const updateTypeProcessSubOrder = async (
   connection: Connection,
   input: {
-    process: number;
+    process: string;
     subOrderId: number;
   }
 ) => {
   try {
     const { process, subOrderId } = input;
-    const sql = `UPDATE  ${DB}.sub_orders SET type_process = ${process} where idsub_orders = ${subOrderId} ;`;
+    const sql = `UPDATE  ${DB}.sub_orders SET description = '${process}' where idsub_orders = ${subOrderId} ;`;
+    const result = await Query(connection, sql);
+    return resp(true, result);
+  } catch (e) {
+    throw new Error("bad request");
+  }
+};
+
+export const updateDescriptionPuddle = async (
+  connection: Connection,
+  input: {
+    process: string;
+    puddle_id: number;
+  }
+) => {
+  try {
+    const { process, puddle_id } = input;
+    const sql = `UPDATE  ${DB}.puddle SET description = '${process}' where idpuddle = ${puddle_id} ;`;
     const result = await Query(connection, sql);
     return resp(true, result);
   } catch (e) {

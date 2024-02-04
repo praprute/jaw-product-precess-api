@@ -26,6 +26,7 @@ import {
   updateAmountPriceOrder,
   updateChemOrder,
   updateDateStartFermant,
+  updateDescriptionPuddle,
   updateDetailPuddle,
   updatePriceSubOrder,
   updatePuddleOrderLasted,
@@ -288,7 +289,7 @@ export const exportFishSauceToNewPuddleTask = async (
 
     const result = await transferSidhsauce(connection, {
       order_id,
-      type_process : type_process === 14 ? 1 : type_process,
+      type_process: type_process === 14 ? 1 : type_process,
       amount_items,
       amount_unit_per_price,
       amount_price,
@@ -313,7 +314,7 @@ export const exportFishSauceToNewPuddleTask = async (
       source_puddle: id_puddle,
       source_serial_puddle: action_puddle,
       serial_puddle,
-      type_process
+      type_process,
     });
 
     await updateTypePuddle(connection, {
@@ -964,6 +965,31 @@ export const updateProcessDescritionSubOrderTask = async (
     });
     await DisConnect(connection);
     return res.status(200).send({ success: result.success });
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const updateDescritionSubOrderTask = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { process, subOrderId, puddle_id } = req.body;
+    const connection = await Connect();
+    
+    await updateTypeProcessSubOrder(connection, {
+      process,
+      subOrderId,
+    });
+
+    const ress = await updateDescriptionPuddle(connection, {
+      process,
+      puddle_id,
+    });
+    await DisConnect(connection);
+    return res.status(200).send({ success: ress.success });
   } catch (e: any) {
     logger.error(e);
     return res.status(409).send(e.message);

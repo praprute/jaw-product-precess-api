@@ -49,6 +49,7 @@ import {
   submitImportFishTask,
   updateChemOrderTask,
   updateDateStartFermantTask,
+  updateDescritionSubOrderTask,
   updateDetailPuddleTask,
   updatePriceSubOrderTask,
   updateProcessDescritionSubOrderTask,
@@ -687,6 +688,12 @@ function routes(app: Express) {
     "/api/updateProcessDescritionSubOrder",
     verifyToken,
     updateProcessDescritionSubOrderTask
+  );
+
+  app.put(
+    "/api/updateDescritionSubOrderTask",
+    verifyToken,
+    updateDescritionSubOrderTask
   );
 
   app.post("/api/closeProcess", verifyToken, closeProcessTask);
