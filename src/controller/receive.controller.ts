@@ -797,12 +797,15 @@ export const getReceiveAmpanBillPaginationWithOutEmptyTask = async (
   try {
     const { page, offset } = req.params;
     const connection = await Connect();
+
     const list = await getAmpanListReceivePaginationWithOutEmpty(connection, {
       page: parseInt(page),
       offset: parseInt(offset),
     });
 
+
     const countList = await getAllAmpanSauceListReceiveWithOutEmpty(connection);
+
     const responseData = {
       data: list,
       total: countList[0].allRows,

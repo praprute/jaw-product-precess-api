@@ -111,7 +111,6 @@ export const fillterReceiveWeightFish = async (
     ${!!store_name ? `and store_name LIKE '%${store_name}%' ` : " "} 
     ${!!stock ? `and stock LIKE '%${stock}%' ` : " "} 
     idreceipt > 0 ;`;
-    console.log("sql : ", sql);
     const result = await Query(connection, sql);
     return resp(true, result);
   } catch (e: any) {
@@ -425,7 +424,7 @@ export const getSaltListReceivePaginationWithOutEmpty = async (
 ) => {
   try {
     const { page, offset } = input;
-    const sql = `SELECT * FROM ${DB}.salt_receipt where stock > 0 limit ${
+    const sql = `SELECT * FROM ${DB}.salt_receipt where stock > 0 ORDER BY date_action desc limit ${
       page * offset
     }, ${offset}`;
     const result = await Query(connection, sql);
@@ -703,9 +702,9 @@ export const getAmpanListReceivePaginationWithOutEmpty = async (
 ) => {
   try {
     const { page, offset } = input;
-    const sql = `SELECT * FROM ${DB}.ampan_receipt where stock > 0 limit ${
+    const sql = `SELECT * FROM ${DB}.ampan_receipt where stock > 0  ORDER BY date_action desc limit ${
       page * offset
-    }, ${offset}`;
+    }, ${offset} ;`;
     const result = await Query(connection, sql);
 
     return result;
@@ -718,7 +717,7 @@ export const getAllAmpanSauceListReceiveWithOutEmpty = async (
   connection: Connection
 ) => {
   try {
-    const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.ampan_receipt  where stock != 0;`;
+    const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.ampan_receipt  where stock > 0;`;
     const result = await Query(connection, sql);
     return result as IAllRows[];
   } catch (e: any) {
@@ -932,7 +931,7 @@ export const getFishyListReceivePaginationWithOutEmpty = async (
 ) => {
   try {
     const { page, offset } = input;
-    const sql = `SELECT * FROM ${DB}.fishy_receipt where stock > 0 limit ${
+    const sql = `SELECT * FROM ${DB}.fishy_receipt where stock > 0 ORDER BY date_action desc limit ${
       page * offset
     }, ${offset}`;
     const result = await Query(connection, sql);
@@ -1133,7 +1132,7 @@ export const getFiashSauceListReceivePaginationWithOutEmpty = async (
 ) => {
   try {
     const { page, offset } = input;
-    const sql = `SELECT * FROM ${DB}.fishsauce_receipt where stock > 0 limit ${
+    const sql = `SELECT * FROM ${DB}.fishsauce_receipt where stock > 0 ORDER BY date_action desc limit ${
       page * offset
     }, ${offset}`;
     const result = await Query(connection, sql);
@@ -1347,7 +1346,7 @@ export const getSolidSaltListReceivePaginationWithOutEmpty = async (
 ) => {
   try {
     const { page, offset } = input;
-    const sql = `SELECT * FROM ${DB}.solid_salt_receipt where stock != 0 limit ${
+    const sql = `SELECT * FROM ${DB}.solid_salt_receipt where stock != 0 ORDER BY date_action desc limit ${
       page * offset
     }, ${offset}`;
     const result = await Query(connection, sql);
