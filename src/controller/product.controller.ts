@@ -12,16 +12,19 @@ import {
   getAllFishType,
   getAllOrderFromPuddle,
   getAllPuddle,
+  getAllRowOrderSelling,
   getAllTypeProcess,
   getDetailPuddleById,
   getLastedSubOrderByIdOrder,
   getOrderDetails,
+  getOrderSellingPagination,
   getSerialPuddle,
   getTargetPending,
   insertFishType,
   insertPuddle,
   insertSubOrderTypeClearAll,
   insertTargetPuddle,
+  transferForSelling,
   transferSidhsauce,
   updateAmountPriceOrder,
   updateChemOrder,
@@ -280,6 +283,9 @@ export const exportFishSauceToNewPuddleTask = async (
       process,
       date_action,
       round,
+      lot,
+      customer_name,
+      description,
     } = req.body;
     const connection = await Connect();
 
@@ -296,7 +302,7 @@ export const exportFishSauceToNewPuddleTask = async (
       remaining_items,
       remaining_unit_per_price,
       remaining_price,
-      approved,
+      approved: type_process === 15 ? 1 : 0,
       volume,
       user_create_sub: getDataUser.idusers,
       remaining_volume,
@@ -307,15 +313,30 @@ export const exportFishSauceToNewPuddleTask = async (
       round,
     });
 
-    await insertTargetPuddle(connection, {
-      id_puddle: target_puddle,
-      id_sub_order: result.message.insertId,
-      status: 0,
-      source_puddle: id_puddle,
-      source_serial_puddle: action_puddle,
-      serial_puddle,
-      type_process,
-    });
+    if (type_process === 15) {
+      await transferForSelling(connection, {
+        volume,
+        price_per_unit: amount_unit_per_price,
+        total_price: amount_price,
+        description: description || null,
+        puddle_id: id_puddle,
+        customer_name: customer_name,
+        lot: lot || null,
+        date_action: date_action,
+      });
+    }
+
+    if (type_process !== 15) {
+      await insertTargetPuddle(connection, {
+        id_puddle: target_puddle,
+        id_sub_order: result.message.insertId,
+        status: 0,
+        source_puddle: id_puddle,
+        source_serial_puddle: action_puddle,
+        serial_puddle,
+        type_process,
+      });
+    }
 
     await updateTypePuddle(connection, {
       type_process: type_process === 14 ? 1 : type_process,
@@ -327,6 +348,7 @@ export const exportFishSauceToNewPuddleTask = async (
       updateTime: date_action,
       idpuddle: id_puddle,
     });
+
     await DisConnect(connection);
     return res.status(200).send(result);
   } catch (e: any) {
@@ -978,7 +1000,7 @@ export const updateDescritionSubOrderTask = async (
   try {
     const { process, subOrderId, puddle_id } = req.body;
     const connection = await Connect();
-    
+
     await updateTypeProcessSubOrder(connection, {
       process,
       subOrderId,
@@ -1279,6 +1301,29 @@ export const changeVolumeForEdit = async (req: Request, res: Response) => {
         .status(500)
         .send({ success: "error", message: result.message });
     }
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const getSellingOrders = async (req: Request, res: Response) => {
+  try {
+    const { page, offset } = req.params;
+    const connection = await Connect();
+    const list = await getOrderSellingPagination(connection, {
+      page: parseInt(page),
+      offset: parseInt(offset),
+    });
+    const countList = await getAllRowOrderSelling(connection);
+    const responseData = {
+      data: list,
+      total: countList[0].allRows,
+    };
+
+    console.log("responseData : ", responseData);
+    await DisConnect(connection);
+    return res.status(200).send(responseData);
   } catch (e: any) {
     logger.error(e);
     return res.status(409).send(e.message);

@@ -10,6 +10,10 @@ import log from "../utils/logger";
 
 dotenv.config();
 
+interface IAllRows {
+  allRows: number;
+}
+
 const DB = config.get<any>("database");
 
 export const insertPuddle = async (
@@ -338,6 +342,43 @@ export const addOnVolumn = async (
     throw new Error(`bad request: ${e}`);
   }
 };
+// idorder_selling, volume, price_per_unit,
+// total_price, description, customer_name, date_create
+export const transferForSelling = async (
+  connection: Connection,
+  input: {
+    volume: number;
+    price_per_unit: number;
+    total_price: number;
+    description?: string;
+    customer_name?: string;
+    puddle_id: number;
+    lot?: number;
+    date_action: string;
+  }
+) => {
+  try {
+    const {
+      volume,
+      price_per_unit,
+      total_price,
+      description,
+      puddle_id,
+      customer_name,
+      lot,
+      date_action,
+    } = input;
+    const sql = `INSERT INTO ${DB}.order_selling ( volume, price_per_unit,
+      total_price, description,puddle_id,lot, customer_name, date_action) values (${volume},${price_per_unit},${total_price},
+        '${description}',${puddle_id},'${lot}','${customer_name}','${date_action}' );`;
+    const result = await Query(connection, sql);
+    return resp(true, result);
+  } catch (e: any) {
+    console.log(e);
+    return resp(false, "APP_CRASH");
+  }
+};
+
 export const transferSidhsauce = async (
   connection: Connection,
   input: {
@@ -839,5 +880,34 @@ export const changeVolumeForEitService = async (
     return resp(true, result);
   } catch (e) {
     throw new Error(`bad request : ${e}`);
+  }
+};
+
+export const getOrderSellingPagination = async (
+  connection: Connection,
+  input: {
+    page: number;
+    offset: number;
+  }
+) => {
+  try {
+    const { page, offset } = input;
+    const sql = `SELECT * FROM ${DB}.order_selling inner join(SELECT idpuddle,serial FROM jaw_production_process.puddle) puddle on  puddle.idpuddle = order_selling.puddle_id 
+    ORDER BY date_create desc limit ${page * offset}, ${offset} ;`;
+    console.log("sql : ", sql);
+    const result = await Query(connection, sql);
+    return result;
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+export const getAllRowOrderSelling = async (connection: Connection) => {
+  try {
+    const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.order_selling;`;
+    const result = await Query(connection, sql);
+    return result as IAllRows[];
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
   }
 };

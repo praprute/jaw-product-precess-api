@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import resp from "../utils/response";
 import { IRecieveFishWeightBill } from "../types/receive";
 import { number } from "zod";
+import e from "express";
 
 dotenv.config();
 
@@ -238,6 +239,43 @@ export const getListReceivePagination = async (
 
     const result = await Query(connection, sql);
     return result;
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+export const searchListReceivePaginationWithoutEmpty = async (
+  connection: Connection,
+  input: {
+    page: number;
+    offset: number;
+    search: string;
+  }
+) => {
+  try {
+    const { page, offset, search } = input;
+    const sql = `SELECT * FROM ${DB}.receipt where customer_name like '%${search}%' or product_name like '%${search}%' or no like '%${search}%' and stock != 0 limit ${
+      page * offset
+    }, ${offset}`;
+
+    const result = await Query(connection, sql);
+    return result;
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+export const searchAllRowListReceiveWithoutEmpty = async (
+  connection: Connection,
+  input: {
+    search: string;
+  }
+) => {
+  try {
+    const { search } = input;
+    const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.receipt where customer_name like '%${search}%' or product_name like '%${search}%' or no like '%${search}%' and stock != 0;`;
+
+    const result = await Query(connection, sql);
+    return result as IAllRows[];
   } catch (e: any) {
     throw new Error(`bad query : ${e}`);
   }
@@ -1377,6 +1415,41 @@ export const getAllRowSolidSaltListReceiveWithOutEmpty = async (
   }
 };
 
+export const searchSolidSaltListReceivePaginationWithOutEmpty = async (
+  connection: Connection,
+  input: {
+    page: number;
+    offset: number;
+    search?: string;
+  }
+) => {
+  try {
+    const { page, offset, search } = input;
+    const sql = `SELECT * FROM ${DB}.solid_salt_receipt where customer like '%${search}%' or product_name like '%${search}%' or no like '%${search}%' and stock != 0 ORDER BY date_action desc limit ${
+      page * offset
+    }, ${offset}`;
+    const result = await Query(connection, sql);
+    return result;
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
+export const searchAllRowSolidSaltListReceiveWithOutEmpty = async (
+  connection: Connection,
+  input: {
+    search?: string;
+  }
+) => {
+  try {
+    const { search } = input;
+    const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.solid_salt_receipt  where customer like '%${search}%' or product_name like '%${search}%' or no like '%${search}%' and stock != 0;`;
+    const result = await Query(connection, sql);
+    return result as IAllRows[];
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
 export const fillterReceiveSolidSalt = async (
   connection: Connection,
   input: {

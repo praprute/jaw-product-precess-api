@@ -50,6 +50,10 @@ import {
   insertRecieveFishyBill,
   insertRecieveSaltBill,
   insertRecieveSolidSaltBill,
+  searchAllRowListReceiveWithoutEmpty,
+  searchAllRowSolidSaltListReceiveWithOutEmpty,
+  searchListReceivePaginationWithoutEmpty,
+  searchSolidSaltListReceivePaginationWithOutEmpty,
   updateOrderConnect,
   updateStockService,
   updateStockSolidSaltService,
@@ -266,6 +270,32 @@ export const getReceiveFishWeightPaginationWithOutEmptyTask = async (
   }
 };
 
+export const searchReceiveFishWeightPaginationWithOutEmptyTask = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { page, offset, search } = req.params;
+    const connection = await Connect();
+    const list = await searchListReceivePaginationWithoutEmpty(connection, {
+      page: parseInt(page),
+      offset: parseInt(offset),
+      search: search.toString(),
+    });
+    const countList = await searchAllRowListReceiveWithoutEmpty(connection, {
+      search: search.toString(),
+    });
+    const responseData = {
+      data: list,
+      total: countList[0].allRows,
+    };
+    await DisConnect(connection);
+    return res.status(200).send(responseData);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
 export const updateStockTask = async (req: Request, res: Response) => {
   try {
     const { new_stock, idreceipt, order_target, id_puddle } = req.body;
@@ -361,6 +391,33 @@ export const getReceiveSolidSaltBillPaginationWithOutEmptyTask = async (
     const countList = await getAllRowSolidSaltListReceiveWithOutEmpty(
       connection
     );
+    const responseData = {
+      data: list,
+      total: countList[0].allRows,
+    };
+    await DisConnect(connection);
+    return res.status(200).send(responseData);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const searchReceiveSolidSaltPaginationWithOutEmptyTask = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { page, offset, search } = req.params;
+    const connection = await Connect();
+    const list = await searchSolidSaltListReceivePaginationWithOutEmpty(connection, {
+      page: parseInt(page),
+      offset: parseInt(offset),
+      search: search.toString(),
+    });
+    const countList = await searchAllRowSolidSaltListReceiveWithOutEmpty(connection, {
+      search: search.toString(),
+    });
     const responseData = {
       data: list,
       total: countList[0].allRows,
@@ -802,7 +859,6 @@ export const getReceiveAmpanBillPaginationWithOutEmptyTask = async (
       page: parseInt(page),
       offset: parseInt(offset),
     });
-
 
     const countList = await getAllAmpanSauceListReceiveWithOutEmpty(connection);
 

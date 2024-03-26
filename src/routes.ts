@@ -44,6 +44,7 @@ import {
   getLastedSubOrderById,
   getListFishType,
   getOrderDetailsTask,
+  getSellingOrders,
   getSerialPuddleTask,
   getTargetPendingTask,
   submitImportFishTask,
@@ -96,6 +97,8 @@ import {
   getReceiveSolidSaltBillPaginationWithOutEmptyTask,
   getReceiveWeightFishByIdTask,
   getReceiveWeightFishByOrdersIdTask,
+  searchReceiveFishWeightPaginationWithOutEmptyTask,
+  searchReceiveSolidSaltPaginationWithOutEmptyTask,
   updateStockSolidSaltTask,
   updateStockTask,
 } from "./controller/receive.controller";
@@ -787,6 +790,11 @@ function routes(app: Express) {
     verifyToken,
     getReceiveFishWeightPaginationWithOutEmptyTask
   );
+  app.get(
+    "/api/searchReceiveFishWeightPaginationWithOutEmptyTask/:page/:offset/:search",
+    verifyToken,
+    searchReceiveFishWeightPaginationWithOutEmptyTask
+  );
 
   app.post("/api/addOnSaltWaterTask", verifyToken, addOnSaltWaterTask);
   app.post("/api/updateStockTask", verifyToken, updateStockTask);
@@ -815,6 +823,12 @@ function routes(app: Express) {
     "/api/getReceiveSolidSaltBillPaginationWithOutEmptyTask/:page/:offset",
     verifyToken,
     getReceiveSolidSaltBillPaginationWithOutEmptyTask
+  );
+
+  app.get(
+    "/api/searchReceiveSolidSaltPaginationWithOutEmptyTask/:page/:offset/:search",
+    verifyToken,
+    searchReceiveSolidSaltPaginationWithOutEmptyTask
   );
 
   app.post(
@@ -1026,6 +1040,12 @@ function routes(app: Express) {
   // ---------- Change Volume Feature ------------------------
 
   app.put("/api/changeVolumeForEdit", verifyToken, changeVolumeForEdit);
+
+  app.get(
+    "/api/getSellingOrdersTask/:page/:offset",
+    verifyToken,
+    getSellingOrders
+  );
 }
 
 export default routes;
