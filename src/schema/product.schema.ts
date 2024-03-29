@@ -421,7 +421,7 @@ export const submitImportFishSchema = object({
     action_puddle: number({
       required_error: "action_puddle is require",
     }),
-    action_serial_puddle: number({
+    action_serial_puddle: string({
       required_error: "action_puddle is require",
     }),
     process: number({}),
