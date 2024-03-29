@@ -454,8 +454,8 @@ export const insertTargetPuddle = async (
     id_sub_order: number;
     status: number;
     source_puddle: number;
-    source_serial_puddle: number;
-    serial_puddle?: number;
+    source_serial_puddle: string;
+    serial_puddle?: string;
     item_transfer?: number;
     type_process?: number;
   }
@@ -474,10 +474,10 @@ export const insertTargetPuddle = async (
 
     const sql =
       type_process === 14
-        ? `INSERT INTO ${DB}.target_puddle (id_puddle, id_sub_order, status, source_puddle, source_serial_puddle, serial_puddle, item_transfer, type_process) values (${id_puddle}, ${id_sub_order}, ${status}, ${source_puddle},${source_serial_puddle}, ${serial_puddle} ,${
+        ? `INSERT INTO ${DB}.target_puddle (id_puddle, id_sub_order, status, source_puddle, source_serial_puddle, serial_puddle, item_transfer, type_process) values (${id_puddle}, ${id_sub_order}, ${status}, ${source_puddle},'${source_serial_puddle}', '${serial_puddle}' ,${
             item_transfer ? item_transfer : 0
           }, ${type_process});`
-        : `INSERT INTO ${DB}.target_puddle (id_puddle, id_sub_order, status, source_puddle, source_serial_puddle, serial_puddle, item_transfer) values (${id_puddle}, ${id_sub_order}, ${status}, ${source_puddle},${source_serial_puddle}, ${serial_puddle} ,${
+        : `INSERT INTO ${DB}.target_puddle (id_puddle, id_sub_order, status, source_puddle, source_serial_puddle, serial_puddle, item_transfer) values (${id_puddle}, ${id_sub_order}, ${status}, ${source_puddle},'${source_serial_puddle}', '${serial_puddle}' ,${
             item_transfer ? item_transfer : 0
           });`;
 
