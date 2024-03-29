@@ -324,7 +324,7 @@ export const exportFishSauceToNewPuddleSchema = object({
     remaining_volume: number({
       required_error: "remaining_volume is require",
     }),
-    action_puddle: number({
+    action_puddle: string({
       required_error: "action_puddle is require",
     }),
     target_puddle: number({
@@ -427,4 +427,3 @@ export const submitImportFishSchema = object({
     process: number({}),
   }),
 });
-
