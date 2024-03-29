@@ -432,10 +432,10 @@ export const transferSidhsauce = async (
     const fieldValue = process
       ? `${order_id}, ${type_process}, ${amount_items}, ${amount_unit_per_price}, 
       ${amount_price}, ${remaining_items}, ${remaining_unit_per_price}, ${remaining_price}, 
-      ${approved}, ${volume}, ${user_create_sub}, ${remaining_volume}, ${action_puddle}, ${action_serial_puddle}, ${process}, '${date_action}', ${round}`
+      ${approved}, ${volume}, ${user_create_sub}, ${remaining_volume}, ${action_puddle}, '${action_serial_puddle}', ${process}, '${date_action}', ${round}`
       : `${order_id}, ${type_process}, ${amount_items}, ${amount_unit_per_price}, 
       ${amount_price}, ${remaining_items}, ${remaining_unit_per_price}, ${remaining_price}, 
-      ${approved}, ${volume}, ${user_create_sub}, ${remaining_volume}, ${action_puddle}, ${action_serial_puddle}, '${date_action}', ${round}`;
+      ${approved}, ${volume}, ${user_create_sub}, ${remaining_volume}, ${action_puddle}, '${action_serial_puddle}', '${date_action}', ${round}`;
 
     const sql = `INSERT INTO ${DB}.sub_orders (${listField}) values (${fieldValue});`;
     const result = await Query(connection, sql);
