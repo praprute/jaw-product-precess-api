@@ -395,7 +395,7 @@ export const transferSidhsauce = async (
     user_create_sub: number;
     remaining_volume: number;
     action_puddle: number;
-    action_serial_puddle: number;
+    action_serial_puddle: string;
     process?: number;
     date_action?: string;
     round?: number;

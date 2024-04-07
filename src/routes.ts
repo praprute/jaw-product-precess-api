@@ -790,8 +790,8 @@ function routes(app: Express) {
     verifyToken,
     getReceiveFishWeightPaginationWithOutEmptyTask
   );
-  app.get(
-    "/api/searchReceiveFishWeightPaginationWithOutEmptyTask/:page/:offset/:search",
+  app.post(
+    "/api/searchReceiveFishWeightPaginationWithOutEmptyTask/",
     verifyToken,
     searchReceiveFishWeightPaginationWithOutEmptyTask
   );
@@ -825,8 +825,8 @@ function routes(app: Express) {
     getReceiveSolidSaltBillPaginationWithOutEmptyTask
   );
 
-  app.get(
-    "/api/searchReceiveSolidSaltPaginationWithOutEmptyTask/:page/:offset/:search",
+  app.post(
+    "/api/searchReceiveSolidSaltPaginationWithOutEmptyTask/",
     verifyToken,
     searchReceiveSolidSaltPaginationWithOutEmptyTask
   );

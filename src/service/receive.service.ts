@@ -254,9 +254,14 @@ export const searchListReceivePaginationWithoutEmpty = async (
 ) => {
   try {
     const { page, offset, search } = input;
-    const sql = `SELECT * FROM ${DB}.receipt where customer_name like '%${search}%' or product_name like '%${search}%' or no like '%${search}%' and stock != 0 limit ${
-      page * offset
-    }, ${offset}`;
+
+    const sql = !!search
+      ? `SELECT * FROM ${DB}.receipt where customer_name like '%${search}%' or product_name like '%${search}%' or no like '%${search}%' and stock != 0 limit ${
+          page * offset
+        }, ${offset}`
+      : `SELECT * FROM ${DB}.receipt where stock != 0 limit ${
+          page * offset
+        }, ${offset}`;
 
     const result = await Query(connection, sql);
     return result;
@@ -272,7 +277,10 @@ export const searchAllRowListReceiveWithoutEmpty = async (
 ) => {
   try {
     const { search } = input;
-    const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.receipt where customer_name like '%${search}%' or product_name like '%${search}%' or no like '%${search}%' and stock != 0;`;
+    const sql = !!search
+      ? `SELECT  COUNT(*) as allRows FROM ${DB}.receipt 
+    where customer_name like '%${search}%' or product_name like '%${search}%' or no like '%${search}%' and stock != 0;`
+      : `SELECT  COUNT(*) as allRows FROM ${DB}.receipt where  stock != 0;`;
 
     const result = await Query(connection, sql);
     return result as IAllRows[];
@@ -1425,9 +1433,14 @@ export const searchSolidSaltListReceivePaginationWithOutEmpty = async (
 ) => {
   try {
     const { page, offset, search } = input;
-    const sql = `SELECT * FROM ${DB}.solid_salt_receipt where customer like '%${search}%' or product_name like '%${search}%' or no like '%${search}%' and stock != 0 ORDER BY date_action desc limit ${
-      page * offset
-    }, ${offset}`;
+    const sql = !!search
+      ? `SELECT * FROM ${DB}.solid_salt_receipt where customer like '%${search}%' or 
+    product_name like '%${search}%' or no like '%${search}%' and stock != 0 ORDER BY date_action desc limit ${
+          page * offset
+        }, ${offset}`
+      : `SELECT * FROM ${DB}.solid_salt_receipt where stock != 0 ORDER BY date_action desc limit ${
+          page * offset
+        }, ${offset}`;
     const result = await Query(connection, sql);
     return result;
   } catch (e: any) {
@@ -1443,7 +1456,11 @@ export const searchAllRowSolidSaltListReceiveWithOutEmpty = async (
 ) => {
   try {
     const { search } = input;
-    const sql = `SELECT  COUNT(*) as allRows FROM ${DB}.solid_salt_receipt  where customer like '%${search}%' or product_name like '%${search}%' or no like '%${search}%' and stock != 0;`;
+    const sql = !!search
+      ? `SELECT  COUNT(*) as allRows FROM ${DB}.solid_salt_receipt  
+    where customer like '%${search}%' or product_name like '%${search}%' or no like '%${search}%' and stock != 0;`
+      : `SELECT  COUNT(*) as allRows FROM ${DB}.solid_salt_receipt  
+    where  stock != 0;`;
     const result = await Query(connection, sql);
     return result as IAllRows[];
   } catch (e: any) {

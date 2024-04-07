@@ -275,15 +275,15 @@ export const searchReceiveFishWeightPaginationWithOutEmptyTask = async (
   res: Response
 ) => {
   try {
-    const { page, offset, search } = req.params;
+    const { page, offset, search } = req.body;
     const connection = await Connect();
     const list = await searchListReceivePaginationWithoutEmpty(connection, {
       page: parseInt(page),
       offset: parseInt(offset),
-      search: search.toString(),
+      search: search?.toString() || null,
     });
     const countList = await searchAllRowListReceiveWithoutEmpty(connection, {
-      search: search.toString(),
+      search: search?.toString() || null,
     });
     const responseData = {
       data: list,
@@ -408,16 +408,22 @@ export const searchReceiveSolidSaltPaginationWithOutEmptyTask = async (
   res: Response
 ) => {
   try {
-    const { page, offset, search } = req.params;
+    const { page, offset, search } = req.body;
     const connection = await Connect();
-    const list = await searchSolidSaltListReceivePaginationWithOutEmpty(connection, {
-      page: parseInt(page),
-      offset: parseInt(offset),
-      search: search.toString(),
-    });
-    const countList = await searchAllRowSolidSaltListReceiveWithOutEmpty(connection, {
-      search: search.toString(),
-    });
+    const list = await searchSolidSaltListReceivePaginationWithOutEmpty(
+      connection,
+      {
+        page: parseInt(page),
+        offset: parseInt(offset),
+        search: search?.toString() || null,
+      }
+    );
+    const countList = await searchAllRowSolidSaltListReceiveWithOutEmpty(
+      connection,
+      {
+        search: search?.toString() || null,
+      }
+    );
     const responseData = {
       data: list,
       total: countList[0].allRows,
