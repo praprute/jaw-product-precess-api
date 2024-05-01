@@ -616,33 +616,33 @@ function routes(app: Express) {
     getTargetPendingTask
   );
 
-  /**
-   * @openapi
-   * '/api/exportFishSauce':
-   *  post:
-   *     security:
-   *     - bearerAuth: []
-   *     tags:
-   *     - Puddle
-   *     summary: exportFishSauce
-   *     requestBody:
-   *      required: true
-   *      content:
-   *        application/json:
-   *           schema:
-   *              $ref: '#/components/schemas/exportFishSauceToNewPuddleSchema'
-   *     responses:
-   *      200:
-   *        description: Success
-   *        content:
-   *          application/json:
-   *            schema:
-   *              $ref: '#/components/schemas/exportFishSauceToNewPuddleSchema'
-   *      409:
-   *        description: Conflict
-   *      400:
-   *        description: Bad request
-   */
+  // /**
+  //  * @openapi
+  //  * '/api/exportFishSauce':
+  //  *  post:
+  //  *     security:
+  //  *     - bearerAuth: []
+  //  *     tags:
+  //  *     - Puddle
+  //  *     summary: exportFishSauce
+  //  *     requestBody:
+  //  *      required: true
+  //  *      content:
+  //  *        application/json:
+  //  *           schema:
+  //  *              $ref: '#/components/schemas/exportFishSauceToNewPuddleSchema'
+  //  *     responses:
+  //  *      200:
+  //  *        description: Success
+  //  *        content:
+  //  *          application/json:
+  //  *            schema:
+  //  *              $ref: '#/components/schemas/exportFishSauceToNewPuddleSchema'
+  //  *      409:
+  //  *        description: Conflict
+  //  *      400:
+  //  *        description: Bad request
+  //  */
   app.post(
     "/api/exportFishSauce",
     verifyToken,

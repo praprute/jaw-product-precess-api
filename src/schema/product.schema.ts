@@ -327,10 +327,9 @@ export const exportFishSauceToNewPuddleSchema = object({
     action_puddle: string({
       required_error: "action_puddle is require",
     }),
-    target_puddle: number({
-      required_error: "target_puddle is require",
-    }),
-    // process: number(),
+    // target_puddle: number({
+    //   required_error: "target_puddle is require",
+    // }),
   }),
 });
 
