@@ -235,7 +235,7 @@ export const getListReceivePagination = async (
     ${!!stock && stock !== "" ? ` stock LIKE '%${stock}%' and ` : " "} 
     idreceipt > 0 and date_action BETWEEN '${start}' and ${
       !!dateEnd && dateEnd !== "" ? `'${dateEnd}'` : "now()"
-    } ORDER BY date_action desc limit ${page * offset}, ${offset} ;`;
+    } ORDER BY idreceipt desc limit ${page * offset}, ${offset} ;`;
 
     console.log("sql : ", sql);
 
@@ -369,7 +369,7 @@ export const getAllRowListReceive = async (
     ${!!stock && stock !== "" ? ` stock LIKE '%${stock}%' and ` : " "} 
     idreceipt > 0 and date_action BETWEEN '${start}' and ${
       !!dateEnd && dateEnd !== "" ? `'${dateEnd}'` : "now()"
-    } ORDER BY date_action desc ;`;
+    } ORDER BY idreceipt desc ;`;
     const result = await Query(connection, sql);
     return result as IAllRows[];
   } catch (e: any) {
