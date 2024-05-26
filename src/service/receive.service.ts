@@ -172,6 +172,74 @@ export const insertLogStockReceive = async (
   }
 };
 
+export const getListReceiveReport = async (
+  connection: Connection,
+  input: {
+    no?: string;
+    weigh_net?: string;
+    vehicle_register?: string;
+    customer_name?: string;
+    product_name?: string;
+    store_name?: string;
+    stock?: string;
+    dateStart?: string;
+    dateEnd?: string;
+  }
+) => {
+  try {
+    const {
+      no,
+      weigh_net,
+      vehicle_register,
+      customer_name,
+      product_name,
+      store_name,
+      stock,
+      dateStart,
+      dateEnd,
+    } = input;
+
+    let start = !!dateStart && dateStart !== "" ? dateStart : "1999-01-01";
+
+    const sql = `SELECT * FROM ${DB}.receipt where ${
+      !!no && no !== "" ? `no LIKE '%${no}%' and ` : " "
+    } ${
+      !!weigh_net && weigh_net !== ""
+        ? `weigh_net LIKE '%${weigh_net}%' and `
+        : " "
+    } 
+    ${
+      !!vehicle_register && vehicle_register !== ""
+        ? `vehicle_register LIKE '%${vehicle_register}%' and `
+        : " "
+    } 
+    ${
+      !!customer_name && customer_name !== ""
+        ? ` customer_name LIKE '%${customer_name}%' and `
+        : " "
+    } 
+    ${
+      !!product_name && product_name !== ""
+        ? ` product_name LIKE '%${product_name}%' and `
+        : " "
+    } 
+    ${
+      !!store_name && store_name !== ""
+        ? ` store_name LIKE '%${store_name}%' and `
+        : " "
+    } 
+    ${!!stock && stock !== "" ? ` stock LIKE '%${stock}%' and ` : " "} 
+    idreceipt > 0 and date_action BETWEEN '${start}' and ${
+      !!dateEnd && dateEnd !== "" ? `'${dateEnd}'` : "now()"
+    } ORDER BY idreceipt desc;`;
+
+    const result = await Query(connection, sql);
+    return result;
+  } catch (e: any) {
+    throw new Error(`bad query : ${e}`);
+  }
+};
+
 export const getListReceivePagination = async (
   connection: Connection,
   input: {
@@ -236,8 +304,6 @@ export const getListReceivePagination = async (
     idreceipt > 0 and date_action BETWEEN '${start}' and ${
       !!dateEnd && dateEnd !== "" ? `'${dateEnd}'` : "now()"
     } ORDER BY idreceipt desc limit ${page * offset}, ${offset} ;`;
-
-    console.log("sql : ", sql);
 
     const result = await Query(connection, sql);
     return result;
@@ -452,7 +518,7 @@ export const getSaltListReceivePagination = async (
 ) => {
   try {
     const { page, offset } = input;
-    const sql = `SELECT * FROM ${DB}.salt_receipt limit ${
+    const sql = `SELECT * FROM ${DB}.salt_receipt ORDER BY date_action desc limit ${
       page * offset
     }, ${offset}`;
     const result = await Query(connection, sql);
@@ -1375,7 +1441,7 @@ export const getSolidSaltListReceivePagination = async (
 ) => {
   try {
     const { page, offset } = input;
-    const sql = `SELECT * FROM ${DB}.solid_salt_receipt limit ${
+    const sql = `SELECT * FROM ${DB}.solid_salt_receipt ORDER BY date_action desc limit ${
       page * offset
     }, ${offset}`;
     const result = await Query(connection, sql);

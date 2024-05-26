@@ -31,6 +31,7 @@ import {
   getFishyListReceivePaginationWithOutEmpty,
   getListReceivePagination,
   getListReceivePaginationWithoutEmpty,
+  getListReceiveReport,
   getReceiveAmpanByOrderId,
   getReceiveFiashSauceByOrderId,
   getReceiveFishyByOrderId,
@@ -186,6 +187,46 @@ export const updateOrderConnectTask = async (req: Request, res: Response) => {
     });
     await DisConnect(connection);
     return res.status(200).send(result);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
+
+export const getReceiveFishWeightReportTask = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const {
+      no,
+      weigh_net,
+      vehicle_register,
+      customer_name,
+      product_name,
+      store_name,
+      stock,
+      dateStart,
+      dateEnd,
+    } = req.body;
+    const connection = await Connect();
+    const list = await getListReceiveReport(connection, {
+      no,
+      weigh_net,
+      vehicle_register,
+      customer_name,
+      product_name,
+      store_name,
+      stock,
+      dateStart,
+      dateEnd,
+    });
+
+    const responseData = {
+      data: list,
+    };
+    await DisConnect(connection);
+    return res.status(200).send(responseData);
   } catch (e: any) {
     logger.error(e);
     return res.status(409).send(e.message);

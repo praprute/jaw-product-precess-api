@@ -89,6 +89,7 @@ import {
   getReceiveFiashSauceBillPaginationWithOutEmptyTask,
   getReceiveFishWeightPaginationTask,
   getReceiveFishWeightPaginationWithOutEmptyTask,
+  getReceiveFishWeightReportTask,
   getReceiveFishyBillPaginationTask,
   getReceiveFishyBillPaginationWithOutEmptyTask,
   getReceiveSaltBillPaginationTask,
@@ -783,6 +784,12 @@ function routes(app: Express) {
     "/api/getReceiveFishWeightPaginationTask/:page/:offset",
     verifyToken,
     getReceiveFishWeightPaginationTask
+  );
+
+  app.post(
+    "/api/getReceiveFishWeightReportTask",
+    verifyToken,
+    getReceiveFishWeightReportTask
   );
 
   app.get(
