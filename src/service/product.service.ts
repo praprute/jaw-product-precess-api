@@ -16,6 +16,80 @@ interface IAllRows {
 
 const DB = config.get<any>("database");
 
+export const getTransactionReportByPuddleService = async (
+  connection: Connection,
+  input: { dateStart: string; dateEnd: string; idOrders: number }
+) => {
+  try {
+    const { dateStart, dateEnd, idOrders } = input;
+    // console.log("input : ", input);
+    const sql = `SELECT * FROM ${DB}.sub_orders
+    WHERE idsub_orders = (SELECT MIN(idsub_orders)-1 FROM ${DB}.sub_orders WHERE DATE(date_action) = '${dateStart}' and idOrders=${idOrders})
+    UNION
+    SELECT * FROM ${DB}.sub_orders WHERE idOrders=${idOrders} and DATE(date_action) BETWEEN '${dateStart}' and '${dateEnd}' and idOrders=${idOrders};`;
+    
+    const result: any = await Query(connection, sql);
+    // console.log("result : ", result);
+
+    // console.log("result[0].remaining_volume : ", result[0]?.remaining_volume);
+    let dateAction_First = result[0]?.date_action
+    let amountUnit_first = !!result[0]?.remaining_volume
+      ? result[0]?.remaining_volume
+      : 0;
+    let remaining_price_first = result[0]?.remaining_price;
+    let amountUnit = !!result[result.length - 1]?.remaining_volume
+      ? result[0]?.remaining_volume
+      : 0;
+    let remaining_price = result[result.length - 1]?.remaining_price;
+
+    let amount_add = 0;
+    let price_add = 0;
+
+    let amount_use = 0;
+    let price_use = 0;
+
+    // remaining_unit_per_price
+    // 0,2,4,6,7,9,10,11,12,14
+
+    for (let element of result) {
+      if (
+        element.type === 0 ||
+        element.type === 2 ||
+        element.type === 4 ||
+        element.type === 6 ||
+        element.type === 7 ||
+        element.type === 8 ||
+        element.type === 10 ||
+        element.type === 11 ||
+        element.type === 12 ||
+        element.type === 14
+      ) {
+        amount_add += element.volume;
+        price_add += element.amount_price;
+        if (element.idOrders === 253) {
+        }
+      } else {
+        amount_use += element.volume;
+        price_use += element.amount_price;
+      }
+    }
+
+    return {
+      dateAction_First,
+      amountUnit_first,
+      remaining_price_first,
+      amountUnit,
+      remaining_price,
+      amount_add,
+      price_add,
+      amount_use,
+      price_use,
+    };
+  } catch (e: any) {
+    throw new Error(e);
+  }
+};
+
 export const insertPuddle = async (
   connection: Connection,
   input: ICreatePuddle

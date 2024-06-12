@@ -44,6 +44,7 @@ import {
   getLastedSubOrderById,
   getListFishType,
   getOrderDetailsTask,
+  getReportByPuddleTask,
   getSellingOrders,
   getSerialPuddleTask,
   getTargetPendingTask,
@@ -1053,6 +1054,9 @@ function routes(app: Express) {
     verifyToken,
     getSellingOrders
   );
+
+  // ---------- Report ------------------------
+  app.post("/api/getReportByPuddleTask", verifyToken, getReportByPuddleTask);
 }
 
 export default routes;

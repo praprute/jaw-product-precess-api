@@ -20,6 +20,7 @@ import {
   getOrderSellingPagination,
   getSerialPuddle,
   getTargetPending,
+  getTransactionReportByPuddleService,
   insertFishType,
   insertPuddle,
   insertSubOrderTypeClearAll,
@@ -54,6 +55,34 @@ import { Connect, DisConnect } from "../utils/connect";
 import getUserUUID, { IUserPareToken } from "../utils/getUUID";
 import logger from "../utils/logger";
 import { TypeOrderPuddle } from "../utils/type_utils";
+
+export const getReportByPuddleTask = async (req: Request, res: Response) => {
+  try {
+    const { dateStart, dateEnd, puddle } = req.body;
+
+    // console.log("puddle : ", puddle);
+    const connection = await Connect();
+    let buffer = [];
+    for (let element of puddle) {
+      const rr = await getTransactionReportByPuddleService(connection, {
+        dateStart,
+        dateEnd,
+        idOrders: element.idOrders,
+      });
+      buffer.push({
+        ...element,
+        allTransaction: rr,
+      });
+    }
+    // console.log("buffer : ", buffer);
+    // const result = await insertPuddle(connection, { building_id, serial });
+    await DisConnect(connection);
+    return res.status(200).send(buffer);
+  } catch (e: any) {
+    logger.error(e);
+    return res.status(409).send(e.message);
+  }
+};
 
 export const createPuddleTask = async (req: Request, res: Response) => {
   try {
