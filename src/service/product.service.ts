@@ -24,7 +24,7 @@ export const getTransactionReportByPuddleService = async (
     const { dateStart, dateEnd, idOrders } = input;
     // console.log("input : ", input);
     const sql = `SELECT * FROM ${DB}.sub_orders
-    WHERE idsub_orders = (SELECT MIN(idsub_orders) FROM ${DB}.sub_orders WHERE DATE(date_action) < DATE('${dateStart}') and idOrders=${idOrders})
+    WHERE idsub_orders = (SELECT MAX(idsub_orders) FROM ${DB}.sub_orders WHERE DATE(date_action) < DATE('${dateStart}') and idOrders=${idOrders})
     UNION
     SELECT * FROM ${DB}.sub_orders WHERE idOrders=${idOrders} and DATE(date_action) BETWEEN '${dateStart}' and '${dateEnd}' and idOrders=${idOrders};`;
 
