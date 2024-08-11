@@ -28,6 +28,7 @@ export const getTransactionReportByPuddleService = async (
     UNION
     SELECT * FROM ${DB}.sub_orders WHERE idOrders=${idOrders} and DATE(date_action) BETWEEN '${dateStart}' and '${dateEnd}' and idOrders=${idOrders};`;
 
+    console.log("sql : ", sql);
     const result: any = await Query(connection, sql);
     // console.log("result : ", result);
 
@@ -72,31 +73,61 @@ export const getTransactionReportByPuddleService = async (
     // remaining_unit_per_price
     // 0,2,4,6,7,9,10,11,12,14
 
-    for (let element of result) {
-      if (
-        element.type === 0 ||
-        element.type === 2 ||
-        element.type === 4 ||
-        element.type === 6 ||
-        element.type === 8 ||
-        element.type === 10 ||
-        element.type === 11 ||
-        element.type === 12 ||
-        element.type === 14
-      ) {
-        if (element.type === 0) {
-          amount_add += 0;
-          price_add += 0;
+    // for (let element of result) {
+    //   if (
+    //     element.type === 0 ||
+    //     element.type === 2 ||
+    //     element.type === 4 ||
+    //     element.type === 6 ||
+    //     element.type === 8 ||
+    //     element.type === 10 ||
+    //     element.type === 11 ||
+    //     element.type === 12 ||
+    //     element.type === 14
+    //   ) {
+    //     if (element.type === 0) {
+    //       amount_add += 0;
+    //       price_add += 0;
+    //     } else {
+    //       amount_add += element.volume;
+    //       price_add += element.amount_price;
+    //     }
+    //   } else if (element.type === 7) {
+    //     addOnFishSauce += element.volume;
+    //     addOnFishSaucePrice += element.amount_price;
+    //   } else {
+    //     amount_use += element.volume;
+    //     price_use += element.amount_price;
+    //   }
+    // }
+
+    for (let i = 0; i < result.length; i++) {
+      if (i !== 0) {
+        if (
+          result[i].type === 0 ||
+          result[i].type === 2 ||
+          result[i].type === 4 ||
+          result[i].type === 6 ||
+          result[i].type === 8 ||
+          result[i].type === 10 ||
+          result[i].type === 11 ||
+          result[i].type === 12 ||
+          result[i].type === 14
+        ) {
+          if (result[i].type === 0) {
+            amount_add += 0;
+            price_add += 0;
+          } else {
+            amount_add += result[i].volume;
+            price_add += result[i].amount_price;
+          }
+        } else if (result[i].type === 7) {
+          addOnFishSauce += result[i].volume;
+          addOnFishSaucePrice += result[i].amount_price;
         } else {
-          amount_add += element.volume;
-          price_add += element.amount_price;
+          amount_use += result[i].volume;
+          price_use += result[i].amount_price;
         }
-      } else if (element.type === 7) {
-        addOnFishSauce += element.volume;
-        addOnFishSaucePrice += element.amount_price;
-      } else {
-        amount_use += element.volume;
-        price_use += element.amount_price;
       }
     }
     // for (let element of result) {
